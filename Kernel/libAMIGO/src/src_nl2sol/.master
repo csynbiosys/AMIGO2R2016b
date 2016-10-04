@@ -1,0 +1,7 @@
+lib	port
+for	public subset of the PORT library
+#	Includes the latest version of Gay's NL2SOL nonlinear least squares.
+#	The rest of the PORT3 library is available by license from Lucent Technologies.
+editor	David Gay
+master	ornl.gov
+
