@@ -22,7 +22,7 @@ amigodir=what(amigoversion);
 
 if(length(amigodir)<1)
     cprintf('*red','\n\n------> ERROR message\n\n');
-    cprintf('red','\t\t AMIGO_path: The amigo version % could be found.\n\n',amigoversion);
+    cprintf('red','\t\t AMIGO_path: The amigo version %s could not be found.\n\n',amigoversion);
     return;
    
 end
