@@ -28,7 +28,7 @@ AMIGO_Prep(inputs);
 
 % Now loop through the stages
 
-numLoops = 5;
+numLoops = 10;
 for i=1:numLoops
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,13 +71,25 @@ for i=1:numLoops
 
         inputs.plotd.plotlevel='noplot';
 
+        pe_start{i} = now;
         results = AMIGO_PE(inputs);
+        pe_end{i} = now;
 
         % Save the best theta
         best_global_theta=results.fit.thetabest;  
         pe_results{i} = results;
     end
 	best_global_theta_log{i}=best_global_theta;
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Update all the experiment initial conditions based on current theta
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    y0 = gal1_initial_conditions(best_global_theta);
+    for iexp=1:exps.n_exp
+        exps.exp_y0{iexp} = y0;
+    end
+    used_y0{i} = y0;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Optimal experiment design
@@ -96,7 +108,7 @@ for i=1:numLoops
     inputs.exps.obs{iexp}=char('mRNA=gal1_mrna','FoldedProtein=gal1_foldedP', 'Fluorescence=gal1_fluo'); % Observation function
        
     % Fixed parts of the experiment
-    inputs.exps.exp_y0{iexp}=zeros(1,inputs.model.n_st)+1;   % Initial conditions
+    inputs.exps.exp_y0{iexp}=y0;                             % Initial conditions
     inputs.exps.t_f{iexp}=1200;                              % Duration 1200 - 20*60, 20 hours
     inputs.exps.n_s{iexp}=241;                               % Number of sampling times
 
@@ -115,7 +127,7 @@ for i=1:numLoops
       
     inputs.exps.noise_type='hetero';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     inputs.exps.std_dev{iexp}=[0.1 0.1 0.1];     
-    inputs.OEDsol.OEDcost_type='Eopt';
+    inputs.OEDsol.OEDcost_type='Dopt';
     
     % SIMULATION
     inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
@@ -142,8 +154,9 @@ for i=1:numLoops
     inputs.pathd.short_name     = short_name;
     inputs.pathd.runident       = strcat('oed-',int2str(i));
     
+    oed_start{i} = now;
     results = AMIGO_OED(inputs);
-    goodInputs{i} = inputs;
+    oed_end{i} = now;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Mock an experiment
@@ -159,7 +172,7 @@ for i=1:numLoops
     inputs.exps.n_obs{1}=3;                                        % Number of observed quantities per experiment                         
     inputs.exps.obs_names{1}=char('mRNA','FoldedProtein', 'Fluorescence');  % Name of the observed quantities per experiment    
     inputs.exps.obs{1}=char('mRNA=gal1_mrna','FoldedProtein=gal1_foldedP', 'Fluorescence=gal1_fluo'); % Observation function
-    inputs.exps.exp_y0{1}=results.oed.exp_y0{results.oed.n_exp};   % Initial conditions for each experiment       
+    inputs.exps.exp_y0{1}=[ 2.0831    1.0415    1.0415];           % Initial conditions with 'correct' parameters
     inputs.exps.t_f{1}=results.oed.t_f{results.oed.n_exp};         % Experiment duration
     inputs.exps.n_s{1}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
     inputs.exps.t_s{1}=results.oed.t_s{results.oed.n_exp};         % times of samples
@@ -181,7 +194,9 @@ for i=1:numLoops
     inputs.pathd.short_name     = short_name;
     inputs.pathd.runident       = strcat('sim-',int2str(i));
     
+    sim_start{i} = now;
     sim = AMIGO_SData(inputs);
+    sim_end{i} = now;
     
     % Now we need to add this experiment to the experiments    
     exps.n_exp=exps.n_exp+1;
@@ -190,7 +205,7 @@ for i=1:numLoops
     exps.n_obs{iexp}=3;                                        % Number of observed quantities per experiment                         
     exps.obs_names{iexp}=char('mRNA','FoldedProtein', 'Fluorescence');  % Name of the observed quantities per experiment    
     exps.obs{iexp}=char('mRNA=gal1_mrna','FoldedProtein=gal1_foldedP', 'Fluorescence=gal1_fluo'); % Observation function
-    exps.exp_y0{iexp}=results.oed.exp_y0{results.oed.n_exp};   % Initial conditions for each experiment       
+    exps.exp_y0{iexp}=y0;                                      % Initial conditions for experiment       
     exps.t_f{iexp}=results.oed.t_f{results.oed.n_exp};         % Experiments duration
     exps.n_s{iexp}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
     exps.t_s{iexp}=results.oed.t_s{results.oed.n_exp};         % Sampling times, by default equidistant                                                            
@@ -213,4 +228,5 @@ end
 
 best_global_theta
 best_global_theta_log
+
 

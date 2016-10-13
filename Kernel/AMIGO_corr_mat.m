@@ -68,7 +68,7 @@ elseif (rcondFIM >1e-50) &&  (rcondFIM<1e-10)
     cprintf('*red','\n------> WARNING message\n');
     cprintf('*red','\t\tThe Fisher Information Matrix is nearly singular.\n');
     cprintf('*red','----------------------------------------------------------\n\n');
-    pause(1)
+%    pause(1)
 %     fprintf(1,'\nThe FIM is regularized before inverting: FIM = FIM + e*I\n');
     
     % TODO: better regularization technique. Regularized/stabilized
