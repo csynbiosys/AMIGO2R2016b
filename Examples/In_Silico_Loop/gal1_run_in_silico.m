@@ -32,56 +32,6 @@ numLoops = 10;
 for i=1:numLoops
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Parameter estimation
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    if exps.n_exp > 0 
-        clear inputs;
-        inputs.model = model;
-        inputs.exps  = exps;
-
-        inputs.pathd.results_folder = results_folder;                        
-        inputs.pathd.short_name     = short_name;
-        inputs.pathd.runident       = strcat('pe-',int2str(i));
-
-         % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
-        inputs.PEsol.id_global_theta='all';             % 'all'|User selected 
-        inputs.PEsol.global_theta_max=[10 10 10 10 10 10 10 10 10 ];    % Maximum allowed values for the paramters
-        inputs.PEsol.global_theta_min= [0 0 0 0 0 0 0 0 0];             % Minimum allowed values for the parameters
-        inputs.PEsol.global_theta_guess=transpose(best_global_theta);      
-
-        % COST FUNCTION RELATED DATA
-        inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
-        inputs.PEsol.lsq_type='Q_I';
-        inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
-
-        % SIMULATION
-        inputs.ivpsol.ivpsolver='cvodes';
-        inputs.ivpsol.senssolver='cvodes';
-        inputs.ivpsol.rtol=1.0D-8;
-        inputs.ivpsol.atol=1.0D-8;
-
-        % OPTIMIZATION
-        inputs.nlpsol.nlpsolver='eSS';
-        inputs.nlpsol.eSS.maxeval = 10000;
-        inputs.nlpsol.eSS.maxtime = 10;
-        inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
-        inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
-        inputs.rid.conf_ntrials=500;
-
-        inputs.plotd.plotlevel='noplot';
-
-        pe_start{i} = now;
-        results = AMIGO_PE(inputs);
-        pe_end{i} = now;
-
-        % Save the best theta
-        best_global_theta=results.fit.thetabest;  
-        pe_results{i} = results;
-    end
-	best_global_theta_log{i}=best_global_theta;
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Update all the experiment initial conditions based on current theta
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
@@ -223,6 +173,56 @@ for i=1:numLoops
     % experiments.  I probably need to be better about these.
     exps.data_type='real';                                     % Type of data: 'pseudo'|'pseudo_pos'|'real'             
     exps.noise_type='homo_var';                                % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
+    
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Parameter estimation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    if exps.n_exp > 0 
+        clear inputs;
+        inputs.model = model;
+        inputs.exps  = exps;
+
+        inputs.pathd.results_folder = results_folder;                        
+        inputs.pathd.short_name     = short_name;
+        inputs.pathd.runident       = strcat('pe-',int2str(i));
+
+         % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
+        inputs.PEsol.id_global_theta='all';             % 'all'|User selected 
+        inputs.PEsol.global_theta_max=[10 10 10 10 10 10 10 10 10 ];    % Maximum allowed values for the paramters
+        inputs.PEsol.global_theta_min= [0 0 0 0 0 0 0 0 0];             % Minimum allowed values for the parameters
+        inputs.PEsol.global_theta_guess=transpose(best_global_theta);      
+
+        % COST FUNCTION RELATED DATA
+        inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
+        inputs.PEsol.lsq_type='Q_I';
+        inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
+
+        % SIMULATION
+        inputs.ivpsol.ivpsolver='cvodes';
+        inputs.ivpsol.senssolver='cvodes';
+        inputs.ivpsol.rtol=1.0D-8;
+        inputs.ivpsol.atol=1.0D-8;
+
+        % OPTIMIZATION
+        inputs.nlpsol.nlpsolver='eSS';
+        inputs.nlpsol.eSS.maxeval = 10000;
+        inputs.nlpsol.eSS.maxtime = 60;
+        inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
+        inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
+        inputs.rid.conf_ntrials=500;
+
+        inputs.plotd.plotlevel='noplot';
+
+        pe_start{i} = now;
+        results = AMIGO_PE(inputs);
+        pe_end{i} = now;
+
+        % Save the best theta
+        best_global_theta=results.fit.thetabest;  
+        pe_results{i} = results;
+    end
+	best_global_theta_log{i}=best_global_theta;
     
 end
 

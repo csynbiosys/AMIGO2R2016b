@@ -1,3 +1,4 @@
+% Plots results from running the gal1 in-silico experiments
 
 % Plot the parameters convergence to truth
 figure;
@@ -22,13 +23,11 @@ for i=1:length(best_global_theta)
     model.par_names(i,:)
     subplot(3,3,i);
     clear y;
-    for j=2:exps.n_exp
+    for j=1:exps.n_exp
         % Some of these numbers are complex which is a little strange
-        y(j-1) = real(pe_results{j}.fit.rel_conf_interval(i));
+        y(j) = real(pe_results{j}.fit.rel_conf_interval(i));
     end
-    x=[2:exps.n_exp];
-     x
-     y
+    x=[1:exps.n_exp];
     plot(x,y);
     title(model.par_names(i,:));
 
@@ -41,13 +40,11 @@ for i=1:length(best_global_theta)
     model.par_names(i,:)
     subplot(3,3,i);
     clear y;
-    for j=2:exps.n_exp
+    for j=1:exps.n_exp
         % Some of these numbers are complex which is a little strange
-        y(j-1) = abs(pe_results{j}.fit.rel_conf_interval(i));
+        y(j) = abs(pe_results{j}.fit.rel_conf_interval(i));
     end
-    x=[2:exps.n_exp];
-     x
-     y
+    x=[1:exps.n_exp];
     plot(x,y);
     title(model.par_names(i,:));
 
@@ -76,9 +73,9 @@ end
 figure;
 clear y;
 clear x;
-for j=2:exps.n_exp
-    y(j-1) = pe_results{j}.fit.fbest;
-    x(j-1) = j;
+for j=1:exps.n_exp
+    y(j) = pe_results{j}.fit.fbest;
+    x(j) = j;
 end
 semilogy(x,y);
 title('fbest');
@@ -88,9 +85,9 @@ title('fbest');
 figure;
 clear y;
 clear x;
-for j=2:exps.n_exp
-    y(j-1) = det(pe_results{j}.fit.g_FIM);
-    x(j-1) = j;
+for j=1:exps.n_exp
+    y(j) = det(pe_results{j}.fit.g_FIM);
+    x(j) = j;
 end
 plot(x,y);
 title('det(FIM)');
@@ -99,9 +96,9 @@ title('det(FIM)');
 figure;
 clear y;
 clear x;
-for j=2:exps.n_exp
-    y(j-1) = abs(det(pe_results{j}.fit.g_FIM));
-    x(j-1) = j;
+for j=1:exps.n_exp
+    y(j) = abs(det(pe_results{j}.fit.g_FIM));
+    x(j) = j;
 end
 semilogy(x,y)
 title('abs(det(FIM))');
