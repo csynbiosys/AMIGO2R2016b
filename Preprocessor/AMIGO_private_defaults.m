@@ -70,7 +70,7 @@ inputs_def.model.reactions='';
 % EXPERIMENTAL SCHEME RELATED DATA
 %
 
-inputs_def.exps.n_exp=20; %180                  % number of maximum default experiments
+inputs_def.exps.n_exp=100; %180                  % number of maximum default experiments
 inputs_def.exps.NLObs = false;          % Indicates if the observables are nonlinear or depends on optimization parameters: sensitivities of the observables are computed from the state-sensitivities.
 
 for iexp=inputs_def.exps.n_exp:-1:1
