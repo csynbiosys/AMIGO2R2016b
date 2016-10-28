@@ -28,7 +28,7 @@ AMIGO_Prep(inputs);
 
 % Now loop through the stages
 
-numLoops = 10;
+numLoops = 100;
 for i=1:numLoops
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,7 +63,8 @@ for i=1:numLoops
     inputs.exps.n_s{iexp}=241;                               % Number of sampling times
 
     % OED of the input 
-    inputs.exps.u_type{iexp}='od';                            % Stimuli definition for experiment
+    inputs.exps.u_type{iexp}='od';
+    inputs.exps.u_interp{iexp}='step';                        % Stimuli definition for experiment
     inputs.exps.n_steps{iexp}=20;                             % Number of steps
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
@@ -172,7 +173,7 @@ for i=1:numLoops
     exps.data_type='real';                                     % Type of data: 'pseudo'|'pseudo_pos'|'real'             
     exps.noise_type='homo_var';                                % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parameter estimation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
