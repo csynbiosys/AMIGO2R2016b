@@ -5,11 +5,15 @@
 global epccOutputResultFileNameBase;
 resultFileName = [epccOutputResultFileNameBase,'.dat'];
 
+rng shuffle
+rngToGetSeed = rng
+
 % Write the header information
 fid = fopen(resultFileName,'w');  
 fprintf(fid,'HEADER DATE %s\n', datestr(datetime()));
 fprintf(fid,'HEADER SCRIPT gal1_run_in_silico_stepInput_noiseOnInitialValues_1Obs\n');
 fprintf(fid,'HEADER NUMLOOPS 30\n');
+fprintf(fid,'HEADER RANDSEED %d\n',rngToGetSeed.Seed);
 fclose(fid);
 
 startTime = datenum(now);
@@ -39,7 +43,7 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % Loop for 30 hours
-for i=1:2
+for i=1:30
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Update all the experiment initial conditions based on current theta
@@ -252,7 +256,9 @@ for i=1:2
 
 end
 
-save epccOutputResultFileNameBase pe_results oed_results
+save([epccOutputResultFileNameBase,'.mat'], 'pe_results','oed_results');
+
+
 
 
 
