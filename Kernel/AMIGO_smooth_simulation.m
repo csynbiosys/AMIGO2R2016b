@@ -22,7 +22,9 @@ ntplot_def=inputs.plotd.n_t_plot;
 
 
 for iexp=1:inputs.exps.n_exp
-
+A=1e-15;
+B=1e-15;
+    while A<1e-14 || B<1e-14
     if isempty(inputs.exps.n_s{iexp})==1
         inputs.exps.n_s{iexp}=ntplot_def;
     end
@@ -30,8 +32,7 @@ for iexp=1:inputs.exps.n_exp
     if inputs.exps.n_s{iexp} >= ntplot_def
         inputs.plotd.n_t_plot=inputs.exps.n_s{iexp};
         if (isempty(inputs.exps.t_s{iexp})==1)
-            delta=(privstruct.t_f{iexp}-inputs.exps.t_in{iexp})/(inputs.plotd.n_t_plot-1);
-            privstruct.t_int{iexp}=[inputs.exps.t_in{iexp}:delta:privstruct.t_f{iexp}];
+            privstruct.t_int{iexp}=linspace(inputs.exps.t_in{iexp},privstruct.t_f{iexp},inputs.plotd.n_t_plot-1);
         else
             privstruct.t_int{iexp}=inputs.exps.t_s{iexp};
         end
@@ -51,15 +52,28 @@ for iexp=1:inputs.exps.n_exp
         privstruct.ts_index{iexp}=setdiff([1:1:length(privstruct.t_int{iexp})],privstruct.tint_index);
            
     end
+    
+   privstruct.vtout{iexp}=sort(union(privstruct.t_int{iexp},privstruct.t_con{iexp}));
+
 
     %     if size(privstruct.t_con{iexp},2) > ntplot_def
     %         inputs.plotd.n_t_plot=size(privstruct.t_con{iexp},2);
     %     end
 
-    privstruct.vtout{iexp}=sort(union(privstruct.t_int{iexp},privstruct.t_con{iexp}));
-    results.sim.tsim=privstruct.t_int;
-end
+    % EBC to avoid scenarions in which union is not able to distinguish due
+    % to number of decimal figures --> it should
+    % be something related to the number of steps in simulation (minimum step size)... anyways
+    % it is good enough
 
+    A=min(diff(privstruct.t_int{iexp}));
+    B=min(diff(privstruct.vtout{iexp}));
+    ntplot_def=ntplot_def+1;
+  
+
+    results.sim.tsim=privstruct.t_int;
+    
+    end % while A<1e-14 && B<1e-14
+    end % for iexp=1:inputs.exps.n_exp
 
 
 switch inputs.model.exe_type
@@ -67,16 +81,17 @@ switch inputs.model.exe_type
     case 'standard'
       
         for iexp=1:inputs.exps.n_exp
+            
+               
                [results.sim.states{iexp} privstruct]=AMIGO_ivpsol(inputs,privstruct,privstruct.y_0{iexp},privstruct.par{iexp},iexp);
-
-            if inputs.model.obsfile==1
+               if inputs.model.obsfile==1
                 obsfunc=inputs.pathd.obs_function;
                 results.sim.obs{iexp}=feval(obsfunc,results.sim.states{iexp},inputs,privstruct.par{iexp},iexp);
                 % EBC, keeps in a different field model predictions at
                 % sampling times
-   
+               
                 results.sim.sim_data{iexp}=results.sim.obs{iexp}(privstruct.ts_index{iexp},:);
-                
+                              
             else
                 results.sim.obs{iexp}=results.sim.states{iexp}(:,inputs.exps.index_observables{iexp});
             end
