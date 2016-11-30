@@ -27,7 +27,7 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % Now loop through the stages
-
+tic
 numLoops = 100;
 for i=1:numLoops
 
@@ -227,5 +227,5 @@ end
 
 best_global_theta
 best_global_theta_log
-
+toc
 
