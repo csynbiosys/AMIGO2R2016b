@@ -33,7 +33,7 @@ AMIGO_Prep(inputs);
 
 storedInputs = inputs;
 
-for i=1:100
+for i=1:1000000
     inputs = storedInputs;
     
     % Set up the experiment data etc from the saved one that fails
