@@ -143,21 +143,17 @@ inputs.PEsol.lsq_type='Q_I';
 inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
 
 % SIMULATION
-inputs.ivpsol.ivpsolver='ode15s';
-inputs.ivpsol.senssolver='ode15s';
+inputs.ivpsol.ivpsolver='cvodes';
+inputs.ivpsol.senssolver='cvodes';
 inputs.ivpsol.rtol=1.0D-8;
 inputs.ivpsol.atol=1.0D-8;
 
 % OPTIMIZATION
-%inputs.nlpsol.nlpsolver='multi_nomad';
-inputs.nlpsol.nlpsolver='multi_fmincon';
-%inputs.nlpsol.nlpsolver='multi_lsqnonlin';
-inputs.nlpsol.multistart.maxeval = 20000;            % Maximum number of function evaluations for the multistart                                                         
-inputs.nlpsol.multistart.maxtime = 120;              % Maximum allowed time for the optimization                                                                       
+inputs.nlpsol.nlpsolver='multi_lsqnonlin';
+inputs.nlpsol.multi_starts = 200;
+inputs.nlpsol.multistart.maxeval = 2000000;
+inputs.nlpsol.multistart.maxtime = 12000;
 
-inputs.plotd.plotlevel='noplot';
-
-results = AMIGO_PE(inputs);
+results = AMIGO_PE(inputs); 
         
-% TODO - View the results
 
