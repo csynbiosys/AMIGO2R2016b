@@ -35,7 +35,7 @@ int amigoRHS(realtype t, N_Vector y, N_Vector ydot, void *data){
 
 	/* *** Equations *** */
 
-	dgal1_mrna=alpha1+Vm1*(pow(gal,h1)/(pow(Km1,h1)+pow(gal,h1)))-d1*gal1_mrna;
+	dgal1_mrna=Vm1*(gal/(Km1+gal))-d1*gal1_mrna;
 
 	return(0);
 

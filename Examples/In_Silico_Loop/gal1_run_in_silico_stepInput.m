@@ -6,7 +6,7 @@ clear model;
 clear exps;
 clear best_global_theta_log;
 
-results_folder = 'Gal1-noDelay';
+results_folder = 'Gal1-noDelay_1D';
 short_name     = 'gal1noD'
 
 % Read the model into the model variable
@@ -17,7 +17,7 @@ exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
 %best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,.1,.1,.1,.1]);
-best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,.1,.1,.1,.1]);
+best_global_theta = transpose([10^-3,10^-3,10^-3]);
 
 % Compile the model
 clear inputs;
@@ -53,9 +53,9 @@ for i=1:numLoops
     inputs.exps.n_exp = inputs.exps.n_exp + 1; 
     iexp = inputs.exps.n_exp;
     inputs.exps.exp_type{iexp}='od';     
-    inputs.exps.n_obs{iexp}=3;                                                 % Number of observed quantities per experiment                         
-    inputs.exps.obs_names{iexp}=char('mRNA','FoldedProtein', 'Fluorescence');  % Name of the observed quantities per experiment    
-    inputs.exps.obs{iexp}=char('mRNA=gal1_mrna','FoldedProtein=gal1_foldedP', 'Fluorescence=gal1_fluo'); % Observation function
+    inputs.exps.n_obs{iexp}=1;                                                 % Number of observed quantities per experiment                         
+    inputs.exps.obs_names{iexp}=char('mRNA');  % Name of the observed quantities per experiment    
+    inputs.exps.obs{iexp}=char('mRNA=gal1_mrna'); % Observation function
        
     % Fixed parts of the experiment
     inputs.exps.exp_y0{iexp}=y0;                             % Initial conditions
@@ -119,10 +119,10 @@ for i=1:numLoops
     
     inputs.exps.n_exp = 1;  % Just mocking one experiment
     
-    inputs.exps.n_obs{1}=3;                                        % Number of observed quantities per experiment                         
-    inputs.exps.obs_names{1}=char('mRNA','FoldedProtein', 'Fluorescence');  % Name of the observed quantities per experiment    
-    inputs.exps.obs{1}=char('mRNA=gal1_mrna','FoldedProtein=gal1_foldedP', 'Fluorescence=gal1_fluo'); % Observation function
-    inputs.exps.exp_y0{1}=[ 2.0831    1.0415    1.0415];           % Initial conditions with 'correct' parameters
+    inputs.exps.n_obs{1}=1;                                        % Number of observed quantities per experiment                         
+    inputs.exps.obs_names{1}=char('mRNA');  % Name of the observed quantities per experiment    
+    inputs.exps.obs{1}=char('mRNA=gal1_mrna'); % Observation function
+    inputs.exps.exp_y0{1}=[ 2.0831];           % Initial conditions with 'correct' parameters
     inputs.exps.t_f{1}=results.oed.t_f{results.oed.n_exp};         % Experiment duration
     inputs.exps.n_s{1}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
     inputs.exps.t_s{1}=results.oed.t_s{results.oed.n_exp};         % times of samples
@@ -153,8 +153,8 @@ for i=1:numLoops
     iexp=exps.n_exp;
     exps.exp_type{iexp}='fixed';
     exps.n_obs{iexp}=3;                                        % Number of observed quantities per experiment                         
-    exps.obs_names{iexp}=char('mRNA','FoldedProtein', 'Fluorescence');  % Name of the observed quantities per experiment    
-    exps.obs{iexp}=char('mRNA=gal1_mrna','FoldedProtein=gal1_foldedP', 'Fluorescence=gal1_fluo'); % Observation function
+    exps.obs_names{iexp}=char('mRNA');  % Name of the observed quantities per experiment    
+    exps.obs{iexp}=char('mRNA=gal1_mrna'); % Observation function
     exps.exp_y0{iexp}=y0;                                      % Initial conditions for experiment       
     exps.t_f{iexp}=results.oed.t_f{results.oed.n_exp};         % Experiments duration
     exps.n_s{iexp}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
@@ -188,8 +188,8 @@ for i=1:numLoops
 
          % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
         inputs.PEsol.id_global_theta='all';             % 'all'|User selected 
-        inputs.PEsol.global_theta_max=[10 10 10 10 10 10 10 10 10 ];    % Maximum allowed values for the paramters
-        inputs.PEsol.global_theta_min= [0 0 0 0 0 0 0 0 0];             % Minimum allowed values for the parameters
+        inputs.PEsol.global_theta_max=[10 10 10];    % Maximum allowed values for the paramters
+        inputs.PEsol.global_theta_min= [0 0 0];             % Minimum allowed values for the parameters
         inputs.PEsol.global_theta_guess=transpose(best_global_theta);      
 
         % COST FUNCTION RELATED DATA
