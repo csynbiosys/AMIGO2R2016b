@@ -16,7 +16,8 @@ gal1_load_model;
 exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
-best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,1,1,1,1]);
+%best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,.1,.1,.1,.1]);
+best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,.1,.1,.1,.1]);
 
 % Compile the model
 clear inputs;
@@ -28,9 +29,8 @@ AMIGO_Prep(inputs);
 
 % Now loop through the stages
 tic
-numLoops = 100;
+numLoops = 1;
 for i=1:numLoops
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Update all the experiment initial conditions based on current theta
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -222,10 +222,10 @@ for i=1:numLoops
         pe_results{i} = results;
     end
 	best_global_theta_log{i}=best_global_theta;
-
 end
 
-best_global_theta
+toc
+%best_global_theta
 best_global_theta_log
 toc
 

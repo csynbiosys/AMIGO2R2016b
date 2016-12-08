@@ -20,12 +20,6 @@ mRNA=gal1_mrna            ;
 FoldedProtein=gal1_foldedP;
 Fluorescence=gal1_fluo    ;
 ms(:,1)=mRNA         ;ms(:,2)=FoldedProtein;ms(:,3)=Fluorescence ;
-
-case 2
-mRNA=gal1_mrna            ;
-FoldedProtein=gal1_foldedP;
-Fluorescence=gal1_fluo    ;
-ms(:,1)=mRNA         ;ms(:,2)=FoldedProtein;ms(:,3)=Fluorescence ;
 end
 
 return

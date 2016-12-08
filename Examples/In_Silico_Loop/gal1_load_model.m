@@ -13,4 +13,3 @@ model.eqns=...                                      % Equations describing syste
                     'dgal1_fluo=Kf*gal1_foldedP-Kb*gal1_fluo');           
                 
 model.par=[0.00175985449291231,0.0800887345690361,2.22548971250921,3.35948035905386,0.0100614569676223,1,1,1,1] 
-
