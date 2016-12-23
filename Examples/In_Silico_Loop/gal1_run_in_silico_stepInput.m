@@ -28,7 +28,7 @@ AMIGO_Prep(inputs);
 
 % Now loop through the stages
 
-numLoops = 100;
+numLoops = 2;
 for i=1:numLoops
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
