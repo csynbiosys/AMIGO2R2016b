@@ -33,7 +33,7 @@
 #define	d2     (*amigo_model).pars[6]
 #define	Kf     (*amigo_model).pars[7]
 #define	Kb     (*amigo_model).pars[8]
-#define ash1	((*amigo_model).controls_v[0][(*amigo_model).index_t_stim]+(t-(*amigo_model).tlast)*(*amigo_model).slope[0][(*amigo_model).index_t_stim])
+#define swi5	((*amigo_model).controls_v[0][(*amigo_model).index_t_stim]+(t-(*amigo_model).tlast)*(*amigo_model).slope[0][(*amigo_model).index_t_stim])
 
 	/* *** Definition of the algebraic variables *** */
 
@@ -45,7 +45,7 @@ int amigoRHS(realtype t, N_Vector y, N_Vector ydot, void *data){
 
 	/* *** Equations *** */
 
-	dmrna=alpha1+Vm1*(pow(ash1,h1)/(pow(Km1,h1)+pow(ash1,h1)))-d1*mrna;
+	dmrna=alpha1+Vm1*(pow(swi5,h1)/(pow(Km1,h1)+pow(swi5,h1)))-d1*mrna;
 	dprot=alpha2*mrna-(d2+Kf)*prot;
 	dfluo=Kf*prot-Kb*fluo;
 
