@@ -1,0 +1,170 @@
+---
+title: Analysis of 10 x 6 hour experiments with 5 params, 72 input steps, 5 mins for
+  OID
+author: "Ally Hume"
+date: "11 January 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description
+
+* Experiment name: Luke Skywalker
+* Each run executed 10 OID-Experiment-PE loops. 
+* Using gal1 no-delay model
+* Only the fluoresence state was observable.
+* Parameters alpha2, d2, Kf and Kb were fixed to the true value of 1.
+* The system tried to fit alpha1, Vm1, h1, Km1 and d1.
+* The range for parameters alpha1, Vm1, Km1 and d1 was 0.1 times the true value to 10 times the true value.
+* The range for parameter h1 was 0 to 4 (true was 2.225)
+* Each experiement was independent from the other experiments and lasted for 6 hours.
+* Experiments were sampled every 5 mins.
+* OID used eSS with fmincon and a 5 minute maximum duration
+* OID used D-optimality
+* The input stimulus was stepped with 72 steps (values between 0 and 2)
+* The input stimulus steps were of variable duration.
+* Mocked experiments always start from the equilibrum state
+* Hetero noise was added to output with a standard deviation of 10% of the value.
+* PE used eSS with lsqnonlin and a 5 minute maximum duration.
+* PE used the log likelhood cost function.
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(knitr)
+
+trueValues = data.frame( param=c("alpha1","Vm1","h1","Km1","d1","alpha2","d2","Kf","Kb"),
+                         trueValue=c(0.00175985449291231,0.0800887345690361,2.22548971250921,3.35948035905386,0.0100614569676223,1,1,1,1) )
+
+load_experiment_data <- function(filename) {
+  
+  wholeFile <- readLines(filename)
+  iterationData <- wholeFile[grep('ITERATION',wholeFile)]
+  iterationData <- iterationData[grep('PARAM_FIT|REL_CONF',iterationData)]
+  con <- textConnection(iterationData)
+  data <- read.table(con)
+  close(con)
+  
+  colnames(data) <- c("key", "iteration", "type", "param", "value")
+  
+  data <- data %>% mutate( runName = gsub('.dat','',filename))
+  
+  return(data)
+}
+
+# Get the data files.
+files <- list.files(pattern='LukeSkywalker*dat')
+
+# Read in each file, convert to a data frame and merge into one dataframe
+data <- lapply(files, load_experiment_data)
+data <- Reduce(function(...) merge(..., all=T), data)
+
+# Join data with true values
+data <- left_join(data,trueValues)
+```
+
+## Number of runs
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10 & param == 'alpha1')
+d <- d %>% summarise(n=n())
+kable(d)
+```
+
+## Fitted parameter values after final iteration
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10) %>% 
+     select(param, trueValue, value) %>% 
+     group_by(param, trueValue) %>% 
+     summarize( mean=mean(value), sd=sd(value), min=min(value), max=max(value))
+kable(d)
+```
+
+Plotted as a box plot diagram:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10) %>% 
+     select(param, trueValue, value) 
+
+ggplot(data=d, aes(x=factor(1),y=value)) + 
+#  geom_jitter(alpha=0.3,  color="tomato") +
+  geom_boxplot(alpha=0) + facet_wrap(~ param, scales = "free_y") +
+  geom_hline(aes(yintercept=trueValue), color='red') +
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(), 
+        axis.title.y = element_blank()) 
+```
+
+Or as histograms:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10) %>% 
+     select(param, value) 
+
+ggplot(data=d, aes(value)) + geom_histogram(bins=15) + facet_wrap( ~ param, scales="free")
+
+```
+
+Plotting scatter plots of the fitted parameter values show correlations between:
+
+* alpha1 - d1
+* h1 - Km1
+* h1 - Vm1
+* Km1 - Vm1
+     
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10) %>% 
+     select(runName,param,value)
+d <- reshape(d, timevar="param", idvar=c("runName"), direction="wide")
+d <- d %>% select(alpha1=value.alpha1, d1=value.d1, h1=value.h1, Km1=value.Km1, Vm1=value.Vm1)
+
+pairs(d)
+```
+
+## Relative confidence intervals after the final iteration
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == 10) %>% 
+     select(param, value) %>% 
+     group_by(param) %>% 
+     summarize( mean=mean(value), sd=sd(value))
+kable(d)
+```
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == 10) %>% 
+     select(param, value) 
+
+ggplot(data=d, aes(value)) + geom_histogram(bins=15) + facet_wrap( ~ param, scales="free")
+
+```
+
+There is a very strong correlation between the relative confidence intervals of Km1 and Vm1.
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == 10) %>% 
+     select(runName,param,value)
+d <- reshape(d, timevar="param", idvar=c("runName"), direction="wide")
+d <- d %>% select(alpha1=value.alpha1, d1=value.d1, h1=value.h1, Km1=value.Km1, Vm1=value.Vm1)
+
+pairs(d)
+```
+
+## Are relative confidence intervals larger for the poorer fits?
+
+```{r echo=FALSE, message=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == 10) %>% 
+     select(runName,param,relconf=value)
+d2 <- data %>% filter(type == 'PARAM_FIT' & iteration == 10) %>% 
+     select(runName,param,value)
+d <- d %>% left_join(d2) %>% select(param, value, relconf) 
+
+ggplot(data=d, aes(x=value,y=relconf)) + geom_point(shape=1) + facet_wrap( ~ param, scales="free")
+```
+
+For Km1 and Vm1 the highest relative confidence intervals are associated with the higher (and most incorrect) parameter estimates. I had hoped we would maybe see U-shaped plots where parameter estimates much lower than the true value also correspond to high relative confidence intervals. We are not seeing such an effect in these plots.
