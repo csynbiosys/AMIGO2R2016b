@@ -35,8 +35,7 @@ exps.n_exp=0;
 best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,1,1,1,1]);
 global_theta_max = [0.0176  0.8   4 33.6   0.1   10   10   10   10  ];  % Maximum allowed values for the paramters
 global_theta_min = [0.00017 0.008 0  0.336 0.001  0.1  0.1  0.1  0.1];  % Minimum allowed values for the parameters
-%param_including_vector = [true,true,true,true,true,false,false,false,false];
-param_including_vector = [false,false,false,false,false,true,true,true,true];
+param_including_vector = [true,true,true,true,true,false,false,false,false];
 
 % Compile the model
 clear inputs;
@@ -83,7 +82,7 @@ for i=1:10
     % OED of the input 
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='step';                        % Stimuli definition for experiment
-    inputs.exps.n_steps{iexp}=360/5;                          % Number of steps
+    inputs.exps.n_steps{iexp}=10;                             % Number of steps
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
@@ -146,7 +145,7 @@ for i=1:10
     inputs.exps.t_s{1}=results.oed.t_s{results.oed.n_exp};         % times of samples
     
     inputs.exps.u_interp{1}='step';
-    inputs.exps.n_steps{1}=360/5; 
+    inputs.exps.n_steps{1}=10; 
     inputs.exps.u{1}=results.oed.u{results.oed.n_exp};                       
     inputs.exps.t_con{1}=results.oed.t_con{results.oed.n_exp};     % input value change points
    
@@ -177,7 +176,7 @@ for i=1:10
     exps.t_s{iexp}=results.oed.t_s{results.oed.n_exp};         % Sampling times, by default equidistant                                                            
     exps.u_type{iexp}='fixed';
     exps.u_interp{iexp}='step';
-    exps.n_steps{iexp}=360/5; 
+    exps.n_steps{iexp}=10; 
     exps.u{iexp}=results.oed.u{results.oed.n_exp};                       
     exps.t_con{iexp}=results.oed.t_con{results.oed.n_exp};     % input value change points
 
