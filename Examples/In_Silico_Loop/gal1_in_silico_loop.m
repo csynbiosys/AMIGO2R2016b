@@ -35,8 +35,7 @@ exps.n_exp=0;
 best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,1,1,1,1]);
 global_theta_max = [0.0176  0.8   4 33.6   0.1   10   10   10   10  ];  % Maximum allowed values for the paramters
 global_theta_min = [0.00017 0.008 0  0.336 0.001  0.1  0.1  0.1  0.1];  % Minimum allowed values for the parameters
-%param_including_vector = [true,true,true,true,true,false,false,false,false];
-param_including_vector = [false,false,false,false,false,true,true,true,true];
+param_including_vector = [true,true,true,true,true,false,false,false,false];
 
 % Compile the model
 clear inputs;
