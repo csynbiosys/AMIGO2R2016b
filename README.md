@@ -27,10 +27,10 @@ The change from Luke Skywalker is:
 
 ```
 git clone <this-repo>
-git checkout Experiment-LukeSkywalker
+git checkout Experiment-KananJarrus
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('LukeSkywalker-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('KananJarrus-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "LukeSkywalker-batch1"
+This will run 50 runs and created files starting with "KananJarrus-batch1"
 
