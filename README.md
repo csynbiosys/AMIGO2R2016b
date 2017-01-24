@@ -1,6 +1,9 @@
-# Experiment - Luke Skywalker
+# Experiment - Kanan Jarrus
 
-Baseline experiment for Gal 1 model with In-Silico-Loop
+Child of experiment Luke Skywalker for Gal 1 model with In-Silico-Loop
+
+The change from Luke Skywalker is:
+* The input stimulus was stepped with 10 steps (rather than 72 as in Luke Skywalker). 
 
 * Each	run	executed	10	loops
 * Using	gal1	no-delay	model
@@ -13,8 +16,8 @@ Baseline experiment for Gal 1 model with In-Silico-Loop
 * Experiments	were	sampled	every	5	mins
 * OID	used	eSS	with	fmincon	and	a	5	minute	maximum	duration
 * OID	used	D-optimality
-* The	input	stimulus	was	stepped	with	72	steps	(values	between	0	and	2)
-* The input stimulas steps were of variable duration.
+* The	input	stimulus was	stepped	with	10	steps	(values	between	0	and	2)
+* The input stimulus steps were of variable duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
 * PE	used	eSS	with	lsqnonlin	and	a	5	minute	maximum	duration
