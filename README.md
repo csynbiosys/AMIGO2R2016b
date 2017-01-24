@@ -22,10 +22,12 @@ Baseline experiment for Gal 1 model with In-Silico-Loop
 
 ## To run the experiment
 
+```
 git clone <this-repo>
 git checkout Experiment-LukeSkywalker
 cd AMIGO2R2016/Examples/In_Silico_Loop
 matlab -nodesktop -nosplash -r "run_in_silico_experiment LukeSkywalker-batch1 50"
+```
 
 This will run 50 runs and created files starting with "LukeSkywalker-batch1"
 
