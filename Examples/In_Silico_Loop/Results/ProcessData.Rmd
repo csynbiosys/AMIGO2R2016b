@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-* Experiment name: Luke Skywalker
+* Experiment name: Kanan Jarrus
 * Each run executed 10 OID-Experiment-PE loops. 
 * Using gal1 no-delay model
 * Only the fluoresence state was observable.
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * Experiments were sampled every 5 mins.
 * OID used eSS with fmincon and a 5 minute maximum duration
 * OID used D-optimality
-* The input stimulus was stepped with 72 steps (values between 0 and 2)
+* The input stimulus was stepped with 10 steps (values between 0 and 2)
 * The input stimulus steps were of variable duration.
 * Mocked experiments always start from the equilibrum state
 * Hetero noise was added to output with a standard deviation of 10% of the value.
