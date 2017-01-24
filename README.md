@@ -5,6 +5,7 @@ Child of experiment Luke Skywalker for Gal 1 model with In-Silico-Loop
 The change from Luke Skywalker is:
 * The input stimulus was stepped with 10 steps (rather than 72 as in Luke Skywalker). 
 
+Full description:
 * Each	run	executed	10	loops
 * Using	gal1	no-delay	model
 * Only	the	fluoresence	state	was	observable
