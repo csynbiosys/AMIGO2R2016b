@@ -83,6 +83,7 @@ for i=1:10
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='step';                        % Stimuli definition for experiment
     inputs.exps.n_steps{iexp}=10;                             % Number of steps
+    inputs.exps.u_type{iexp}='fixed';                         % Fixed numbers of intervals
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
@@ -174,7 +175,6 @@ for i=1:10
     exps.t_f{iexp}=results.oed.t_f{results.oed.n_exp};         % Experiments duration
     exps.n_s{iexp}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
     exps.t_s{iexp}=results.oed.t_s{results.oed.n_exp};         % Sampling times, by default equidistant                                                            
-    exps.u_type{iexp}='fixed';
     exps.u_interp{iexp}='step';
     exps.n_steps{iexp}=10; 
     exps.u{iexp}=results.oed.u{results.oed.n_exp};                       
