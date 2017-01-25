@@ -1,16 +1,14 @@
-# Experiment - Han Solo
+# Experiment - Darth Vader
 
-Child of experiment Kanan Jarrus for Gal 1 model with In-Silico-Loop
+Child of experiment Han Solo for Gal 1 model with In-Silico-Loop
 
-The change from Luke Skywalker is:
-* The input stimulus was stepped with 10 steps (rather than 72 as in Luke Skywalker). 
-
-The change from Kanan Jarrus and Luke Skywalker is:
-* The input stimulus steps are of fixed duration.
+The change from Han Solo is:
+* Normalises all inputs so the true value is 1
 
 Full description:
 * Each	run	executed	10	loops
 * Using	gal1	no-delay	model
+* Inputs normalised so the true value is 1.
 * Only	the	fluoresence	state	was	observable
 * Parameters	alpha2,	d2,	Kf	and	Kb	were	fixed	to	the	true	value	of	1
 * The	system	tried	to	fit	alpha1,	Vm1,	h1,	Km1	and	d1
@@ -31,10 +29,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-HanSolo
+git checkout Experiment-DarthVader
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('HanSolo-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('DarthVader-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "HanSolo-batch1"
+This will run 50 runs and created files starting with "DarthVader-batch1"
 
