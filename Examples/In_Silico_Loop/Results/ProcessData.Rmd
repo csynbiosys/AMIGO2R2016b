@@ -57,7 +57,7 @@ load_experiment_data <- function(filename) {
 }
 
 # Get the data files.
-files <- list.files(pattern='LukeSkywalker*dat')
+files <- list.files(pattern='KananJarrus.*dat')
 
 # Read in each file, convert to a data frame and merge into one dataframe
 data <- lapply(files, load_experiment_data)
