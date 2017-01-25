@@ -4,6 +4,7 @@ Child of experiment Kanan Jarrus for Gal 1 model with In-Silico-Loop
 
 The change from Luke Skywalker is:
 * The input stimulus was stepped with 10 steps (rather than 72 as in Luke Skywalker). 
+
 The change from Kanan Jarrus and Luke Skywalker is:
 * The input stimulus steps are of fixed duration.
 
