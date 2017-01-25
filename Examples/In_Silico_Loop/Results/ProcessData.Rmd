@@ -2,7 +2,7 @@
 title: Analysis of 10 x 6 hour experiments with 5 params, 72 input steps, 5 mins for
   OID
 author: "Ally Hume"
-date: "11 January 2017"
+date: "25 January 2017"
 output: pdf_document
 ---
 
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-* Experiment name: Kanan Jarrus
+* Experiment name: Han Solo
 * Each run executed 10 OID-Experiment-PE loops. 
 * Using gal1 no-delay model
 * Only the fluoresence state was observable.
@@ -57,7 +57,7 @@ load_experiment_data <- function(filename) {
 }
 
 # Get the data files.
-files <- list.files(pattern='KananJarrus.*dat')
+files <- list.files(pattern='HanSolo.*dat')
 
 # Read in each file, convert to a data frame and merge into one dataframe
 data <- lapply(files, load_experiment_data)
