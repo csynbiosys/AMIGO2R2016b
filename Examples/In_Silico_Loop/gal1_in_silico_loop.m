@@ -81,9 +81,8 @@ for i=1:10
 
     % OED of the input 
     inputs.exps.u_type{iexp}='od';
-    inputs.exps.u_interp{iexp}='step';                        % Stimuli definition for experiment
+    inputs.exps.u_interp{iexp}='stepf';                       % Stimuli definition for experiment
     inputs.exps.n_steps{iexp}=10;                             % Number of steps
-    inputs.exps.u_type{iexp}='fixed';                         % Fixed numbers of intervals
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
