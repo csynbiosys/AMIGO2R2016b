@@ -1,9 +1,9 @@
-# Experiment - Darth Vader
+# Experiment - R2D2
 
-Child of experiment Kanan Jarrus for Gal 1 model with In-Silico-Loop
+Child of experiment Darth Vader for Gal 1 model with In-Silico-Loop
+* The input stimulus steps are of fixed duration.
 
-The change from Kanan Jarrus is:
-* Normalises all inputs so the true value is 1
+The change from Darth Vader is:
 
 Full description:
 * Each	run	executed	10	loops
@@ -29,10 +29,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-DarthVader
+git checkout Experiment-R2D2
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('DarthVader-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('R2D2-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "DarthVader-batch1"
+This will run 50 runs and created files starting with "R2D2-batch1"
 
