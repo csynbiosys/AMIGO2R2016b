@@ -1,9 +1,9 @@
 # Experiment - R2D2
 
 Child of experiment Darth Vader for Gal 1 model with In-Silico-Loop
-* The input stimulus steps are of fixed duration.
 
 The change from Darth Vader is:
+* The input stimulus steps are of fixed duration.
 
 Full description:
 * Each	run	executed	10	loops
