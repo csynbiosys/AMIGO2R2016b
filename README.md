@@ -1,8 +1,8 @@
 # Experiment - Darth Vader
 
-Child of experiment Han Solo for Gal 1 model with In-Silico-Loop
+Child of experiment Kanan Jarrus for Gal 1 model with In-Silico-Loop
 
-The change from Han Solo is:
+The change from Kanan Jarrus is:
 * Normalises all inputs so the true value is 1
 
 Full description:
@@ -19,7 +19,7 @@ Full description:
 * OID	used	eSS	with	fmincon	and	a	5	minute	maximum	duration
 * OID	used	D-optimality
 * The	input	stimulus was	stepped	with	10	steps	(values	between	0	and	2)
-* The input stimulus steps are of fixed duration.
+* The input stimulus steps are of variable duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
 * PE	used	eSS	with	lsqnonlin	and	a	5	minute	maximum	duration
