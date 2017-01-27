@@ -1,12 +1,6 @@
-# Experiment - Han Solo
+# Experiment - Jar Jar
 
-Child of experiment Kanan Jarrus for Gal 1 model with In-Silico-Loop
-
-The change from Luke Skywalker is:
-* The input stimulus was stepped with 10 steps (rather than 72 as in Luke Skywalker). 
-
-The change from Kanan Jarrus and Luke Skywalker is:
-* The input stimulus steps are of fixed duration.
+Testing how poorly we do with a random inputs of 10 steps.
 
 Full description:
 * Each	run	executed	10	loops
@@ -18,8 +12,7 @@ Full description:
 * The	range	for	parameter	h1	was	0	to	4	(true	was	2.225)
 * Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	6	hours
 * Experiments	were	sampled	every	5	mins
-* OID	used	eSS	with	fmincon	and	a	5	minute	maximum	duration
-* OID	used	D-optimality
+* OID	was was not optimal at all but just uses random step value.
 * The	input	stimulus was	stepped	with	10	steps	(values	between	0	and	2)
 * The input stimulus steps are of fixed duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
@@ -31,10 +24,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-HanSolo
+git checkout Experiment-JarJar
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('HanSolo-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('JarJar-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "HanSolo-batch1"
+This will run 50 runs and created files starting with "JarJar-batch1"
 
