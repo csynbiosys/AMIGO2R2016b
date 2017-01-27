@@ -1,9 +1,9 @@
-# Experiment - Darth Vader
+# Experiment - Eeth Koth
 
-Child of experiment Han Solo for Gal 1 model with In-Silico-Loop
+Child of experiment Darth Vader for Gal 1 model with In-Silico-Loop
 
-The change from Han Solo is:
-* Normalises all inputs so the true value is 1
+The change from Darth Vader is:
+* OID used E-Optimiality
 
 Full description:
 * Each	run	executed	10	loops
@@ -17,9 +17,9 @@ Full description:
 * Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	6	hours
 * Experiments	were	sampled	every	5	mins
 * OID	used	eSS	with	fmincon	and	a	5	minute	maximum	duration
-* OID	used	D-optimality
+* OID	used	E-optimality
 * The	input	stimulus was	stepped	with	10	steps	(values	between	0	and	2)
-* The input stimulus steps are of fixed duration.
+* The input stimulus steps are of variable duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
 * PE	used	eSS	with	lsqnonlin	and	a	5	minute	maximum	duration
@@ -29,10 +29,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-DarthVader
+git checkout Experiment-EethKoth
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('DarthVader-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('EethKoth-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "DarthVader-batch1"
+This will run 50 runs and created files starting with "EethKoth-batch1"
 
