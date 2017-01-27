@@ -1,5 +1,5 @@
 ---
-title: Analysis of 10 x 6 hour experiments with 5 params, 10 input steps, fixed duration, 5 mins for OID
+title: Analysis of 10 x 6 hour experiments with 5 params, 10 random input steps, fixed duration
 author: "Ally Hume"
 date: "25 January 2017"
 output: pdf_document
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-* Experiment name: Han Solo
+* Experiment name: Jar Jar
 * Each run executed 10 OID-Experiment-PE loops. 
 * Using gal1 no-delay model
 * Only the fluoresence state was observable.
@@ -21,8 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * The range for parameter h1 was 0 to 4 (true was 2.225)
 * Each experiement was independent from the other experiments and lasted for 6 hours.
 * Experiments were sampled every 5 mins.
-* OID used eSS with fmincon and a 5 minute maximum duration
-* OID used D-optimality
+* OID just chooses 10 random step values
 * The input stimulus was stepped with 10 steps (values between 0 and 2)
 * The input stimulus steps were of fixed duration.
 * Mocked experiments always start from the equilibrum state
@@ -56,7 +55,7 @@ load_experiment_data <- function(filename) {
 }
 
 # Get the data files.
-files <- list.files(pattern='HanSolo.*dat')
+files <- list.files(pattern='JarJar.*dat')
 
 # Read in each file, convert to a data frame and merge into one dataframe
 data <- lapply(files, load_experiment_data)
