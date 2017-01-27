@@ -32,9 +32,9 @@ gal1_load_model;
 exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
-best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,1,1,1,1]);
-global_theta_max = [0.0176  0.8   4 33.6   0.1   10   10   10   10  ];  % Maximum allowed values for the paramters
-global_theta_min = [0.00017 0.008 0  0.336 0.001  0.1  0.1  0.1  0.1];  % Minimum allowed values for the parameters
+best_global_theta = transpose([1.1365    1.2486    0.8987    0.9228    1.9878    1.0000    1.0000    1.0000    1.0000]);
+global_theta_max = [10 10 2.5 10 10 10 10 10 10 10];        % Maximum allowed values for the paramters
+global_theta_min = [0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1];   % Minimum allowed values for the parameters
 param_including_vector = [true,true,true,true,true,false,false,false,false];
 
 % Compile the model
@@ -83,7 +83,6 @@ for i=1:10
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='step';                        % Stimuli definition for experiment
     inputs.exps.n_steps{iexp}=10;                             % Number of steps
-    inputs.exps.u_type{iexp}='fixed';                         % Fixed durations of intervals
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
