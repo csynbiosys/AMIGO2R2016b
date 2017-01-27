@@ -1,5 +1,5 @@
 ---
-title: Analysis of 10 x 6 hour experiments with 5 params, 10 input steps, variable duration, 5 mins for OID, normalised parameters, E optimality
+title: Analysis of 10 x 6 hour experiments with 5 params, 10 input steps, fixed duration, 5 mins for OID, normalised parameters, E optimality
 author: "Ally Hume"
 date: "25 January 2017"
 output: pdf_document
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-* Experiment name: Eeth Koth
+* Experiment name: Jyn Erso
 * Each run executed 10 OID-Experiment-PE loops. 
 * Using gal1 no-delay model
 * Parameters are normalised so that the true value for all parameters is 1.
@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * OID used eSS with fmincon and a 5 minute maximum duration
 * OID used E-optimality
 * The input stimulus was stepped with 10 steps (values between 0 and 2)
-* The input stimulus steps were of variable duration.
+* The input stimulus steps were of fixed duration.
 * Mocked experiments always start from the equilibrum state
 * Hetero noise was added to output with a standard deviation of 10% of the value.
 * PE used eSS with lsqnonlin and a 5 minute maximum duration.
