@@ -58,67 +58,6 @@ for i=1:10
     end
     used_y0{i} = y0;
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Optimal experiment design
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    clear inputs;
-    inputs.model = model;
-    inputs.exps  = exps;
-    
-    % Add new experiment that is to be designed
-    inputs.exps.n_exp = inputs.exps.n_exp + 1; 
-    iexp = inputs.exps.n_exp;
-    inputs.exps.exp_type{iexp}='od';     
-    inputs.exps.n_obs{iexp}=1;                               % Number of observed quantities per experiment                         
-    inputs.exps.obs_names{iexp}=char('Fluorescence');        % Name of the observed quantities per experiment    
-    inputs.exps.obs{iexp}=char('Fluorescence=gal1_fluo');    % Observation function
-       
-    % Fixed parts of the experiment
-    inputs.exps.exp_y0{iexp}=y0;                             % Initial conditions
-    inputs.exps.t_f{iexp}=360;                               % Duration 6 hours
-    inputs.exps.n_s{iexp}=360/5+1;                           % Number of sampling times - sample every 5 min
-
-    % OED of the input 
-    inputs.exps.u_type{iexp}='od';
-    inputs.exps.u_interp{iexp}='stepf';                       % Stimuli definition for experiment
-    inputs.exps.n_steps{iexp}=10;                             % Number of steps
-    inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
-    inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
-
-    inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
-    inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
-      
-    inputs.exps.noise_type='hetero';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
-    inputs.exps.std_dev{iexp}=[0.1];     
-    inputs.OEDsol.OEDcost_type='Dopt';
-    
-    % SIMULATION
-    inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
-    inputs.ivpsol.senssolver='cvodes';                    % [] Sensitivities solver: 'cvodes'(default, C)| 'sensmat'(matlab)|'fdsens2'|'fdsens5' 
-    inputs.ivpsol.rtol=1.0D-7;                            % [] IVP solver integration tolerances
-    inputs.ivpsol.atol=1.0D-7; 
-
-    % OPTIMIZATION
-    inputs.nlpsol.nlpsolver='eSS';
-    inputs.nlpsol.eSS.maxeval = 200000;
-    inputs.nlpsol.eSS.maxtime = 300;
-    inputs.nlpsol.eSS.local.solver = 'fmincon';
-    inputs.nlpsol.eSS.local.finish = 'fmincon';
-                                                       
-    inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
-    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     400;     % max number of function evaluation
-
-    inputs.plotd.plotlevel='noplot';
-    
-    inputs.pathd.results_folder = results_folder;                        
-    inputs.pathd.short_name     = short_name;
-    inputs.pathd.runident       = strcat('oed-',int2str(i));
-    
-    oed_start = now;
-    results = AMIGO_OED(inputs);
-    oed_results{i} = results;
-    oed_end = now;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Mock an experiment
@@ -139,15 +78,15 @@ for i=1:10
     % 2017-01-05 Removing this noise addition to y0 because it is causing problems - let's start with simplest baseline approach first 
     % y0_to_use = y0_to_use + y0_to_use*0.1.*normrnd(0,1,1,length(y0));
     inputs.exps.exp_y0{1}=y0_to_use;           
-    
-    inputs.exps.t_f{1}=results.oed.t_f{results.oed.n_exp};         % Experiment duration
-    inputs.exps.n_s{1}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
-    inputs.exps.t_s{1}=results.oed.t_s{results.oed.n_exp};         % times of samples
+
+    inputs.exps.t_f{1}=360;                               % Duration 6 hours
+    inputs.exps.n_s{1}=360/5+1;                           % Number of sampling times - sample every 5 min
+    % inputs.exps.t_s{1}
     
     inputs.exps.u_interp{1}='step';
     inputs.exps.n_steps{1}=10; 
-    inputs.exps.u{1}=results.oed.u{results.oed.n_exp};                       
-    inputs.exps.t_con{1}=results.oed.t_con{results.oed.n_exp};     % input value change points
+    inputs.exps.u{1}=rand(1,10)*2;                       
+    inputs.exps.t_con{1}=0:36:360;                      % input value change points
    
     % TODO - in a bit of a mess with the noise types that are inconsistent
     % over this loop
@@ -171,14 +110,14 @@ for i=1:10
     exps.obs_names{iexp}=char('Fluorescence');                 % Name of the observed quantities per experiment    
     exps.obs{iexp}=char('Fluorescence=gal1_fluo');             % Observation function
     exps.exp_y0{iexp}=y0;                                      % Initial conditions for experiment       
-    exps.t_f{iexp}=results.oed.t_f{results.oed.n_exp};         % Experiments duration
-    exps.n_s{iexp}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
-    exps.t_s{iexp}=results.oed.t_s{results.oed.n_exp};         % Sampling times, by default equidistant                                                            
-    exps.u_interp{iexp}='step';
-    exps.n_steps{iexp}=10; 
-    exps.u{iexp}=results.oed.u{results.oed.n_exp};                       
-    exps.t_con{iexp}=results.oed.t_con{results.oed.n_exp};     % input value change points
 
+    exps.t_f{iexp}=inputs.exps.t_f{1};         % Experiments duration
+    exps.n_s{iexp}=inputs.exps.n_s{1};         % Number of sampling times
+    exps.u_interp{iexp}='step';
+    exps.n_steps{iexp}=inputs.exps.n_steps{1}; 
+    exps.u{iexp}=inputs.exps.u{1};                       
+    exps.t_con{iexp}=inputs.exps.t_con{1};     % input value change points
+    
     exps.exp_data{iexp}=sim.sim.exp_data{1};
 	exps.error_data{iexp}=sim.sim.error_data{1};
 
@@ -246,7 +185,7 @@ for i=1:10
         fprintf(fid,'ITERATION %d REL_RESIDUAL %s %f\n', i, used_par_names(j,:), results.fit.rel_residuals{1}(j));
     end
     % Time in seconds
-    fprintf(fid,'ITERATION %d OED_TIME %.1f\n', i, (oed_end-oed_start)*24*60*60);
+    fprintf(fid,'ITERATION %d OED_TIME %.1f\n', i, (0)*24*60*60);
     fprintf(fid,'ITERATION %d PE_TIME %.1f\n',  i, (pe_end-pe_start)*24*60*60);
     fclose(fid);
 
@@ -255,7 +194,7 @@ for i=1:10
 end
 
 true_param_values = model.par(param_including_vector);
-save([epccOutputResultFileNameBase,'.mat'], 'pe_results','oed_results','exps','inputs','true_param_values');
+save([epccOutputResultFileNameBase,'.mat'], 'pe_results','exps','inputs','true_param_values');
 
 
 
