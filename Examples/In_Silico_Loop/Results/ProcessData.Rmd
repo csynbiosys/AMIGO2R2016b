@@ -1,5 +1,5 @@
 ---
-title: Analysis of 10 x 6 hour experiments with 5 params, 10 input steps, variable duration, 5 mins for OID, normalised parameters, D optimality
+title: Analysis of 10 x 6 hour experiments with 5 params, 10 input steps, variable duration, 5 mins for OID, normalised parameters, E optimality
 author: "Ally Hume"
 date: "25 January 2017"
 output: pdf_document
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Description
 
-* Experiment name: Darth Vader
+* Experiment name: Eeth Koth
 * Each run executed 10 OID-Experiment-PE loops. 
 * Using gal1 no-delay model
 * Parameters are normalised so that the true value for all parameters is 1.
@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE)
 * Each experiement was independent from the other experiments and lasted for 6 hours.
 * Experiments were sampled every 5 mins.
 * OID used eSS with fmincon and a 5 minute maximum duration
-* OID used D-optimality
+* OID used E-optimality
 * The input stimulus was stepped with 10 steps (values between 0 and 2)
 * The input stimulus steps were of variable duration.
 * Mocked experiments always start from the equilibrum state
@@ -57,7 +57,7 @@ load_experiment_data <- function(filename) {
 }
 
 # Get the data files.
-files <- list.files(pattern='DarthVader.*dat')
+files <- list.files(pattern='EethKoth.*dat')
 
 # Read in each file, convert to a data frame and merge into one dataframe
 data <- lapply(files, load_experiment_data)
