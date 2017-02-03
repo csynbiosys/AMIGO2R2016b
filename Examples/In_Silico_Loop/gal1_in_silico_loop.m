@@ -91,7 +91,7 @@ for i=1:10
       
     inputs.exps.noise_type='hetero';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     inputs.exps.std_dev{iexp}=[0.1];     
-    inputs.OEDsol.OEDcost_type='Dopt';
+    inputs.OEDsol.OEDcost_type='Emod';
     
     % SIMULATION
     inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
