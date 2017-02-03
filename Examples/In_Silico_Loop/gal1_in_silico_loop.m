@@ -86,7 +86,7 @@ for i=1:10
     inputs.exps.u_interp{1}='step';
     inputs.exps.n_steps{1}=20; 
     inputs.exps.u{1}=repmat([1 0],1,10).*2;
-    inputs.exps.t_con{1}=union(0:36:360,10:36:360)                      % input value change points
+    inputs.exps.t_con{1}=0:18:360                    % input value change points
    
     % TODO - in a bit of a mess with the noise types that are inconsistent
     % over this loop
