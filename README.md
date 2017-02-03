@@ -1,6 +1,6 @@
 # Experiment - Dengar
 
-Testing steo inputs with no OID.  10 steps per experiment each lasting for 36 mins. 5 at 2% galactose and 5 at 0%.
+Testing steo inputs with no OID.  20 steps per experiment each lasting for 18 mins. Ten at 2% galactose and ten at 0%.
 
 Full description:
 * Each	run	executed	10	loops
@@ -12,7 +12,7 @@ Full description:
 * The	range	for	parameter	h1	was	0	to	4	(true	was	2.225)
 * Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	6	hours
 * Experiments	were	sampled	every	5	mins
-* The	input	stimulus was 10 steps per experiment, each step lasting 36 mins. Alternative 2% galactose and 0% galactose.
+* The	input	stimulus was 20 steps per experiment, each step lasting 18 mins. Alternative 2% galactose and 0% galactose.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
 * PE	used	eSS	with	lsqnonlin	and	a	5	minute	maximum	duration
