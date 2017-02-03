@@ -83,7 +83,7 @@ i = 10;
     % OPTIMIZATION
     inputs.nlpsol.nlpsolver='eSS';
     inputs.nlpsol.eSS.maxeval = 200000;
-    inputs.nlpsol.eSS.maxtime = 60; 300;
+    inputs.nlpsol.eSS.maxtime = 300;
     inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
