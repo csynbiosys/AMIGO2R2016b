@@ -1,12 +1,8 @@
-# Experiment - Han Solo
+# Experiment - Princess Leia
 
-Child of experiment Kanan Jarrus for Gal 1 model with In-Silico-Loop
+Child of experiment Han Solo for Gal 1 model with In-Silico-Loop.  Changed from Han Solo:
+* Used Emod optimiality of OID.
 
-The change from Luke Skywalker is:
-* The input stimulus was stepped with 10 steps (rather than 72 as in Luke Skywalker). 
-
-The change from Kanan Jarrus and Luke Skywalker is:
-* The input stimulus steps are of fixed duration.
 
 Full description:
 * Each	run	executed	10	loops
@@ -19,7 +15,7 @@ Full description:
 * Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	6	hours
 * Experiments	were	sampled	every	5	mins
 * OID	used	eSS	with	fmincon	and	a	5	minute	maximum	duration
-* OID	used	D-optimality
+* OID	used	Emod-optimality
 * The	input	stimulus was	stepped	with	10	steps	(values	between	0	and	2)
 * The input stimulus steps are of fixed duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
@@ -31,10 +27,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-HanSolo
+git checkout Experiment-Leia
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('HanSolo-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('Leia-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "HanSolo-batch1"
+This will run 50 runs and created files starting with "Leia-batch1"
 
