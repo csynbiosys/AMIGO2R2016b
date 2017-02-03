@@ -1,6 +1,6 @@
-# Experiment - C3PO
+# Experiment - Dengar
 
-Testing pulse inputs with no OID.  10 pulses per experiment each lasting for 10 mins.
+Testing steo inputs with no OID.  10 steps per experiment each lasting for 36 mins. 5 at 2% galactose and 5 at 0%.
 
 Full description:
 * Each	run	executed	10	loops
@@ -12,7 +12,7 @@ Full description:
 * The	range	for	parameter	h1	was	0	to	4	(true	was	2.225)
 * Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	6	hours
 * Experiments	were	sampled	every	5	mins
-* The	input	stimulus was 10 pulses per experiment, each pulse lasting 10 mins.
+* The	input	stimulus was 10 steps per experiment, each step lasting 36 mins. Alternative 2% galactose and 0% galactose.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
 * PE	used	eSS	with	lsqnonlin	and	a	5	minute	maximum	duration
@@ -22,10 +22,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-C3PO
+git checkout Experiment-Dengar
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('C3PO-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('Dengar-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "C3PO-batch1"
+This will run 50 runs and created files starting with "Dengar-batch1"
 
