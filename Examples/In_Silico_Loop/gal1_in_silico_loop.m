@@ -149,8 +149,6 @@ for i=1:10
     inputs.exps.u{1}=results.oed.u{results.oed.n_exp};                       
     inputs.exps.t_con{1}=results.oed.t_con{results.oed.n_exp};     % input value change points
    
-    % TODO - in a bit of a mess with the noise types that are inconsistent
-    % over this loop
     inputs.exps.data_type='pseudo';
     inputs.exps.noise_type='hetero';
     inputs.exps.std_dev{1}=[0.1];
@@ -182,10 +180,8 @@ for i=1:10
     exps.exp_data{iexp}=sim.sim.exp_data{1};
 	exps.error_data{iexp}=sim.sim.error_data{1};
 
-    % TODO - these noise types are a bit of a mess - only one type for all
-    % experiments.  I probably need to be better about these.
     exps.data_type='real';                                     % Type of data: 'pseudo'|'pseudo_pos'|'real'             
-    exps.noise_type='homo_var';                                % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
+    exps.noise_type='hetero';                                  % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parameter estimation
@@ -208,7 +204,7 @@ for i=1:10
     % COST FUNCTION RELATED DATA
     inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
     inputs.PEsol.lsq_type='Q_I';
-    inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
+    inputs.PEsol.llk_type='hetero';                       % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
 
     % SIMULATION
     inputs.ivpsol.ivpsolver='cvodes';
