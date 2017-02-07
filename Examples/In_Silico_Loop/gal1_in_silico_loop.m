@@ -45,8 +45,8 @@ inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
-% Loop for 10 times 6 hour experiments
-for i=1:10
+% Loop for 20 times 3 hour experiments
+for i=1:20
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Update all the experiment initial conditions based on current theta
@@ -76,13 +76,13 @@ for i=1:10
        
     % Fixed parts of the experiment
     inputs.exps.exp_y0{iexp}=y0;                             % Initial conditions
-    inputs.exps.t_f{iexp}=360;                               % Duration 6 hours
-    inputs.exps.n_s{iexp}=360/5+1;                           % Number of sampling times - sample every 5 min
+    inputs.exps.t_f{iexp}=180;                               % Duration 6 hours
+    inputs.exps.n_s{iexp}=180/5+1;                           % Number of sampling times - sample every 5 min
 
     % OED of the input 
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='stepf';                       % Stimuli definition for experiment
-    inputs.exps.n_steps{iexp}=10;                             % Number of steps
+    inputs.exps.n_steps{iexp}=5;                             % Number of steps
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
@@ -145,7 +145,7 @@ for i=1:10
     inputs.exps.t_s{1}=results.oed.t_s{results.oed.n_exp};         % times of samples
     
     inputs.exps.u_interp{1}='step';
-    inputs.exps.n_steps{1}=10; 
+    inputs.exps.n_steps{1}=5; 
     inputs.exps.u{1}=results.oed.u{results.oed.n_exp};                       
     inputs.exps.t_con{1}=results.oed.t_con{results.oed.n_exp};     % input value change points
    
@@ -175,7 +175,7 @@ for i=1:10
     exps.n_s{iexp}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
     exps.t_s{iexp}=results.oed.t_s{results.oed.n_exp};         % Sampling times, by default equidistant                                                            
     exps.u_interp{iexp}='step';
-    exps.n_steps{iexp}=10; 
+    exps.n_steps{iexp}=5; 
     exps.u{iexp}=results.oed.u{results.oed.n_exp};                       
     exps.t_con{iexp}=results.oed.t_con{results.oed.n_exp};     % input value change points
 
