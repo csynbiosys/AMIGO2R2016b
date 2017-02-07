@@ -166,30 +166,39 @@ for i=1:10
 
     inputs.plotd.plotlevel='noplot';
 
-    pe_start = now;
-    results = AMIGO_PE(inputs);
-    pe_results{i} = results;
-    pe_end= now;
+    if i == 10
+        
+        pe_start = now;
+        results = AMIGO_PE(inputs);
+        pe_results{i} = results;
+        pe_end= now;
 
-    % Save the best theta
-    best_global_theta(param_including_vector)=results.fit.thetabest;  
+        % Save the best theta
+        best_global_theta(param_including_vector)=results.fit.thetabest;  
 
-    % Write some results to the output file
-    fid = fopen(resultFileName,'a');
-    used_par_names = model.par_names(param_including_vector,:);
+        % Write some results to the output file
+        fid = fopen(resultFileName,'a');
+        used_par_names = model.par_names(param_including_vector,:);
 
-    for j=1:size(used_par_names,1)
-        fprintf(fid,'ITERATION %d PARAM_FIT %s %f\n', i, used_par_names(j,:), results.fit.thetabest(j));
-        fprintf(fid,'ITERATION %d REL_CONF %s %f\n',  i, used_par_names(j,:), results.fit.rel_conf_interval(j));
-        fprintf(fid,'ITERATION %d RESIDUAL %s %f\n', i, used_par_names(j,:), results.fit.residuals{1}(j));
-        fprintf(fid,'ITERATION %d REL_RESIDUAL %s %f\n', i, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+        for j=1:size(used_par_names,1)
+            fprintf(fid,'ITERATION %d PARAM_FIT %s %f\n', i, used_par_names(j,:), results.fit.thetabest(j));
+            if isfield(results.fit,'rel_conf_interval')
+                fprintf(fid,'ITERATION %d REL_CONF %s %f\n',  i, used_par_names(j,:), results.fit.rel_conf_interval(j));
+            end
+            if isfield(results.fit,'residuals')
+               fprintf(fid,'ITERATION %d RESIDUAL %s %f\n', i, used_par_names(j,:), results.fit.residuals{1}(j));
+            end
+            if isfield(results.fit,'rel_residuals')
+                fprintf(fid,'ITERATION %d REL_RESIDUAL %s %f\n', i, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+            end
+        end
+        % Time in seconds
+        fprintf(fid,'ITERATION %d OED_TIME %.1f\n', i, (0)*24*60*60);
+        fprintf(fid,'ITERATION %d PE_TIME %.1f\n',  i, (pe_end-pe_start)*24*60*60);
+        fclose(fid);
+
+        best_global_theta_log{i}=best_global_theta;
     end
-    % Time in seconds
-    fprintf(fid,'ITERATION %d OED_TIME %.1f\n', i, (0)*24*60*60);
-    fprintf(fid,'ITERATION %d PE_TIME %.1f\n',  i, (pe_end-pe_start)*24*60*60);
-    fclose(fid);
-
-	best_global_theta_log{i}=best_global_theta;
 
 end
 
