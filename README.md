@@ -1,9 +1,8 @@
-# Experiment - Greedo
+# Experiment - Boba Fett
 
-Child of experiment Han Solo for Gal 1 model with In-Silico-Loop
+Child of experiment Greedo for Gal 1 model with In-Silico-Loop
 
-The change from Han Solo is:
-* OID	used E-optimality
+Looking here at how to correctly specify to OID and PE the noise in the data. I don't think we've been doing this properly up till now.
 
 Full description:
 * Each	run	executed	10	loops
@@ -28,10 +27,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-Greedo
+git checkout Experiment-BobaFett
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('Greedo-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('BobaFett-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "Greedo-batch1"
+This will run 50 runs and created files starting with "BobaFett-batch1"
 
