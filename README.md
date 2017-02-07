@@ -1,12 +1,12 @@
-# Experiment - Greedo
+# Experiment - Yoda
 
-Child of experiment Han Solo for Gal 1 model with In-Silico-Loop
+Child of experiment Greedo for Gal 1 model with In-Silico-Loop
 
 The change from Han Solo is:
-* OID	used E-optimality
+* 20 loops each with 3 hours of experiment
 
 Full description:
-* Each	run	executed	10	loops
+* Each	run	executed	20	loops with 3 hours of experiment
 * Using	gal1	no-delay	model
 * Only	the	fluoresence	state	was	observable
 * Parameters	alpha2,	d2,	Kf	and	Kb	were	fixed	to	the	true	value	of	1
@@ -17,7 +17,7 @@ Full description:
 * Experiments	were	sampled	every	5	mins
 * OID	used	eSS	with	fmincon	and	a	5	minute	maximum	duration
 * OID	used	E-optimality
-* The	input	stimulus was	stepped	with	10	steps	(values	between	0	and	2)
+* The	input	stimulus was	stepped	with 5 steps	(values	between	0	and	2)
 * The input stimulus steps are of fixed duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
@@ -28,10 +28,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-Greedo
+git checkout Experiment-Yoda
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('Greedo-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('Yoda-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "Greedo-batch1"
+This will run 50 runs and created files starting with "Yoda-batch1"
 
