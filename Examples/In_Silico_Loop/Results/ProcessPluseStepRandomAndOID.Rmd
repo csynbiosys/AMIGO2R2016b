@@ -1,0 +1,131 @@
+---
+title: "Comparison of means of creating the experiment input"
+author: "Ally Hume"
+date: "9 February 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description
+
+Comparing various means of creating inputs for 60 hours of gal1 experiment:
+
+- 10 minute pulses of galactose, with 36 minutes between start of successive pulses
+- Alternate periods of galactose and no galactose - each period lasting 36 mins
+- Random galactose value (between 0 and 2) for each period of 36 mins
+- Optimally choses galactose value for each period 36 mins. OID ran as 10 experiments each of 6 hours. Results from one experiment can feed into the design of the next. 
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(knitr)
+
+trueValues = data.frame( param=c("alpha1","Vm1","h1","Km1","d1","alpha2","d2","Kf","Kb"),
+                         trueValue=c(0.00175985449291231,0.0800887345690361,2.22548971250921,3.35948035905386,0.0100614569676223,1,1,1,1) )
+
+load_experiment_data <- function(filename) {
+  
+  wholeFile <- readLines(filename)
+  iterationData <- wholeFile[grep('ITERATION',wholeFile)]
+  iterationData <- iterationData[grep('PARAM_FIT|REL_CONF',iterationData)]
+  con <- textConnection(iterationData)
+  data <- read.table(con)
+  close(con)
+  
+  colnames(data) <- c("key", "iteration", "type", "param", "value")
+  
+  data <- data %>% mutate( runName = gsub('.dat','',filename))
+  exptName <- filename
+  exptName <- gsub('JarJar',  'R',    exptName)
+  exptName <- gsub('Greedo',  'O',    exptName)
+  exptName <- gsub('C3PO',    'P',    exptName)
+  exptName <- gsub('Dengar',  'S',    exptName)
+  filename <- gsub('JarJar',  'Random (JarJar)', filename)
+  filename <- gsub('Greedo',  'OID (Greedo)',    filename)
+  filename <- gsub('C3PO',    'Pulse (C3PO)',    filename)
+  filename <- gsub('Dengar',  'Step (Dengar)',   filename)
+  data <- data %>% mutate( exptName = gsub('-.*','',exptName))
+  data <- data %>% mutate( exptLabel = gsub('-.*','',filename))
+  
+  return(data)
+}
+```
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+# Get the data files.
+files <- c(list.files(pattern='JarJar.*dat'),list.files(pattern='Greedo.*dat'),list.files(pattern='C3PO.*dat'),list.files(pattern='Dengar.*dat'))
+
+# Read in each file, convert to a data frame and merge into one dataframe
+data <- lapply(files, load_experiment_data)
+data <- Reduce(function(...) merge(..., all=T), data)
+
+# Join data with true values
+data <- left_join(data,trueValues)
+```
+
+## Number of runs
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10 & param == 'alpha1')
+d <- d %>% group_by(exptName,exptLabel) %>% summarise(n=n())
+kable(d)
+```
+
+## Fitted parameter values after final iteration 
+
+The fitted parameters:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10 ) %>% 
+     select(exptName, param, trueValue, value) 
+
+ggplot(data=d, aes(x=exptName,y=value)) + 
+  geom_boxplot(alpha=0) + facet_wrap( ~ param, scales = "free_y") +
+  geom_hline(aes(yintercept=trueValue), color='red')
+```
+
+## Relative confidence intervals after the final iteration
+  
+Relative confidence intervals for each parameter by experiment. 
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == 10 ) %>% 
+     select(exptName, param, trueValue, value) 
+
+ggplot(data=d, aes(x=exptName,y=value)) + 
+  geom_boxplot(alpha=0) + facet_wrap( ~ param, scales = "free_y")
+```
+
+
+
+# Appendix
+
+Various data tables if they are of interest.  Typically what is shown in box plots above.
+
+## Fitted parameter values after final iteration for non-normalised experiments
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == 10  ) %>% 
+     select(exptName,param, trueValue, value) %>% 
+     group_by(param, exptName, trueValue) %>% 
+     summarize( mean=mean(value), sd=sd(value), '25%' = quantile(value, probs=0.25), '50%' = quantile(value, probs=0.5), '75%' = quantile(value, probs=0.75),   min=min(value), max=max(value))
+kable(d)
+```
+
+## Relative confidence interval values
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == 10) %>% 
+     select(param, exptName, value) %>% 
+     group_by(param, exptName) %>% 
+     summarize( mean=mean(value), sd=sd(value), '25%' = quantile(value, probs=0.25), '50%' = quantile(value, probs=0.5), '75%' = quantile(value, probs=0.75))
+kable(d)
+```
+
+
+
+
