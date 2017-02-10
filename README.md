@@ -1,12 +1,10 @@
-# Experiment - Rey
+# Experiment - Finn
 
-Child of experiment Greedo for Gal 1 model with In-Silico-Loop
+Child of experiment Rey for Gal 1 model with In-Silico-Loop
 
-The change from Greedo is:
-* Running 5 x 12-hour experiments rather than 10 x 6 hour experiments
-* Input steps are 30 mins rather than 36 mins
-* OID time is now 10 mins as more work to do (24 steps rather than 10)
-
+The change from Rey is:
+* Running 4 x 15-hour experiments rather than 5 x 12 hour experiments
+* OID time is now 12 mins as more work to do
 
 Full description:
 * Each	run	executed	20	loops
@@ -31,10 +29,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-Rey
+git checkout Experiment-Finn
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('Rey-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('Finn-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "Rey-batch1"
+This will run 50 runs and created files starting with "Finn-batch1"
 
