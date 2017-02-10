@@ -1,24 +1,24 @@
-# Experiment - Finn
+# Experiment - Bossk
 
 Child of experiment Rey for Gal 1 model with In-Silico-Loop
 
 The change from Rey is:
-* Running 4 x 15-hour experiments rather than 5 x 12 hour experiments
-* OID time is now 12 mins as more work to do
+* Running 3 x 20-hour experiments rather than 5 x 12 hour experiments
+* OID time is now 16 mins as more work to do
 
 Full description:
-* Each	run	executed	20	loops
+* Each	run	executed	3	loops
 * Using	gal1	no-delay	model
 * Only	the	fluoresence	state	was	observable
 * Parameters	alpha2,	d2,	Kf	and	Kb	were	fixed	to	the	true	value	of	1
 * The	system	tried	to	fit	alpha1,	Vm1,	h1,	Km1	and	d1
 * The	range	for	parameters	alpha1,	Vm1,	Km1	and	d1	was	0.1	times	the	true	value	to	10	times	the	true	value
 * The	range	for	parameter	h1	was	0	to	4	(true	was	2.225)
-* Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	12	hours
+* Each	experiement	was	independent	from	the	other	experiments	and	lasted	for	20	hours
 * Experiments	were	sampled	every	5	mins
-* OID	used	eSS	with	fmincon	and	a	10	minute	maximum	duration
+* OID	used	eSS	with	fmincon	and	a	16	minute	maximum	duration
 * OID	used	E-optimality
-* The	input	stimulus was	stepped	with	24	steps	(each 30 mins) (values	between	0	and	2)
+* The	input	stimulus was	stepped	with	32	steps	(each 30 mins) (values	between	0	and	2)
 * The input stimulus steps are of fixed duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
@@ -29,10 +29,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-Finn
+git checkout Experiment-Bossk
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('Finn-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('Bossk-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "Finn-batch1"
+This will run 50 runs and created files starting with "Bossk-batch1"
 
