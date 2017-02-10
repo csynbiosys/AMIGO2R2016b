@@ -9,7 +9,7 @@ The change from Greedo is:
 
 
 Full description:
-* Each	run	executed	20	loops
+* Each	run	executed	5	loops
 * Using	gal1	no-delay	model
 * Only	the	fluoresence	state	was	observable
 * Parameters	alpha2,	d2,	Kf	and	Kb	were	fixed	to	the	true	value	of	1
