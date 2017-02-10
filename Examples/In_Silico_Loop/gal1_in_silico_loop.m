@@ -45,8 +45,8 @@ inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
-% Loop for 20 times 12 hour experiments
-numLoops = 20;
+% Loop for 5 times 12 hour experiments
+numLoops = 5;
 duration = 12*60;   % minutes
 stepDuration = 30;  % minutes
 numSteps = duration/stepDuration;
