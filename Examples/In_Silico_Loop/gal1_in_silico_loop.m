@@ -48,7 +48,7 @@ AMIGO_Prep(inputs);
 % Loop for 5 times 12 hour experiments
 numLoops = 5;
 duration = 12*60;   % minutes
-stepDuration = 30;  % minutes
+stepDuration = 90;  % minutes
 numSteps = duration/stepDuration;
 oidDuration = 600;  % seconds
 
