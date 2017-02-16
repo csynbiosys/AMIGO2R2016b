@@ -1,0 +1,160 @@
+---
+title: "Comparison of 10x6-hour, 5x12-hour, 4x15-hour and 3x20-hour experiments."
+author: "Ally Hume"
+date: "15 February 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description
+
+
+Here we compare four experiments to determine the best number of loops to do in our closed loop experiments. Our initial baseline experiment (Greedo) runs 10 6-hour experiments.  Elsewhere we tested 20 3-hour experiments (Yoda) and found it performed very badly. Thinking about the response times of the
+model this poor performance may be understood as the model takes about 500 minutes to read steady state after an input change galatose from 0 to 2.
+
+So we decided to add experiements with less loops and longer running periods. We choose 5 x 12-hour (Rey), 4 x 15 hour (Finn) and 3 x 20 hour (Bossk).
+
+
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(knitr)
+
+trueValues = data.frame( param=c("alpha1","Vm1","h1","Km1","d1","alpha2","d2","Kf","Kb"),
+                         trueValue=c(0.00175985449291231,0.0800887345690361,2.22548971250921,3.35948035905386,0.0100614569676223,1,1,1,1) )
+
+finalIterations = data.frame(exptName=c("10x6","5x12","4x15","3x20"), finalIteration=c(10,5,4,3))
+
+load_experiment_data <- function(filename) {
+  
+  wholeFile <- readLines(filename)
+  iterationData <- wholeFile[grep('ITERATION',wholeFile)]
+  iterationData <- iterationData[grep('PARAM_FIT|REL_CONF',iterationData)]
+  con <- textConnection(iterationData)
+  data <- read.table(con)
+  close(con)
+  
+  colnames(data) <- c("key", "iteration", "type", "param", "value")
+  
+  data <- data %>% mutate( runName = gsub('.dat','',filename))
+  exptName <- filename
+  exptName <- gsub('Greedo',    '10x6',  exptName)
+  exptName <- gsub('Rey',       '5x12',  exptName)
+  exptName <- gsub('Finn',      '4x15',  exptName)
+  exptName <- gsub('Bossk',     '3x20',  exptName)
+  
+  data <- data %>% mutate( exptName = gsub('-.*','',exptName))
+  data <- data %>% mutate( exptLabel = gsub('-.*','',filename))
+  
+  return(data)
+}
+```
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+# Get the data files.
+files <- c(list.files(pattern='Greedo.*dat'),list.files(pattern='Rey.*dat'),list.files(pattern='Finn.*dat'),list.files(pattern='Bossk.*dat'))
+
+# Read in each file, convert to a data frame and merge into one dataframe
+data <- lapply(files, load_experiment_data)
+data <- Reduce(function(...) merge(..., all=T), data)
+
+# Join data with true values
+data <- left_join(data,trueValues)
+
+# Join data with final iteration
+data <- left_join(data,finalIterations)
+
+# Order the factors
+data$exptName <- factor(data$exptName, levels = c('3x20','4x15','5x12','10x6'))
+
+```
+
+## Number of runs
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & param == 'alpha1' &  iteration == finalIteration)
+d <- d %>% group_by(exptName, exptLabel) %>% summarise(n=n())
+kable(d)
+```
+
+## Fitted parameter values after final iteration 
+
+The fitted parameters:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == finalIteration ) %>% 
+     select(exptName, param, trueValue, value) 
+
+ggplot(data=d, aes(x=exptName,y=value)) + 
+  geom_boxplot(alpha=0) + facet_wrap( ~ param, scales = "free_y") +
+  geom_hline(aes(yintercept=trueValue), color='red')
+```
+
+It looks like 5x12-hour and 10x6-hour are the best. Zooming in on only those two:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' & iteration == finalIteration & (exptName %in% c('5x12','10x6')) ) %>% 
+     select(exptName, param, trueValue, value) 
+
+ggplot(data=d, aes(x=exptName,y=value)) + 
+  geom_boxplot(alpha=0) + facet_wrap( ~ param, scales = "free_y") +
+  geom_hline(aes(yintercept=trueValue), color='red')
+```
+
+
+
+## Relative confidence intervals
+
+The fitted parameters:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == finalIteration) %>% 
+     select(exptName, param, trueValue, value) 
+
+ggplot(data=d, aes(x=exptName,y=value)) + 
+  geom_boxplot(alpha=0) + facet_wrap( ~ param, scales = "free_y") 
+```
+
+Again we zoom in on 5x12-hour and 10x6-hour:
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' & iteration == finalIteration & (exptName %in% c('5x12','10x6'))) %>% 
+     select(exptName, param, trueValue, value) 
+
+ggplot(data=d, aes(x=exptName,y=value)) + 
+  geom_boxplot(alpha=0) + facet_wrap( ~ param, scales = "free_y") 
+```
+
+
+# Appendix
+
+Various data tables if they are of interest.  Typically what is shown in box plots above.
+
+## Fitted parameter values after final iteration 
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'PARAM_FIT' &  iteration == finalIteration) %>% 
+     select(exptName,param, trueValue, value) %>% 
+     group_by(param, exptName, trueValue) %>% 
+     summarize( mean=mean(value), sd=sd(value), '25%' = quantile(value, probs=0.25), '50%' = quantile(value, probs=0.5), '75%' = quantile(value, probs=0.75),   min=min(value), max=max(value))
+kable(d)
+```
+
+## Relative confidence interval values
+
+```{r echo=FALSE}
+d <- data %>% filter(type == 'REL_CONF' &  iteration == finalIteration ) %>% 
+     select(param, exptName, value) %>% 
+     group_by(param, exptName) %>% 
+     summarize( mean=mean(value), sd=sd(value), '25%' = quantile(value, probs=0.25), '50%' = quantile(value, probs=0.5), '75%' = quantile(value, probs=0.75))
+kable(d)
+```
+
+
+
+
