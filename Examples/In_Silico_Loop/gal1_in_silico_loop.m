@@ -49,20 +49,38 @@ AMIGO_Prep(inputs);
 numLoops = 5;
 duration = 12*60;   % minutes
 stepDuration = 90;  % minutes
-numSteps = duration/stepDuration;
-oidDuration = 600;  % seconds
+oidDuration = 30;  % seconds    %%%% XXXX FIX THIS
 
 for i=1:numLoops
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Update all the experiment initial conditions based on current theta
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Calculate the initial state based on current best estimate of theta.
+    % The initial state is the steady state when gal is 0
+    y0 = gal1_steady_state(best_global_theta, 0);
+
+    % Need to determine the starting state of the next part of the
+    % experiment we wish to design the input for. We get this state by
+    % simulating the model using the current best theta for the duration
+    % for which we have designed input.
+    if exps.n_exp == 0
+        oid_y0 = y0;
+    else
+        % Simulate the experiment without noise to find end state
+        clear inputs;
+        inputs.model = model;
+        inputs.model.par = best_global_theta;
+        inputs.exps = exps;
     
-    y0 = gal1_initial_conditions(best_global_theta);
-    for iexp=1:exps.n_exp
-        exps.exp_y0{iexp} = y0;
+        inputs.plotd.plotlevel='noplot';
+        inputs.pathd.results_folder = results_folder;                        
+        inputs.pathd.short_name     = short_name;
+        inputs.pathd.runident       = strcat('sim-',int2str(i));
+    
+        sim = AMIGO_SData(inputs);
+
+        oid_y0 = sim.sim.states{1}(end,:);
+        
     end
-    used_y0{i} = y0;
+        
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Optimal experiment design
@@ -81,14 +99,14 @@ for i=1:numLoops
     inputs.exps.obs{iexp}=char('Fluorescence=gal1_fluo');    % Observation function
        
     % Fixed parts of the experiment
-    inputs.exps.exp_y0{iexp}=y0;                             % Initial conditions
-    inputs.exps.t_f{iexp}=duration;                               % Duration 6 hours
-    inputs.exps.n_s{iexp}=duration/5+1;                           % Number of sampling times - sample every 5 min
+    inputs.exps.exp_y0{iexp}=oid_y0;                         % Initial conditions
+    inputs.exps.t_f{iexp}=duration;                          % Duration
+    inputs.exps.n_s{iexp}=duration/5+1;                      % Number of sampling times - sample every 5 min
 
     % OED of the input 
     inputs.exps.u_type{iexp}='od';
-    inputs.exps.u_interp{iexp}='stepf';                       % Stimuli definition for experiment
-    inputs.exps.n_steps{iexp}=numSteps;                             % Number of steps
+    inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment
+    inputs.exps.n_steps{iexp}=duration/stepDuration;                % Number of steps
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
@@ -125,6 +143,32 @@ for i=1:numLoops
     results = AMIGO_OED(inputs);
     oed_results{i} = results;
     oed_end = now;
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Create a new experiment to simulate with the merged input
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    newExps.n_exp = 1;
+    newExps.n_obs{1}=1;                                        % Number of observed quantities per experiment                         
+    newExps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
+    newExps.obs{1}=char('Fluorescence=gal1_fluo');             % Observation function
+    newExps.exp_y0{1}=y0;    
+    
+    newExps.t_f{1}=i*duration;                % Experiment duration
+    newExps.n_s{1}=(i*duration)/5 + 1;        % Number of sampling times
+    newExps.t_s{1}=0:5:(i*duration);          % Times of samples
+    
+    newExps.u_interp{1}='step';
+    newExps.n_steps{1}=(i*duration)/stepDuration; 
+    newExps.t_con{1}=0:stepDuration:(i*duration);
+    
+    % Megre the input signal
+    if exps.n_exp == 0
+        newExps.u{1}=results.oed.u{results.oed.n_exp};  
+    else
+        newExps.u{1}=[exps.u{1} results.oed.u{results.oed.n_exp}];
+    end
+    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Mock an experiment
@@ -135,28 +179,13 @@ for i=1:numLoops
     % The parameters in the model are the parameter values we are trying to
     % determine - keep the model as it is for the simulation
     
-    inputs.exps.n_exp = 1;  % Just mocking one experiment
+    inputs.exps = newExps;
+    if exps.n_exp > 0
+        inputs.exps = rmfield(inputs.exps,'exp_type');
+        inputs.exps = rmfield(inputs.exps,'exp_data');
+        inputs.exps = rmfield(inputs.exps,'error_data');
+    end
     
-    inputs.exps.n_obs{1}=1;                                        % Number of observed quantities per experiment                         
-    inputs.exps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
-    inputs.exps.obs{1}=char('Fluorescence=gal1_fluo');             % Observation function
-    % Initial condition with 10% gaussian noise added
-    y0_to_use = [ 2.0831    1.0415    1.0415];          % Initial conditions with 'correct' parameters
-    % 2017-01-05 Removing this noise addition to y0 because it is causing problems - let's start with simplest baseline approach first 
-    % y0_to_use = y0_to_use + y0_to_use*0.1.*normrnd(0,1,1,length(y0));
-    inputs.exps.exp_y0{1}=y0_to_use;           
-    
-    inputs.exps.t_f{1}=results.oed.t_f{results.oed.n_exp};         % Experiment duration
-    inputs.exps.n_s{1}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
-    inputs.exps.t_s{1}=results.oed.t_s{results.oed.n_exp};         % times of samples
-    
-    inputs.exps.u_interp{1}='step';
-    inputs.exps.n_steps{1}=numSteps; 
-    inputs.exps.u{1}=results.oed.u{results.oed.n_exp};                       
-    inputs.exps.t_con{1}=results.oed.t_con{results.oed.n_exp};     % input value change points
-   
-    % TODO - in a bit of a mess with the noise types that are inconsistent
-    % over this loop
     inputs.exps.data_type='pseudo';
     inputs.exps.noise_type='hetero';
     inputs.exps.std_dev{1}=[0.1];
@@ -169,29 +198,26 @@ for i=1:numLoops
     
     sim = AMIGO_SData(inputs);
     
-    % Now we need to add this experiment to the experiments    
-    exps.n_exp=exps.n_exp+1;
-    iexp=exps.n_exp;
-    exps.exp_type{iexp}='fixed';
-    exps.n_obs{iexp}=1;                                        % Number of observed quantities per experiment                         
-    exps.obs_names{iexp}=char('Fluorescence');                 % Name of the observed quantities per experiment    
-    exps.obs{iexp}=char('Fluorescence=gal1_fluo');             % Observation function
-    exps.exp_y0{iexp}=y0;                                      % Initial conditions for experiment       
-    exps.t_f{iexp}=results.oed.t_f{results.oed.n_exp};         % Experiments duration
-    exps.n_s{iexp}=results.oed.n_s{results.oed.n_exp};         % Number of sampling times
-    exps.t_s{iexp}=results.oed.t_s{results.oed.n_exp};         % Sampling times, by default equidistant                                                            
-    exps.u_interp{iexp}='step';
-    exps.n_steps{iexp}=numSteps; 
-    exps.u{iexp}=results.oed.u{results.oed.n_exp};                       
-    exps.t_con{iexp}=results.oed.t_con{results.oed.n_exp};     % input value change points
-
-    exps.exp_data{iexp}=sim.sim.exp_data{1};
-    exps.error_data{iexp}=sim.sim.error_data{1};
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Now we need to add this experiment output to newExps and copy
+    % to exps
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    newExps.exp_type{1}='fixed';
+    if exps.n_exp == 0
+        newExps.exp_data{1}   = sim.sim.exp_data{1};
+        newExps.error_data{1} = sim.sim.error_data{1};
+    else
+        newExps.exp_data{1}   = [ exps.exp_data{1}   ; sim.sim.exp_data{1}((size(exps.exp_data{1},1)+1):end)];
+        newExps.error_data{1} = [ exps.error_data{1} ; sim.sim.error_data{1}((size(exps.exp_data{1},1)+1):end)];
+    end
+    
 
     % TODO - these noise types are a bit of a mess - only one type for all
     % experiments.  I probably need to be better about these.
-    exps.data_type='real';                                     % Type of data: 'pseudo'|'pseudo_pos'|'real'             
-    exps.noise_type='homo_var';                                % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
+    newExps.data_type='real';                                     % Type of data: 'pseudo'|'pseudo_pos'|'real'             
+    newExps.noise_type='homo_var';                                % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
+    
+    exps = newExps;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parameter estimation
@@ -226,7 +252,7 @@ for i=1:numLoops
     % OPTIMIZATION
     inputs.nlpsol.nlpsolver='eSS';
     inputs.nlpsol.eSS.maxeval = 200000;
-    inputs.nlpsol.eSS.maxtime = 300;
+    inputs.nlpsol.eSS.maxtime = 30; % 300;  % XXX ACH - fix this back to 300
     inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
@@ -235,6 +261,7 @@ for i=1:numLoops
 
     pe_start = now;
     results = AMIGO_PE(inputs);
+    pe_inputs{i} = inputs;
     pe_results{i} = results;
     pe_end= now;
 
