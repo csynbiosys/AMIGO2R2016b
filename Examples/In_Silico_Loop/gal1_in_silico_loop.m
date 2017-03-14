@@ -49,7 +49,7 @@ AMIGO_Prep(inputs);
 numLoops = 5;
 duration = 12*60;   % minutes
 stepDuration = 90;  % minutes
-oidDuration = 30;  % seconds    %%%% XXXX FIX THIS
+oidDuration = 300;  % seconds
 
 for i=1:numLoops
 
@@ -252,7 +252,7 @@ for i=1:numLoops
     % OPTIMIZATION
     inputs.nlpsol.nlpsolver='eSS';
     inputs.nlpsol.eSS.maxeval = 200000;
-    inputs.nlpsol.eSS.maxtime = 30; % 300;  % XXX ACH - fix this back to 300
+    inputs.nlpsol.eSS.maxtime = 300;
     inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
