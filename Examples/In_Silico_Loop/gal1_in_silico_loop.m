@@ -148,6 +148,7 @@ for i=1:numLoops
     % Create a new experiment to simulate with the merged input
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    clear newExps;
     newExps.n_exp = 1;
     newExps.n_obs{1}=1;                                        % Number of observed quantities per experiment                         
     newExps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
@@ -180,11 +181,6 @@ for i=1:numLoops
     % determine - keep the model as it is for the simulation
     
     inputs.exps = newExps;
-    if exps.n_exp > 0
-        inputs.exps = rmfield(inputs.exps,'exp_type');
-        inputs.exps = rmfield(inputs.exps,'exp_data');
-        inputs.exps = rmfield(inputs.exps,'error_data');
-    end
     
     inputs.exps.data_type='pseudo';
     inputs.exps.noise_type='hetero';
