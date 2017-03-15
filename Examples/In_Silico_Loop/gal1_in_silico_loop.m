@@ -113,7 +113,7 @@ for i=1:numLoops
     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
     inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
       
-    inputs.exps.noise_type='hetero';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
+    inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     inputs.exps.std_dev{iexp}=[0.1];     
     inputs.OEDsol.OEDcost_type='Eopt';
     
@@ -183,7 +183,7 @@ for i=1:numLoops
     inputs.exps = newExps;
     
     inputs.exps.data_type='pseudo';
-    inputs.exps.noise_type='hetero';
+    inputs.exps.noise_type='homo_var';
     inputs.exps.std_dev{1}=[0.1];
     
     inputs.plotd.plotlevel='noplot';
@@ -234,15 +234,14 @@ for i=1:numLoops
     inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
 
     % COST FUNCTION RELATED DATA
-    inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
-    inputs.PEsol.lsq_type='Q_I';
-    inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
+    inputs.PEsol.PEcost_type='lsq';        % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
+    inputs.PEsol.lsq_type='Q_expmax';
 
     % SIMULATION
     inputs.ivpsol.ivpsolver='cvodes';
     inputs.ivpsol.senssolver='cvodes';
-    inputs.ivpsol.rtol=1.0D-8;
-    inputs.ivpsol.atol=1.0D-8;
+    inputs.ivpsol.rtol=1.0D-7;
+    inputs.ivpsol.atol=1.0D-7;
     
 
     % OPTIMIZATION
