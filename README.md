@@ -1,9 +1,9 @@
-# Experiment - Krennic
+# Experiment - CassianAndor
 
-Child of experiment Rey for Gal 1 model with In-Silico-Loop
+Child of experiment Krennic for Gal 1 model with In-Silico-Loop
 
-The change from Rey is:
-* Step size is 90 mins rather then 30 mins.
+The change from Krennic is:
+* Inputs range from 0 to 10 rather than 0 to 2
 
 
 Full description:
@@ -18,7 +18,7 @@ Full description:
 * Experiments	were	sampled	every	5	mins
 * OID	used	eSS	with	fmincon	and	a	10	minute	maximum	duration
 * OID	used	E-optimality
-* The	input	stimulus was	stepped	with	8	steps	(each 90 mins) (values	between	0	and	2)
+* The	input	stimulus was	stepped	with	8	steps	(each 90 mins) (values	between	0	and	10)
 * The input stimulus steps are of fixed duration.
 * Mocked	experiments	always	start	from	the	equilibrum	state
 * Hetero	noise	was	added	to	output	with	a	standard	deviation	of	10%	of	the	value
@@ -29,10 +29,10 @@ Full description:
 
 ```
 git clone <this-repo>
-git checkout Experiment-Krennic
+git checkout Experiment-CassianAndor
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('Krennic-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('CassianAndor-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "Krennic-batch1"
+This will run 50 runs and created files starting with "CassianAndor-batch1"
 
