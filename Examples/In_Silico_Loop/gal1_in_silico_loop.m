@@ -90,7 +90,7 @@ for i=1:numLoops
     inputs.exps.u_interp{iexp}='stepf';                       % Stimuli definition for experiment
     inputs.exps.n_steps{iexp}=numSteps;                             % Number of steps
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
-    inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
+    inputs.exps.u_max{iexp}=30*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
     inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
