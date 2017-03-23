@@ -3,7 +3,7 @@
 Child of experiment Krennic for Gal 1 model with In-Silico-Loop
 
 The change from Krennic is:
-* Inputs range from 0 to 10 rather than 0 to 2
+* Inputs range from 0 to 30 rather than 0 to 2
 
 
 Full description:
