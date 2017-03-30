@@ -5,7 +5,7 @@ files = dir('data/*.mat');
 iexp = 1;
 
 predata_duration = 600;     % minutes
-calibration_duration = 180; % minutes
+calibration_duration = 175; % minutes
 sampling_interval = 5;      % minutes
 
 clear exps;
@@ -15,8 +15,7 @@ for file = files'
     file.name
     % Seems to have too much input data so take as much as we need
     % according to how much output we have
-    input_duration = (size(ypn,2)-1) * sampling_interval - calibration_duration;   % size(ingresso,2) - 5;
-    input_duration
+    input_duration = (size(ypn,2)-1) * sampling_interval - calibration_duration;
     total_duration = predata_duration + calibration_duration + input_duration;
     data_duration  = calibration_duration + input_duration;
     
@@ -29,7 +28,7 @@ for file = files'
     exps.t_s{iexp}=predata_duration:sampling_interval:total_duration;  % Sampling times, by default equidistant                                                            
     exps.u_interp{iexp}='step';
     exps.n_steps{iexp}=input_duration+1; 
-    exps.u{iexp}=[1 ingresso(:,1:input_duration)];            
+    exps.u{iexp}=[2 2*ingresso];            
     exps.t_con{iexp}=[0 (predata_duration+calibration_duration):total_duration];                               % input value change points
 
     exps.data_type      = 'real';    
