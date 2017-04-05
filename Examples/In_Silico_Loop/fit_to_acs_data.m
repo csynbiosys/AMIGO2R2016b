@@ -25,11 +25,32 @@ for file = files'
     exps.obs{iexp}=char('Fluorescence=gal1_fluo');             % Observation function
     exps.t_f{iexp}=total_duration;                             % Experiments duration
     exps.n_s{iexp}=data_duration/sampling_interval+1;          % Number of sampling times
-    exps.t_s{iexp}=predata_duration:sampling_interval:total_duration;  % Sampling times, by default equidistant                                                            
+    exps.t_s{iexp}=predata_duration:sampling_interval:total_duration;  % Sampling times, by default equidistant  
     exps.u_interp{iexp}='step';
-    exps.n_steps{iexp}=input_duration+1; 
-    exps.u{iexp}=[2 2*ingresso];            
-    exps.t_con{iexp}=[0 (predata_duration+calibration_duration):total_duration];                               % input value change points
+    
+    u= [2];
+    t_con = [0 predata_duration+calibration_duration];
+    
+    t = predata_duration+calibration_duration;
+    for i = 1:length(vton)
+        if vton(i) == 0
+            % No galactose for 5 minutes
+            u     = [u 0];
+            t_con = [t_con t+5*i];
+        elseif vton(i) == 300
+            % Galactose for 5 minutes
+            u     = [u 2];
+            t_con = [t_con t+5*i];
+        else
+            % Galactose for less than 5 mins
+            u     = [u 2 0 ];
+            t_con = [t_con t+5*(i-1)+5*vton(i)/300 t+5*i];
+        end
+    end
+    
+    exps.n_steps{iexp} = length(u); 
+    exps.u{iexp}       = u;           % input values
+    exps.t_con{iexp}   = t_con;       % input value change points
 
     exps.data_type      = 'real';    
     exps.noise_type     = 'homo';
@@ -53,9 +74,23 @@ short_name     = 'gal1noD'
 gal1_load_model;
 
 % Initial guess for theta - the global unknows of model
-best_global_theta = transpose([0.002,0.1,2.0,1.5,0.02,1,1,1,1]);
-global_theta_max = [0.0176  0.8   4 2   0.1   10   10   10   10  ];  % Maximum allowed values for the paramters
-global_theta_min = [0.00017 0.008 0  0.01 0.001  0.1  0.1  0.1  0.1];  % Minimum allowed values for the parameters
+% Parameter ranges:
+% alpha1 (a.u/min) - a.u. so no idea of range but much smaller than Vm1
+% Vm1 (a.u./min) - a.u. so no idea of range
+% h1 (unitless) - between 0.9 and 4.9 -  lets try 0.5 to 5.0
+% Km2 (same units as input which are w/v) - if 2 >> Vmax then 0 to 1?
+% d1 (/min) - 0.00057 min-1 to 0.1386 min-1 with a starting value of 0.0346
+% d2 (/min) - 0.00924 to 0.002310 
+% K1 (/min) - 0.25 to 0.5  
+% Kb (/min) - 0.00924 to 0.002310 
+% Kf - 0.027 to 0.174
+
+%                                  a  Vm   h1   Km       d1      d2    K1    Kb   Kf
+best_global_theta = transpose([0.002,  2, 2.0,  1.5,  0.0346, 0.006, 9.92, 0.006, 0.1]);
+
+%                   a   Vm   h1 Km    d1      d2     K1    Kb      Kf
+global_theta_min = [0    0  0.5  0  0.0003  0.0020   0.1  0.0020  0.005];  % Minimum allowed values for the parameters
+global_theta_max = [0.1 10  5.0  2  0.1500  0.0100   100  0.0100  0.200];  % Maximum allowed values for the paramters
 param_including_vector = [true,true,true,true,true,true,true,true,true];
 
 % Compile the model
