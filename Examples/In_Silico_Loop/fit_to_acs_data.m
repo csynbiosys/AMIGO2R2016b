@@ -11,7 +11,7 @@ sampling_interval = 5;      % minutes
 clear exps;
 
 for file = files'
-    load(file.name);
+    load(strcat('data/',file.name));
     file.name
     % Seems to have too much input data so take as much as we need
     % according to how much output we have
