@@ -71,27 +71,15 @@ results_folder = strcat('Gal1-noDelay',datestr(now,'yyyy-mm-dd-HHMMSS'));
 short_name     = 'gal1noD'
 
 % Read the model into the model variable
-gal1_load_model;
+gal1_load_model_v2;
 
-% Initial guess for theta - the global unknows of model
-% Parameter ranges:
-% alpha1 (a.u/min) - a.u. so no idea of range but much smaller than Vm1
-% Vm1 (a.u./min) - a.u. so no idea of range
-% h1 (unitless) - between 0.9 and 4.9 -  lets try 0.5 to 5.0
-% Km2 (same units as input which are w/v) - if 2 >> Vmax then 0 to 1?
-% d1 (/min) - 0.00057 min-1 to 0.1386 min-1 with a starting value of 0.0346
-% d2 (/min) - 0.00924 to 0.002310 
-% K1 (/min) - 0.25 to 0.5  
-% Kb (/min) - 0.00924 to 0.002310 
-% Kf - 0.027 to 0.174
+%                                  r     h1   Km         d1      d2    K1    Kb   Kf
+best_global_theta = transpose([0.001,   1.6,  0.025,  0.0346, 0.006, 10, 0.006, 0.1]);
 
-%                                  a  Vm   h1   Km       d1      d2    K1    Kb   Kf
-best_global_theta = transpose([0.002,  2, 2.0,  1.5,  0.0346, 0.006, 9.92, 0.006, 0.1]);
-
-%                   a   Vm   h1 Km    d1      d2     K1    Kb      Kf
-global_theta_min = [0    0  0.5  0  0.0003  0.0020   0.1  0.0020  0.005];  % Minimum allowed values for the parameters
-global_theta_max = [0.1 10  5.0  2  0.1500  0.0100   100  0.0100  0.200];  % Maximum allowed values for the paramters
-param_including_vector = [true,true,true,true,true,true,true,true,true];
+%                   r          h1  Km    d1      d2     K1    Kb      Kf
+global_theta_min = [0.0001    0.5  0  0.0003  0.0020   0.1  0.0020  0.010];  % Minimum allowed values for the parameters
+global_theta_max = [0.01      5.0  2  0.1500  0.0100   100  0.0100  0.200];  % Maximum allowed values for the paramters
+param_including_vector = [true,true,true,true,true,true,true,true];
 
 % Compile the model
 clear inputs;
@@ -129,12 +117,17 @@ inputs.ivpsol.atol=1.0D-8;
     
 % OPTIMIZATION
 inputs.nlpsol.nlpsolver='eSS';
-inputs.nlpsol.eSS.maxeval = 200000;
+inputs.nlpsol.eSS.maxeval = 20000000;
 inputs.nlpsol.eSS.maxtime = 300;
-inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
-inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
-inputs.rid.conf_ntrials=500;
+inputs.nlpsol.eSS.local.solver = 'fminsearch';  % nl2sol not yet installed on my mac
+inputs.nlpsol.eSS.local.finish = 'fminsearch';  % nl2sol not yet installed on my mac
+%inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
+%inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
+%inputs.rid.conf_ntrials=500;
 
 results = AMIGO_PE(inputs);
+
+% Run a simulation for each input
+
 
     
