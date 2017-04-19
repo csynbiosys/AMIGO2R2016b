@@ -22,7 +22,7 @@ function [ ] = plotExperimentResult( oed_results, pe_results, exps, inputs, true
             y(index) = oed_results{nExps}.oed.u{exp}(i);
             index = index + 1;
         end
-        x(index) = 360;
+        x(index) = 360; 
         y(index) = y(index-1)
         subplot(ceil(nExps/2),2,exp);
         plot(x,y);

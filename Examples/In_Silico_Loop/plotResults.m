@@ -6,7 +6,6 @@ for exp=1:exps.n_exp;
     clear inputs;
     inputs.model     = model;
     inputs.model.par = results.fit.thetabest;
-    inputs.model.par(8) = 0.02;
     
     inputs.pathd.results_folder = results_folder;                        
     inputs.pathd.short_name     = short_name;
@@ -18,7 +17,7 @@ for exp=1:exps.n_exp;
     inputs.exps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
     inputs.exps.obs{1}=char('Fluorescence=gal1_fluo');             % Observation function
  
-    y0_to_use = [1 1 1];          
+    y0_to_use = [6 1 1];          
     inputs.exps.exp_y0{1}=y0_to_use;           
     
     total_duration = exps.t_s{exp}(end);
@@ -45,6 +44,20 @@ end
 figure;
 for exp=1:exps.n_exp;
     subplot(ceil(exps.n_exp/2),2,exp);
+    
     plot(exps.t_s{exp},exps.exp_data{exp}, 'r', results.sim.tsim{exp},results.sim.obs{exp}, 'b', sim_res{exp}.sim.tsim{1}, sim_res{exp}.sim.states{1}(:,3), 'g');
     title(int2str(exp));
+end
+
+figure;
+for exp=1:exps.n_exp;
+    subplot(ceil(exps.n_exp/2),2,exp);
+    
+    t = repmat(exps.t_con{exp},2,1);
+    t = t(:)';
+    t = t(2:end-1);
+    
+    u = repmat(exps.u{exp},2,1);
+    u = u(:)';
+    area(t,u);
 end

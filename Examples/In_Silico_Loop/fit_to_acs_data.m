@@ -59,7 +59,7 @@ for file = files'
 
     % These should not matter if we give enough time to reach steady
     % state.
-    exps.exp_y0{iexp} = [1 1 1];  
+    exps.exp_y0{iexp} = [6 1 1];  
     
     exps.n_exp = iexp;
     iexp = iexp + 1;
@@ -77,8 +77,8 @@ gal1_load_model_v2;
 best_global_theta = transpose([0.001,   1.6,  0.025,  0.0346, 0.006, 10, 0.006, 0.1]);
 
 %                   r          h1  Km    d1      d2     K1    Kb      Kf
-global_theta_min = [0.0001    0.5  0  0.0003  0.0020   0.1  0.0020  0.010];  % Minimum allowed values for the parameters
-global_theta_max = [0.01      5.0  2  0.1500  0.0100   100  0.0100  0.200];  % Maximum allowed values for the paramters
+global_theta_min = [0.0003     0.5  0  0.0003  0.0020   0.01 0.0020  0.010];  % Minimum allowed values for the parameters
+global_theta_max = [0.0050     5.0  2  0.1500  0.1000   100  0.1000  0.200];  % Maximum allowed values for the paramters
 param_including_vector = [true,true,true,true,true,true,true,true];
 
 % Compile the model
@@ -105,7 +105,7 @@ inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maxim
 inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
 
 % COST FUNCTION RELATED DATA
-inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
+inputs.PEsol.PEcost_type='lsq';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
 inputs.PEsol.lsq_type='Q_I';
 inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
 
@@ -119,6 +119,7 @@ inputs.ivpsol.atol=1.0D-8;
 inputs.nlpsol.nlpsolver='eSS';
 inputs.nlpsol.eSS.maxeval = 20000000;
 inputs.nlpsol.eSS.maxtime = 300;
+inputs.nlpsol.eSS.log_var = [ 1 3 4 5 6 7 8];
 inputs.nlpsol.eSS.local.solver = 'fminsearch';  % nl2sol not yet installed on my mac
 inputs.nlpsol.eSS.local.finish = 'fminsearch';  % nl2sol not yet installed on my mac
 %inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
