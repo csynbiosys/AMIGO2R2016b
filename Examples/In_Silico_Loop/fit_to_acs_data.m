@@ -77,8 +77,8 @@ gal1_load_model_v2;
 best_global_theta = transpose([0.001,   1.6,  0.025,  0.0346, 0.006, 10, 0.006, 0.1]);
 
 %                   r          h1  Km    d1      d2     K1    Kb      Kf
-global_theta_min = [0.0003     0.5  0  0.0003  0.0020   0.01 0.0020  0.010];  % Minimum allowed values for the parameters
-global_theta_max = [0.0050     5.0  2  0.1500  0.1000   100  0.1000  0.200];  % Maximum allowed values for the paramters
+global_theta_min = [0.0003     0.5  0  0.00003  0.000020   0.0001 0.0020  0.010];  % Minimum allowed values for the parameters
+global_theta_max = [0.0050     5.0  2  1.500    1.000        100  1.000  20.0];  % Maximum allowed values for the paramters
 param_including_vector = [true,true,true,true,true,true,true,true];
 
 % Compile the model
