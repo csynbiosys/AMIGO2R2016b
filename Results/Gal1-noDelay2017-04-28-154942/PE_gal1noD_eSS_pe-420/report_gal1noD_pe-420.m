@@ -4,8 +4,8 @@
    *********************************** 
 
 Date: 28-Apr-2017
-Problem folder:	 Results\Gal1-noDelay2017-04-28-152954
-Results folder in problem folder:	 Results\Gal1-noDelay2017-04-28-152954\PE_gal1noD_eSS_pe-420 
+Problem folder:	 Results\Gal1-noDelay2017-04-28-154942
+Results folder in problem folder:	 Results\Gal1-noDelay2017-04-28-154942\PE_gal1noD_eSS_pe-420 
 
 
 -------------------------------
@@ -22,8 +22,8 @@ ess_options.
 	iterprint:	1
 	local:	(1x1 struct)
 	log_var:	(1x7 double)
-	maxeval:	20000000
-	maxtime:	300
+	maxeval:	2000000000
+	maxtime:	30000
 	ndiverse:	'auto'
 
 		  default options are used. 
@@ -4225,34 +4225,34 @@ Experiment 10:
 >>>>    Mean / Maximum value of the residuals in percentage (100*(data-model)/data):
 
 		Experiment 1 : 
-		 Observable 1 --> mean error: 6.392827 %	 max error: 25.223844 %
+		 Observable 1 --> mean error: 6.388965 %	 max error: 25.215140 %
 
 		Experiment 2 : 
-		 Observable 1 --> mean error: 72.438213 %	 max error: 269.182634 %
+		 Observable 1 --> mean error: 72.438097 %	 max error: 269.174793 %
 
 		Experiment 3 : 
-		 Observable 1 --> mean error: 41.507990 %	 max error: 147.832487 %
+		 Observable 1 --> mean error: 41.509745 %	 max error: 147.827284 %
 
 		Experiment 4 : 
-		 Observable 1 --> mean error: 22.595522 %	 max error: 107.177503 %
+		 Observable 1 --> mean error: 22.591960 %	 max error: 107.192282 %
 
 		Experiment 5 : 
-		 Observable 1 --> mean error: 19.133024 %	 max error: 81.765989 %
+		 Observable 1 --> mean error: 19.137380 %	 max error: 81.791412 %
 
 		Experiment 6 : 
-		 Observable 1 --> mean error: 31.847383 %	 max error: 66.106601 %
+		 Observable 1 --> mean error: 31.846235 %	 max error: 66.118100 %
 
 		Experiment 7 : 
-		 Observable 1 --> mean error: 38.542452 %	 max error: 155.834790 %
+		 Observable 1 --> mean error: 38.541705 %	 max error: 155.825220 %
 
 		Experiment 8 : 
-		 Observable 1 --> mean error: 57.015563 %	 max error: 201.069444 %
+		 Observable 1 --> mean error: 57.013063 %	 max error: 201.065017 %
 
 		Experiment 9 : 
-		 Observable 1 --> mean error: 20.426130 %	 max error: 77.585684 %
+		 Observable 1 --> mean error: 20.429792 %	 max error: 77.591734 %
 
 		Experiment 10 : 
-		 Observable 1 --> mean error: 26.721482 %	 max error: 103.924033 %
+		 Observable 1 --> mean error: 26.722897 %	 max error: 103.906653 %
 
 --------------------------------------------------------------------------
 
@@ -4260,42 +4260,42 @@ Experiment 10:
 >>>>  Maximum absolute value of the residuals (data-model):
 
 		Experiment 1 : 
-		 Observable 1 -->  max residual: 0.129326 max data: 1.106014
+		 Observable 1 -->  max residual: 0.129366 max data: 1.106014
 
 		Experiment 2 : 
-		 Observable 1 -->  max residual: 0.528210 max data: 1.084309
+		 Observable 1 -->  max residual: 0.528327 max data: 1.084309
 
 		Experiment 3 : 
-		 Observable 1 -->  max residual: 0.319680 max data: 1.047711
+		 Observable 1 -->  max residual: 0.319669 max data: 1.047711
 
 		Experiment 4 : 
-		 Observable 1 -->  max residual: 0.484174 max data: 1.143004
+		 Observable 1 -->  max residual: 0.484241 max data: 1.143004
 
 		Experiment 5 : 
-		 Observable 1 -->  max residual: 0.190915 max data: 1.067152
+		 Observable 1 -->  max residual: 0.190974 max data: 1.067152
 
 		Experiment 6 : 
-		 Observable 1 -->  max residual: 0.281269 max data: 1.120250
+		 Observable 1 -->  max residual: 0.281320 max data: 1.120250
 
 		Experiment 7 : 
-		 Observable 1 -->  max residual: 0.386023 max data: 1.057878
+		 Observable 1 -->  max residual: 0.386015 max data: 1.057878
 
 		Experiment 8 : 
-		 Observable 1 -->  max residual: 0.473445 max data: 1.110510
+		 Observable 1 -->  max residual: 0.473457 max data: 1.110510
 
 		Experiment 9 : 
-		 Observable 1 -->  max residual: 0.244369 max data: 1.115909
+		 Observable 1 -->  max residual: 0.244325 max data: 1.115909
 
 		Experiment 10 : 
-		 Observable 1 -->  max residual: 0.212502 max data: 1.033431
+		 Observable 1 -->  max residual: 0.212466 max data: 1.033431
 
 --------------------------------------------------------------------------	   
 
->>>> Best objective function: 129.921085 
+>>>> Best objective function: 129.919577 
 	   
 
->>>> Computational cost: 538.453052 s
-> 99.90% of successful simulationn
+>>>> Computational cost: 30104.199374 s
+> 99.98% of successful simulationn
 > 100.00% of successful sensitivity calculations
 
 
@@ -4305,23 +4305,23 @@ Experiment 10:
 
 >>> Estimated global parameters: 
 
-	r      : 3.0000e-04  +-  3.2966e-02 ( 1.1e+04%); (bound active) 
-	h1     : 1.8443e+00  +-  9.0132e+10 (4.89e+12%); 
-	Km1    : 1.6612e+00  +-  8.0936e+10 (4.87e+12%); 
-	d1     : 6.4706e-03  +-  1.0709e-02 (     165%); 
-	alpha2 : 1.4374e-01  +-  7.5471e+01 (5.25e+04%); 
-	d2     : 2.9043e-03  +-  1.3063e+00 ( 4.5e+04%); (bound active) 
-	Kf     : 2.5054e-03  +-  1.3085e+00 (5.22e+04%); 
-	Kb     : 4.9111e-01  +-  3.8690e+00 (     788%); 
+	r      : 3.0000e-04  +-  3.1513e-02 (1.05e+04%); (bound active) 
+	h1     : 3.0394e+00  +-  1.1651e+11 (3.83e+12%); 
+	Km1    : 1.9749e+00  +-  8.0060e+10 (4.05e+12%); 
+	d1     : 5.3747e-03  +-  7.1427e-03 (     133%); 
+	alpha2 : 5.2560e-02  +-  8.4751e+00 (1.61e+04%); 
+	d2     : 1.0000e-04  +-  1.0260e+00 (1.03e+06%); (bound active) 
+	Kf     : 6.4237e-03  +-  1.0235e+00 (1.59e+04%); 
+	Kb     : 4.5967e-01  +-  3.3829e+00 (     736%); 
 
 
 >>> Correlation matrix for the global unknowns:
 
-	 1.000000e+00	 1.599909e-01	 1.582322e-01	 -5.100522e-01	 -5.758330e-02	 -5.660094e-02	 5.971111e-02	 1.466506e-01
-	 1.599909e-01	 1.000000e+00	 -9.152079e-01	 -7.863894e-02	 5.578775e-02	 5.598768e-02	 -5.541824e-02	 3.834095e-02
-	 1.582322e-01	 -9.152079e-01	 1.000000e+00	 -3.544104e-02	 -1.269460e-02	 -1.289435e-02	 1.309819e-02	 1.529782e-02
-	 -5.100522e-01	 -7.863894e-02	 -3.544104e-02	 1.000000e+00	 2.866288e-01	 2.886270e-01	 -2.940832e-01	 -5.116448e-01
-	 -5.758330e-02	 5.578775e-02	 -1.269460e-02	 2.866288e-01	 1.000000e+00	 9.999217e-01	 -9.998977e-01	 1.867260e-01
-	 -5.660094e-02	 5.598768e-02	 -1.289435e-02	 2.886270e-01	 9.999217e-01	 1.000000e+00	 -9.999836e-01	 1.758071e-01
-	 5.971111e-02	 -5.541824e-02	 1.309819e-02	 -2.940832e-01	 -9.998977e-01	 -9.999836e-01	 1.000000e+00	 -1.727110e-01
-	 1.466506e-01	 3.834095e-02	 1.529782e-02	 -5.116448e-01	 1.867260e-01	 1.758071e-01	 -1.727110e-01	 1.000000e+00
+	 1.000000e+00	 -1.123349e-01	 -2.437019e-01	 5.479785e-01	 4.159467e-02	 3.370861e-02	 -3.882692e-02	 9.335190e-02
+	 -1.123349e-01	 1.000000e+00	 -8.863508e-01	 -9.938555e-02	 7.416730e-02	 7.494323e-02	 -7.415886e-02	 4.948094e-03
+	 -2.437019e-01	 -8.863508e-01	 1.000000e+00	 -4.263575e-02	 -1.772345e-01	 -1.759160e-01	 1.767128e-01	 -3.213506e-02
+	 5.479785e-01	 -9.938555e-02	 -4.263575e-02	 1.000000e+00	 -2.257554e-01	 -2.537280e-01	 2.446094e-01	 4.484080e-01
+	 4.159467e-02	 7.416730e-02	 -1.772345e-01	 -2.257554e-01	 1.000000e+00	 9.988091e-01	 -9.990584e-01	 1.987770e-01
+	 3.370861e-02	 7.494323e-02	 -1.759160e-01	 -2.537280e-01	 9.988091e-01	 1.000000e+00	 -9.999553e-01	 1.510122e-01
+	 -3.882692e-02	 -7.415886e-02	 1.767128e-01	 2.446094e-01	 -9.990584e-01	 -9.999553e-01	 1.000000e+00	 -1.562665e-01
+	 9.335190e-02	 4.948094e-03	 -3.213506e-02	 4.484080e-01	 1.987770e-01	 1.510122e-01	 -1.562665e-01	 1.000000e+00

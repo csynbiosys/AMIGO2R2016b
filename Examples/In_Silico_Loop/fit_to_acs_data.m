@@ -117,8 +117,8 @@ inputs.ivpsol.atol=1.0D-8;
     
 % OPTIMIZATION
 inputs.nlpsol.nlpsolver='eSS';
-inputs.nlpsol.eSS.maxeval = 20000000;
-inputs.nlpsol.eSS.maxtime = 300;
+inputs.nlpsol.eSS.maxeval = 2000000000;
+inputs.nlpsol.eSS.maxtime = 30000;
 inputs.nlpsol.eSS.log_var = [ 1 3 4 5 6 7 8];
 inputs.nlpsol.eSS.local.solver = 'fminsearch';  % nl2sol not yet installed on my mac
 inputs.nlpsol.eSS.local.finish = 'fminsearch';  % nl2sol not yet installed on my mac
