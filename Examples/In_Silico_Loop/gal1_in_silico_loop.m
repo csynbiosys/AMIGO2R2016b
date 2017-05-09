@@ -46,6 +46,7 @@ global_theta_max(3) = 5;
 
 % Focusing on the 5 parameters for transcription
 param_including_vector = [true,true,true,true,true,false,false,false,false];
+log_transform_indicies = [1,2,4,5];
 
 % Compile the model
 clear inputs;
@@ -113,6 +114,7 @@ inputs.nlpsol.eSS.maxeval = 666*oidDuration;
 inputs.nlpsol.eSS.maxtime = oidDuration;
 inputs.nlpsol.eSS.local.solver = 'fmincon';
 inputs.nlpsol.eSS.local.finish = 'fmincon';
+inputs.nlpsol.eSS.log_var = log_transform_indicies;
                                                        
 inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
 inputs.nlpsol.eSS.local.nl2sol.maxfeval =     400;     % max number of function evaluation
@@ -235,6 +237,7 @@ for i=1:10
     inputs.nlpsol.eSS.maxtime = 300;
     inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
+    inputs.nlpsol.eSS.log_var = log_transform_indicies;
     inputs.rid.conf_ntrials=500;
 
     inputs.plotd.plotlevel='noplot';
