@@ -55,16 +55,13 @@ inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
-
-% Run OID to choose the best input
-
 % Calculate the initial state based on current best estimate of theta.
 % The initial state is the steady state when gal is 0
 y0 = gal1_steady_state(global_theta_guess, 0);
        
 % Fixed parts of the experiment
-duration = 60*60;                                    % Duration in minutes
-stepDuration = 60;                                   % Step duration in minutes
+duration = 60*60;     % Duration in minutes
+numSteps = 61;        % needs to be an odd number
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a new experiment to simulate with the OID input
@@ -82,9 +79,10 @@ newExps.n_s{1}=duration/5 + 1;          % Number of sampling times
 newExps.t_s{1}=0:5:duration ;           % Times of samples
     
 newExps.u_interp{1}='step';
-newExps.n_steps{1}=60; 
-newExps.u{1}=rand(1,60)*2;                       
-newExps.t_con{1}=0:60:3600;  
+newExps.n_steps{1}=numSteps; 
+inp = linspace(0,2,numSteps/2+1);
+newExps.u{1}=[ inp fliplr(inp(1:end-1)) ];  % Goes from 0 to 2 and back to 0               
+newExps.t_con{1}=linspace(0,duration,numSteps+1);  
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mock an experiment
@@ -139,10 +137,12 @@ for i=1:10
     % Reduce the input to a smaller set of values
     inputs.exps.t_f{1}          = duration;                % Experiment duration
     inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
-    inputs.exps.t_s{1}          = 0:5:duration ;           % Times of samples
-    inputs.exps.n_steps{1}      = duration/stepDuration; 
-    inputs.exps.t_con{1}        = 0:stepDuration:duration;
+    inputs.exps.t_s{1}          = 0:5:duration;            % Times of samples
+    
+    inputs.exps.n_steps{1}      = sum(exps.t_con{1} < duration);
+    inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_steps{1}+1);
     inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_steps{1});
+    
     inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
     inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
 
@@ -170,7 +170,7 @@ for i=1:10
     % OPTIMIZATION
     inputs.nlpsol.nlpsolver='eSS';
     inputs.nlpsol.eSS.maxeval = 200000;
-    inputs.nlpsol.eSS.maxtime = 300;
+    inputs.nlpsol.eSS.maxtime = 30;
     inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
