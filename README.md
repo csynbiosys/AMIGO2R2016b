@@ -1,21 +1,19 @@
-# Experiment - Jawa
+# Experiment - Ventress
 
-Reworking of the code to that it stitches together one experiment after
-the other correctly rather than previous experiments where each 
-sub-experiment started from the same steady state.
+Rerunning of experiments now using a much more believable set of parameters
+for truth.
 
-The starting steady state for the whole experiment is now the non-gal
-steady state. Previously it was the gal=2 steady state.
-
+In this experiment the input is chosen randomly with a different value between
+0 and 2 chosen for every hour.
 
 ## To run the experiment
 
 ```
 git clone <this-repo>
-git checkout Experiment-Jawa
+git checkout Experiment-Ventress
 cd AMIGO2R2016/Examples/In_Silico_Loop
-matlab -nodesktop -nosplash -r "run_in_silico_experiment('Jawa-batch1', 50); quit;"
+matlab -nodesktop -nosplash -r "run_in_silico_experiment('Ventress-batch1', 50); quit;"
 ```
 
-This will run 50 runs and created files starting with "Jawa-batch1"
+This will run 50 runs and created files starting with "Ventress-batch1"
 
