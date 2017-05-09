@@ -1,10 +1,10 @@
-# Experiment - Ventress
+# Experiment - Biggs
 
 Rerunning of experiments now using a much more believable set of parameters
 for truth.
 
-In this experiment the input is chosen randomly with a different value between
-0 and 2 chosen for every hour.
+In this experiment the input is 'designed'.  The input comes down in small steps
+for 30 hours and then goes up in small steps for 30 hours.
 
 ## To run the experiment
 
