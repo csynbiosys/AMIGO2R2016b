@@ -177,8 +177,6 @@ for i=1:10
 
     inputs.plotd.plotlevel='noplot';
 
-    save('inputs.mat', 'inputs');
-
     pe_start = now;
     results = AMIGO_PE(inputs);
     pe_inputs{i} = inputs;
