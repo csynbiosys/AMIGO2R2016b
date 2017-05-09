@@ -205,4 +205,5 @@ for i=1:10
 end
 
 true_param_values = model.par(param_including_vector);
-save([epccOutputResultFileNameBase,'.mat'], 'pe_results','oed_results','exps','inputs','true_param_values');
+save([epccOutputResultFileNameBase,'.mat'], 'pe_results','exps','inputs','true_param_values');
+
