@@ -61,7 +61,7 @@ y0 = gal1_steady_state(global_theta_guess, 0);
        
 % Fixed parts of the experiment
 duration = 60*60;     % Duration in minutes
-numSteps = 13;        % needs to be an odd number
+numPulses = 60;       % Number of pulses
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a new experiment to simulate with the OID input
@@ -79,10 +79,9 @@ newExps.n_s{1}=duration/5 + 1;          % Number of sampling times
 newExps.t_s{1}=0:5:duration ;           % Times of samples
     
 newExps.u_interp{1}='step';
-newExps.n_steps{1}=numSteps; 
-inp = linspace(0,2,numSteps/2+1);
-newExps.u{1}=[ inp fliplr(inp(1:end-1)) ];  % Goes from 0 to 2 and back to 0               
-newExps.t_con{1}=linspace(0,duration,numSteps+1);  
+newExps.n_steps{1}=numPulses*2; 
+newExps.u{1}=repmat([2 0],1,numPulses)
+newExps.t_con{1}=union(0:60:duration,10:60:duration); 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mock an experiment
