@@ -61,7 +61,7 @@ y0 = gal1_steady_state(global_theta_guess, 0);
        
 % Fixed parts of the experiment
 duration = 60*60;     % Duration in minutes
-numCycles = 5;       % Number of 2-0 cycles
+numCycles = 30;       % Number of 2-0 cycles
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a new experiment to simulate with the OID input
