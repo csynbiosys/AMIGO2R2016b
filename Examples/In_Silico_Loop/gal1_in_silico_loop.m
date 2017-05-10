@@ -189,13 +189,13 @@ for i=1:10
 
     for j=1:size(used_par_names,1)
         fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
-        if exist('results.fit.rel_conf_interval')
+        if isfield(results.fit,'rel_conf_interval')
             fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
         end
-        if exist('results.fit.residuals')
+        if isfield(results.fit,'residuals')
             fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
         end
-        if exist('results.fit.rel_residuals')
+        if isfield(results.fit,'rel_residuals')
             fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
         end
     end
