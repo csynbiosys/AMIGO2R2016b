@@ -3,10 +3,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 global epccOutputResultFileNameBase;
+global epccNumLoops;
 resultFileName = [epccOutputResultFileNameBase,'.dat'];
 
-rng shuffle
-rngToGetSeed = rng
+rng shuffle;
+rngToGetSeed = rng;
 
 % Write the header information
 fid = fopen(resultFileName,'w');  
@@ -23,7 +24,7 @@ clear pe_results;
 clear ode_results;
 
 results_folder = strcat('Gal1-noDelay',datestr(now,'yyyy-mm-dd-HHMMSS'));
-short_name     = 'gal1noD'
+short_name     = 'gal1noD';
 
 % Read the model into the model variable
 gal1_load_model;
@@ -32,9 +33,20 @@ gal1_load_model;
 exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
-best_global_theta = transpose([0.002,0.1,2.0,3.1,0.02,1,1,1,1]);
-global_theta_max = [0.0176  0.8   4 33.6   0.1   10   10   10   10  ];  % Maximum allowed values for the paramters
-global_theta_min = [0.00017 0.008 0  0.336 0.001  0.1  0.1  0.1  0.1];  % Minimum allowed values for the parameters
+global_theta_guess = [logRand(0.1,10,5) 1 1 1 1];
+global_theta_guess(3) = logRand(0.1,5,1);
+global_theta_guess = global_theta_guess .* model.par;
+global_theta_guess = global_theta_guess';
+best_global_theta = global_theta_guess;
+
+% Max is one order of magnitude above truth and one order of magnitude
+% below truth
+global_theta_max = model.par*10.0;   % Maximum allowed values for the paramters
+global_theta_min = model.par*0.1;    % Minimum allowed values for the parameters
+% Don't want h1 too high
+global_theta_max(3) = 5;
+
+% Focusing on the 5 parameters for transcription
 param_including_vector = [true,true,true,true,true,false,false,false,false];
 
 % Compile the model
@@ -45,17 +57,18 @@ inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
-% Loop for 5 times 12 hour experiments
-numLoops = 5;
-duration = 12*60;   % minutes
-stepDuration = 90;  % minutes
-oidDuration = 300;  % seconds
+% 
+totalDuration = 60*60;               % minutes
+numLoops = epccNumLoops;
+duration = totalDuration/numLoops;   % minutes
+stepDuration = 60;                   % minutes
+oidDuration = 300;                   % seconds
 
 for i=1:numLoops
 
     % Calculate the initial state based on current best estimate of theta.
     % The initial state is the steady state when gal is 0
-    y0 = gal1_steady_state(best_global_theta, 0);
+    y0 = gal1_steady_state(global_theta_guess, 0);
 
     % Need to determine the starting state of the next part of the
     % experiment we wish to design the input for. We get this state by
@@ -282,8 +295,85 @@ for i=1:numLoops
 
 end
 
+% Now log stuff every 6 hours
+for i=1:10
+
+    duration = i*6*60;  % Duration in minutes
+    
+    clear inputs;
+    inputs.model = model;
+    inputs.exps  = exps;
+    
+    % Reduce the input to a smaller set of values
+    inputs.exps.t_f{1}          = duration;                % Experiment duration
+    inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
+    inputs.exps.t_s{1}          = 0:5:duration;            % Times of samples
+    
+    inputs.exps.n_steps{1}      = sum(exps.t_con{1} < duration);
+    inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_steps{1}+1);
+    inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_steps{1});
+    
+    inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
+    inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
+
+    inputs.pathd.results_folder = results_folder;                        
+    inputs.pathd.short_name     = short_name;
+    inputs.pathd.runident       = strcat('pe-',int2str(i));
+
+    % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
+    inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
+    inputs.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector)); 
+    inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the paramters
+    inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
+
+    % COST FUNCTION RELATED DATA
+    inputs.PEsol.PEcost_type='lsq';        % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
+    inputs.PEsol.lsq_type='Q_I';
+
+    % SIMULATION
+    inputs.ivpsol.ivpsolver='cvodes';
+    inputs.ivpsol.senssolver='cvodes';
+    inputs.ivpsol.rtol=1.0D-7;
+    inputs.ivpsol.atol=1.0D-7;
+
+
+    % OPTIMIZATION
+    inputs.nlpsol.nlpsolver='eSS';
+    inputs.nlpsol.eSS.maxeval = 200000;
+    inputs.nlpsol.eSS.maxtime = 300;
+    inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
+    inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
+    inputs.rid.conf_ntrials=500;
+
+    inputs.plotd.plotlevel='noplot';
+
+    pe_start = now;
+    results = AMIGO_PE(inputs);
+    pe_inputs{i} = inputs;
+    pe_results2{i} = results;
+    pe_end= now;
+
+    % Write some results to the output file
+    fid = fopen(resultFileName,'a');
+    used_par_names = model.par_names(param_including_vector,:);
+
+    for j=1:size(used_par_names,1)
+        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
+        fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
+        fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
+        fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+    end
+    % Time in seconds
+    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*6, (pe_end-pe_start)*24*60*60);
+    fclose(fid);
+
+    best_global_theta_log{i}=results.fit.thetabest;
+
+end
+
+
 true_param_values = model.par(param_including_vector);
-save([epccOutputResultFileNameBase,'.mat'], 'pe_results','oed_results','exps','inputs','true_param_values');
+save([epccOutputResultFileNameBase,'.mat'], 'pe_results','pe_results2','oed_results','exps','inputs','true_param_values');
 
 
 
