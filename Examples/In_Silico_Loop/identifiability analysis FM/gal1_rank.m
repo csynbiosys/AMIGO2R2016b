@@ -121,7 +121,7 @@ inputs.ivpsol.atol=1.0D-7;
 % GRank DATA
 %==================================
  
- inputs.rank.gr_samples=1000000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
+ inputs.rank.gr_samples=1000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
  
  
 %==================================

@@ -29,7 +29,7 @@ MaxNumberOfSteps: 1e+06
 
 --> Vector of parameters (nominal values):
 
-	par0=[   0.00001     0.01030     1.89070     0.03680     0.03000     0.01000     0.01000     0.00230     0.02000  ]
+	par0=[   0.00003     0.04140     1.89000     0.03680     0.03000     0.01000     0.01000     0.00200     0.00230  ]
 
 
 -------------------------------------------
@@ -42,7 +42,7 @@ MaxNumberOfSteps: 1e+06
 
 -->Initial conditions for each experiment:
 		Experiment 1: 
-			exp_y0=[3.434e-01  2.792e-01  3.211e-02  ]
+			exp_y0=[1.380e+00  1.150e+00  1.000e+00  ]
 
 -->Final process time for each experiment: 
 		Experiment 1: 	 3600.000000
