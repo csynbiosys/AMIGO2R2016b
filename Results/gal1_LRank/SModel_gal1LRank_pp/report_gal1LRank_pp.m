@@ -3,18 +3,17 @@
    *    AMIGO2_R2016a [April 2016]    *
    *********************************** 
 
-Date: 16-May-2017
+Date: 15-May-2017
 Problem folder:	 Results/gal1_LRank
-Results folder in problem folder:	 Results/gal1_LRank/LRank_gal1LRank_pp 
+Results folder in problem folder:	 Results/gal1_LRank/SModel_gal1LRank_pp 
 
 
----------------------------------------------------
-Local sensitivity problem related active settings
----------------------------------------------------
-senssolver: cvodes
-ivp_RelTol: 1e-07
-ivp_AbsTol: 1e-07
-sensmex: cvodesg_gal1LRank
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-07
+AbsTol: 1e-07
 MaxStepSize: Inf
 MaxNumberOfSteps: 1e+06
 
@@ -60,42 +59,3 @@ MaxNumberOfSteps: 1e+06
 			Control values:
  			Input 1:	  2.0000	  0.0000	  2.0000	  0.0000	  2.0000	  0.0000	
 			Control switching times: 	  0.0000	1000.0000	1600.0000	2200.0000	2800.0000	3400.0000	3595.0000
-
-
--->Number of observables:
-	Experiment 1: 1
-
--->Observables:
-		Experiment 1:
-			GFP=gal1_fluo
-
-
-------> RANKING for experiment: 1
-
-
-
------->ABSOLUTE Ranking of model unknowns:
-
-			par value		d_msqr		 d_mabs		 d_mean			d_max		  d_min
-____________________________________________________________________________________________
-	alpha1   4.1770e-06   1.6018e-02   4.2455e-01   4.2455e-01    4.4154e-01    0.0000e+00 
-	Vm1      7.2889e-02   1.1945e-02   2.6762e-01   2.6762e-01    4.4154e-01    0.0000e+00 
-	d1       2.1175e-01   4.1164e-03   9.2285e-02  -9.2285e-02    0.0000e+00   -1.5200e-01 
-	Km1      1.3193e-01   8.2588e-08   1.8504e-06  -1.8504e-06    0.0000e+00   -3.0529e-06 
-	h1       4.7234e+00   6.2714e-09   1.4051e-07   1.4051e-07    2.3182e-07    0.0000e+00 
-____________________________________________________________________________________________
-
-
------->RELATIVE Ranking of model unknowns:
-
-			par value		rd_msqr		rd_mabs		rd_mean			rd_max		rd_min
-____________________________________________________________________________________________
-____________________________________________________________________________________________
-	d1       2.1175e-01   3.6622e-02   9.6868e-01  -9.6868e-01    0.0000e+00   -1.0605e+00 
-	Vm1      7.2889e-02   3.6213e-02   9.5984e-01   9.5984e-01    9.9994e-01    0.0000e+00 
-	alpha1   4.1770e-06   1.9612e-04   1.7109e-03   1.7109e-03    3.2451e-02    0.0000e+00 
-	h1       4.7234e+00   1.2321e-06   3.2657e-05   3.2657e-05    3.4022e-05    0.0000e+00 
-	Km1      1.3193e-01   4.5321e-07   1.2012e-05  -1.2012e-05    0.0000e+00   -1.2514e-05 
-____________________________________________________________________________________________
-> 100.00% of successful simulationn
-> 100.00% of successful sensitivity calculations

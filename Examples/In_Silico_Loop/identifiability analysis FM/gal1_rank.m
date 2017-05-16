@@ -80,9 +80,9 @@ inputs.model=model;
  
  inputs.exps.u_interp{1}='pulse-down';                % [] Stimuli definition: u_interp: 'sustained' |'step'|'linear'(default)|
                                                       %                               'pulse-up'|'pulse-down'
- inputs.exps.n_pulses{1}=2;                           % Number of pulses
+ inputs.exps.n_pulses{1}=3;                           % Number of pulses
  inputs.exps.u_min{1}=0;inputs.exps.u_max{1}=2;       % Bounds for the stimuli
- inputs.exps.t_con{1}=[0 1000 2000 3000 3595];                      % Initial time-Times of changes for the stimuli- Final stimulation time
+ inputs.exps.t_con{1}=[0 1000 1600 2200 2800 3400 3595];                      % Initial time-Times of changes for the stimuli- Final stimulation time
                                                               
  
 
@@ -97,12 +97,10 @@ param_including_vector = [true ,true,true, true, true,false,false,false,false];
 inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
 inputs.PEsol.global_theta_max=inputs.model.par*10.0;    % Maximum allowed values for the paramters
 inputs.PEsol.global_theta_min=inputs.model.par*0.01;       % Minimum allowed values for the parameters
-inputs.PEsol.global_theta_guess=inputs.model.par;    
-inputs.PEsol.global_theta_guess = [logRand(0.1,10,5) 1 1 1 1];
-inputs.PEsol.global_theta_guess(3) = logRand(0.1,5,1);
-inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess .* inputs.model.par;
-inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess';
-
+inputs.PEsol.global_theta_guess = unifrnd([inputs.PEsol.global_theta_min],[inputs.PEsol.global_theta_max]);
+inputs.PEsol.global_theta_guess(3) = unifrnd(1,6);
+%inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess .* inputs.model.par;
+inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess;
 
 %==================================
 % NUMERICAL METHODS RELATED DATA
@@ -124,7 +122,7 @@ inputs.ivpsol.atol=1.0D-7;
 % GRank DATA
 %==================================
  
- inputs.rank.gr_samples=10000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
+ inputs.rank.gr_samples=1000000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
  
  
 %==================================
@@ -142,4 +140,4 @@ inputs.plotd.nx_contour=60;                          % [] Number of points for p
 inputs.plotd.ny_contour=60;                          %    ADVISE: >=50
 inputs.plotd.number_max_hist=8;                      % [] Maximum number of unknowns histograms per figure (multistart)
 
-inputs.nlpsol.eSS.maxeval=100;
+inputs.nlpsol.eSS.maxeval=10000;
