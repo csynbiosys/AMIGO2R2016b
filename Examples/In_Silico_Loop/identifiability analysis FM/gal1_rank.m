@@ -79,14 +79,12 @@ inputs.model=model;
  inputs.exps.t_s{1}=[0:5:3595];                         % [] Sampling times, by default equidistant
  
  inputs.exps.u_interp{1}='pulse-down';                % [] Stimuli definition: u_interp: 'sustained' |'step'|'linear'(default)|
-                                                      %                               'pulse-up'|'pulse-down'
+ %inputs.exps.u_interp{1}='step';                                                      %                               'pulse-up'|'pulse-down'
  inputs.exps.n_pulses{1}=3;                           % Number of pulses
  inputs.exps.u_min{1}=0;inputs.exps.u_max{1}=2;       % Bounds for the stimuli
  inputs.exps.t_con{1}=[0 1000 1600 2200 2800 3400 3595];                      % Initial time-Times of changes for the stimuli- Final stimulation time
                                                               
  
-
-
 
 %==================================
 % UNKNOWNS RELATED DATA
@@ -96,11 +94,12 @@ inputs.model=model;
 param_including_vector = [true ,true,true, true, true,false,false,false,false];
 inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
 inputs.PEsol.global_theta_max=inputs.model.par*10.0;    % Maximum allowed values for the paramters
-inputs.PEsol.global_theta_min=inputs.model.par*0.01;       % Minimum allowed values for the parameters
-inputs.PEsol.global_theta_guess = unifrnd([inputs.PEsol.global_theta_min],[inputs.PEsol.global_theta_max]);
-inputs.PEsol.global_theta_guess(3) = unifrnd(1,6);
-%inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess .* inputs.model.par;
-inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess;
+inputs.PEsol.global_theta_min=inputs.model.par*0.1;       % Minimum allowed values for the parameters
+inputs.PEsol.global_theta_guess = inputs.model.par;
+%inputs.PEsol.global_theta_guess = unifrnd([inputs.PEsol.global_theta_min],[inputs.PEsol.global_theta_max]);
+%inputs.PEsol.global_theta_guess(3) = unifrnd(1,6);
+%%inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess .* inputs.model.par;
+%inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess;
 
 %==================================
 % NUMERICAL METHODS RELATED DATA

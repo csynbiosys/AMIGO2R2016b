@@ -5,7 +5,7 @@
 
 Date: 16-May-2017
 Problem folder:	 Results/gal1_LRank
-Results folder in problem folder:	 Results/gal1_LRank/SModel_gal1LRank_pp 
+Results folder in problem folder:	 Results/gal1_LRank/SObs_gal1LRank_pp 
 
 
 -----------------------------------------------
@@ -42,7 +42,7 @@ MaxNumberOfSteps: 1e+06
 
 -->Initial conditions for each experiment:
 		Experiment 1: 
-			exp_y0=[3.434e-01  2.792e-01  3.211e-02  ]
+			exp_y0=[2.760e-04  2.244e-04  2.580e-05  ]
 
 -->Final process time for each experiment: 
 		Experiment 1: 	 3600.000000
@@ -59,3 +59,11 @@ MaxNumberOfSteps: 1e+06
 			Control values:
  			Input 1:	  2.0000	  0.0000	  2.0000	  0.0000	  2.0000	  0.0000	
 			Control switching times: 	  0.0000	1000.0000	1600.0000	2200.0000	2800.0000	3400.0000	3595.0000
+
+
+-->Number of observables:
+	Experiment 1: 1
+
+-->Observables:
+		Experiment 1:
+			GFP=gal1_fluo
