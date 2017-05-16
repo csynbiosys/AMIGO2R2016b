@@ -3,7 +3,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 global epccOutputResultFileNameBase;
-global epccNumLoops;
 resultFileName = [epccOutputResultFileNameBase,'.dat'];
 
 rng shuffle;
@@ -59,13 +58,15 @@ AMIGO_Prep(inputs);
 
 % 
 totalDuration = 60*60;               % minutes
-numLoops = epccNumLoops;
-duration = totalDuration/numLoops;   % minutes
 stepDuration = 60;                   % minutes
 oidDuration = 300;                   % seconds
+loopDurations = [ 8 8 8 8 7 7 7 7];
+numLoops = length(loopDurations);
 
 for i=1:numLoops
 
+    duration = loopDurations(i)*60;
+    
     % Calculate the initial state based on current best estimate of theta.
     % The initial state is the steady state when gal is 0
     y0 = gal1_steady_state(global_theta_guess, 0);
@@ -168,13 +169,15 @@ for i=1:numLoops
     newExps.obs{1}=char('Fluorescence=gal1_fluo');             % Observation function
     newExps.exp_y0{1}=y0;    
     
-    newExps.t_f{1}=i*duration;                % Experiment duration
-    newExps.n_s{1}=(i*duration)/5 + 1;        % Number of sampling times
-    newExps.t_s{1}=0:5:(i*duration);          % Times of samples
+    durationSoFar = sum(loopDurations(1:i))*60;
+    
+    newExps.t_f{1}=durationSoFar;             % Experiment duration
+    newExps.n_s{1}=(durationSoFar)/5 + 1;     % Number of sampling times
+    newExps.t_s{1}=0:5:durationSoFar;         % Times of samples
     
     newExps.u_interp{1}='step';
-    newExps.n_steps{1}=(i*duration)/stepDuration; 
-    newExps.t_con{1}=0:stepDuration:(i*duration);
+    newExps.n_steps{1}=durationSoFar/stepDuration; 
+    newExps.t_con{1}=0:stepDuration:durationSoFar;
     
     % Megre the input signal
     if exps.n_exp == 0
