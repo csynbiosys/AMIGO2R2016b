@@ -93,15 +93,14 @@ inputs.model=model;
 %==================================
 
 % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
-param_including_vector = [true ,true,true, true, true,false,false,false,false];
-inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
-inputs.PEsol.global_theta_max=inputs.model.par*10.0;    % Maximum allowed values for the paramters
-inputs.PEsol.global_theta_min=inputs.model.par*0.01;       % Minimum allowed values for the parameters
-inputs.PEsol.global_theta_guess=inputs.model.par;    
-inputs.PEsol.global_theta_guess = [logRand(0.1,10,5) 1 1 1 1];
-inputs.PEsol.global_theta_guess(3) = logRand(0.1,5,1);
-inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess .* inputs.model.par;
-inputs.PEsol.global_theta_guess = inputs.PEsol.global_theta_guess';
+%param_including_vector = [true ,true,true, true, true,true,true,true,true];
+%inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
+inputs.PEsol.id_global_theta=char('alpha1','Vm1','h1','Km1','d1');
+inputs.PEsol.global_theta_max=inputs.model.par(1:5)*10.0;    % Maximum allowed values for the paramters
+inputs.PEsol.global_theta_min=inputs.model.par(1:5)*0.1;       % Minimum allowed values for the parameters
+inputs.PEsol.global_theta_guess=inputs.model.par(1:5);    
+
+
 
 
 %==================================

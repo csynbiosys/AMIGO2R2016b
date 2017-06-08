@@ -118,8 +118,8 @@ inputs.model.par=[7.5038 0.6801 1.4992 3.0412 10.0982...   % Nominal value for t
 inputs.PEsol.id_global_theta=char('n1','n2','m1','m4','m6','m7','k1','k4','p3');  %  'all'|User selected  
 inputs.PEsol.global_theta_max=10*ones(1,9);  % Maximum allowed values for the paramters
 inputs.PEsol.global_theta_min=0*ones(1,9); % Minimum allowed values for the paramters
-inputs.PESol.global_theta_guess= rand(1,9).*inputs.model.par;  % Value of the parameters for which the analysis will be performed    
-
+%inputs.PESol.global_theta_guess= rand(1,9).*inputs.model.par;  % Value of the parameters for which the analysis will be performed    
+inputs.PESol.global_theta_guess=unifrnd(zeros(1,9),ones(1,9));
  %==================================
  % SIMULATION
  inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'radau5'(default, fortran)|'rkf45'|'lsodes'|
