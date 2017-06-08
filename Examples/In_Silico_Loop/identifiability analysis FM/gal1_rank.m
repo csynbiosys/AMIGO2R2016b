@@ -53,7 +53,7 @@
 %============================
 % RESULTS PATHS RELATED DATA
 %============================
-inputs.pathd.results_folder='gal1_LRank'; % Folder to keep results (in Results) for a given problem                       
+inputs.pathd.results_folder='gal1_LRank_2oom'; % Folder to keep results (in Results) for a given problem                       
 inputs.pathd.short_name='gal1LRank';                       % To identify figures and reports for a given problem 
                                                      % ADVISE: the user may introduce any names related to the problem at hand 
 inputs.pathd.runident='pp';                         % [] Identifier required in order not to overwrite previous results
@@ -96,8 +96,8 @@ inputs.model=model;
 %param_including_vector = [true ,true,true, true, true,true,true,true,true];
 %inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
 inputs.PEsol.id_global_theta=char('alpha1','Vm1','h1','Km1','d1');
-inputs.PEsol.global_theta_max=inputs.model.par(1:5)*10.0;    % Maximum allowed values for the paramters
-inputs.PEsol.global_theta_min=inputs.model.par(1:5)*0.1;       % Minimum allowed values for the parameters
+inputs.PEsol.global_theta_max=inputs.model.par(1:5)*100.0;    % Maximum allowed values for the paramters
+inputs.PEsol.global_theta_min=inputs.model.par(1:5)*0.01;       % Minimum allowed values for the parameters
 inputs.PEsol.global_theta_guess=inputs.model.par(1:5);    
 
 
@@ -123,7 +123,7 @@ inputs.ivpsol.atol=1.0D-7;
 % GRank DATA
 %==================================
  
- inputs.rank.gr_samples=10000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
+ inputs.rank.gr_samples=100000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
  
  
 %==================================

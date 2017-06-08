@@ -16,3 +16,6 @@ model.eqns=...                                      % Equations describing syste
 %          alpha1      Vm1       h1     Km     d1     d2     K1     Kb     Kf     
 model.par=[3.3120e-05  0.0414    1.89   0.0368 0.03   0.01   0.0100 0.002 0.0023];
 
+%model.par=[8.2800e-06  0.0103    1.8907 0.0368 0.0300 0.0100 0.0100 0.0023
+%0.0200]; % OLD and WRONG parameters 08/06/2017 FM
+
