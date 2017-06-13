@@ -97,8 +97,8 @@ inputs.model=model;
 %param_including_vector = [true ,true,true, true, true,true,true,true,true];
 %inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
 inputs.PEsol.id_global_theta=char('alpha1','Vm1','h1','Km1','d1');
-inputs.PEsol.global_theta_max=inputs.model.par(1:5)*100.0;    % Maximum allowed values for the paramters
-inputs.PEsol.global_theta_min=inputs.model.par(1:5)*0.01;       % Minimum allowed values for the parameters
+inputs.PEsol.global_theta_max=inputs.model.par(1:5)*10.0;    % Maximum allowed values for the paramters
+inputs.PEsol.global_theta_min=inputs.model.par(1:5)*0.1;       % Minimum allowed values for the parameters
 inputs.PEsol.global_theta_guess=inputs.model.par(1:5);    
 
 
@@ -124,7 +124,7 @@ inputs.ivpsol.atol=1.0D-7;
 % GRank DATA
 %==================================
  
- inputs.rank.gr_samples=100000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
+ inputs.rank.gr_samples=1000000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)    
  
  
 %==================================
