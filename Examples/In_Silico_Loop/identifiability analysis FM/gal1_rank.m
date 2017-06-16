@@ -53,8 +53,8 @@
 %============================
 % RESULTS PATHS RELATED DATA
 %============================
-inputs.pathd.results_folder='gal1_LRank_2oom'; % Folder to keep results (in Results) for a given problem                       
-inputs.pathd.short_name='gal1LRank';                       % To identify figures and reports for a given problem 
+inputs.pathd.results_folder='gal1_GRank_1oom'; % Folder to keep results (in Results) for a given problem                       
+inputs.pathd.short_name='gal1GRank';                       % To identify figures and reports for a given problem 
                                                      % ADVISE: the user may introduce any names related to the problem at hand 
 inputs.pathd.runident='pp';                         % [] Identifier required in order not to overwrite previous results
                                                      %    This may be modified from command line. 'run1'(default)
