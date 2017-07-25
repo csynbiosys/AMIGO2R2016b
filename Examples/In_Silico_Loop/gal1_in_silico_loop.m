@@ -78,10 +78,14 @@ newExps.t_f{1}=duration;                % Experiment duration
 newExps.n_s{1}=duration/5 + 1;          % Number of sampling times
 newExps.t_s{1}=0:5:duration ;           % Times of samples
     
+t=[0:duration-505];
+ts=unifrnd(300,1000)
+u=2.*exp(-t/ts);
+
 newExps.u_interp{1}='step';
-newExps.n_steps{1}=numCycles*2; 
-newExps.u{1}=repmat([2 0],1,numCycles);
-newExps.t_con{1}=0:duration/(2*numCycles):duration; 
+newExps.n_steps{1}=length(u)+2; 
+newExps.u{1}=[0 0 u];
+newExps.t_con{1}=[0 499 500+t duration]; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mock an experiment
@@ -98,7 +102,7 @@ inputs.exps.data_type='pseudo';
 inputs.exps.noise_type='homo_var';
 inputs.exps.std_dev{1}=[0.1];
     
-inputs.plotd.plotlevel='noplot';
+inputs.plotd.plotlevel='min'; %CHANGE THIS
     
 inputs.pathd.results_folder = results_folder;                        
 inputs.pathd.short_name     = short_name;
@@ -125,7 +129,7 @@ exps = newExps;
 % Parameter estimation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for i=1:10
+for i=10:10
 
     duration = i*6*60;  % Duration in minutes
     
