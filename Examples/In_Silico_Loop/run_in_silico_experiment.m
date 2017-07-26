@@ -1,4 +1,4 @@
-function [] = run_in_silico_experiment( resultBase, numExperiments )
+function [] = run_in_silico_experiment( resultBase, numExperiments)
 
 global epccOutputResultFileNameBase;
 
