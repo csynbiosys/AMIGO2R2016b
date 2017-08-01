@@ -53,8 +53,9 @@ AMIGO_Prep(inputs);
 y0 = gal1_steady_state(global_theta_guess, 0);
        
 % Fixed parts of the experiment
-duration = 2000;     % Duration in minutes
+duration = 3600;     % Duration in minutes
 numCycles = 1;       % Number of 2-0 cycles
+tSwitch = 300;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a the experiment to simulate
@@ -74,7 +75,7 @@ newExps.t_s{1}=0:5:duration ;           % Times of samples
 newExps.u_interp{1}='step';
 newExps.n_steps{1}=numCycles*2; 
 newExps.u{1}=repmat([0 2],1,numCycles);
-newExps.t_con{1}=[0,500,duration]; 
+newExps.t_con{1}=[0,tSwitch,duration]; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Run simulation with the current parameter vector
@@ -117,6 +118,7 @@ exps = newExps;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 fid = fopen(resultFileName,'a');
+
 % Extract the name of the varying parameter
 cell_par_names = cellstr(model.par_names);
 param_varied = cell_par_names{i};
@@ -130,7 +132,7 @@ true_param_value = true_param_values(i).*ones(length(sim.sim.tsim{1,1}),1);
 % Extract the value of the parameter used in simulation
 Sim_value = global_theta_guess(i).*ones(length(sim.sim.tsim{1,1}),1);
 Sim_time =  sim.sim.tsim{1,1}';
-u = 2.*(Sim_time>=500);
+u = 2.*(Sim_time>=tSwitch);
 m= sim.sim.states{1,1}(:,1);
 foldedP = sim.sim.states{1,1}(:,2);
 fluo = sim.sim.states{1,1}(:,3);

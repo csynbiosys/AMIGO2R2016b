@@ -1,0 +1,17 @@
+Error using fprintf
+Invalid file identifier. Use fopen to generate a valid file identifier.
+
+Error in AMIGO_gen_C (line 34)
+fprintf(fid,'#include <amigoRHS.h>\n\n');
+
+Error in AMIGO_gen_model (line 111)
+                    AMIGO_gen_C
+
+Error in AMIGO_Prep (line 120)
+inputs=AMIGO_gen_model(inputs,results);
+
+Error in gal1_in_silico_loop (line 49)
+AMIGO_Prep(inputs);
+
+Error in run_in_silico_experiment (line 14)
+            gal1_in_silico_loop;

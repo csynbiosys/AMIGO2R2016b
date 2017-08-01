@@ -1,0 +1,22 @@
+Error using mex
+C:/TDM-GCC-64/bin/../lib/gcc/x86_64-w64-mingw32/5.1.0/../../../../x86_64-w64-mingw32/bin/ld.exe: cannot open output file C:\Users\lbandier\Documents\AMIGO2R2016b\Results\Gal1-noDelay2017-07-27-162759\cvodesg_gal1noD.mexw64: Invalid argument
+collect2.exe: error: ld returned 1 exit status
+
+
+Error in createCompileFile_AMIGO_model (line 107)
+eval(str);
+
+Error in AMIGO_gen_mex (line 56)
+        createCompileFile_AMIGO_model(inputs.model.odes_file,cvodes_mex_results_dir,inputs.pathd.AMIGO_path,inputs.model.debugmode);
+
+Error in AMIGO_gen_model (line 114)
+                AMIGO_gen_mex
+
+Error in AMIGO_Prep (line 120)
+inputs=AMIGO_gen_model(inputs,results);
+
+Error in gal1_in_silico_loop (line 49)
+AMIGO_Prep(inputs);
+
+Error in run_in_silico_experiment (line 14)
+            gal1_in_silico_loop;

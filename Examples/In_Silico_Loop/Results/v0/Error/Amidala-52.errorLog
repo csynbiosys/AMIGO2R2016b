@@ -1,0 +1,17 @@
+Error using feval
+Invalid MEX-file 'C:\Users\lbandier\Documents\AMIGO2R2016b\Results\Gal1-noDelay2017-07-27-162325\cvodesg_gal1noD.mexw64': C:\Users\lbandier\Documents\AMIGO2R2016b\Results\Gal1-noDelay2017-07-27-162325\cvodesg_gal1noD.mexw64 is not a valid Win32 application..
+
+Error in AMIGO_ivpsol (line 415)
+        [yteor, privstruct.iflag, sens,  privstruct.ivpsol.dxdt{iexp}]=feval(inputs.ivpsol.ivpmex,...
+
+Error in AMIGO_smooth_simulation (line 86)
+               [results.sim.states{iexp} privstruct]=AMIGO_ivpsol(inputs,privstruct,privstruct.y_0{iexp},privstruct.par{iexp},iexp);
+
+Error in AMIGO_SModel (line 136)
+        AMIGO_smooth_simulation
+
+Error in gal1_in_silico_loop (line 105)
+sim = AMIGO_SModel(inputs);
+
+Error in run_in_silico_experiment (line 14)
+            gal1_in_silico_loop;
