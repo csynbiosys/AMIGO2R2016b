@@ -4,6 +4,7 @@
 
 global epccOutputResultFileNameBase;
 global epccNumLoops;
+global Kb; 
 resultFileName = [epccOutputResultFileNameBase,'.dat'];
 
 rng shuffle;
@@ -33,9 +34,9 @@ gal1_load_model;
 exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
-global_theta_guess = [logRand(0.1,10,5) 1 1 1 1];
-global_theta_guess(3) = logRand(0.1,5,1);
-global_theta_guess = global_theta_guess .* model.par;
+global_theta_guess = [logRand(0.1, 10,5) 1 1 1 1];
+global_theta_guess = global_theta_guess.*model.par;
+global_theta_guess (3) = logRand(0.1,5,1);
 global_theta_guess = global_theta_guess';
 best_global_theta = global_theta_guess;
 
@@ -58,7 +59,7 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % 
-totalDuration = 60*60;               % minutes
+totalDuration = 60*30;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
 stepDuration = 60;                   % minutes
@@ -67,8 +68,8 @@ oidDuration = 300;                   % seconds
 for i=1:numLoops
 
     % Calculate the initial state based on current best estimate of theta.
-    % The initial state is the steady state when gal is 0
-    y0 = gal1_steady_state(global_theta_guess, 0);
+    % The initial state is the steady state when gal is 2
+    y0 = gal1_steady_state(global_theta_guess, 2);
 
     % Need to determine the starting state of the next part of the
     % experiment we wish to design the input for. We get this state by
@@ -176,7 +177,7 @@ for i=1:numLoops
     newExps.n_steps{1}=(i*duration)/stepDuration; 
     newExps.t_con{1}=0:stepDuration:(i*duration);
     
-    % Megre the input signal
+    % Merge the input signal
     if exps.n_exp == 0
         newExps.u{1}=results.oed.u{results.oed.n_exp};  
     else
@@ -301,10 +302,10 @@ for i=1:numLoops
 
 end
 
-% Now log stuff every 6 hours
+% Now log stuff every 3 hours
 for i=1:10
 
-    duration = i*6*60;  % Duration in minutes
+    duration = i*3*60;  % Duration in minutes
     
     clear inputs;
     inputs.model = model;
@@ -364,19 +365,19 @@ for i=1:10
     used_par_names = model.par_names(param_including_vector,:);
 
     for j=1:size(used_par_names,1)
-        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
+        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*3, used_par_names(j,:), results.fit.thetabest(j));
 	if isfield(results.fit,'rel_conf_interval')
-            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
+            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*3, used_par_names(j,:), results.fit.rel_conf_interval(j));
         end
         if isfield(results.fit,'residuals')
-           fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
+           fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*3, used_par_names(j,:), results.fit.residuals{1}(j));
         end
         if isfield(results.fit,'rel_residuals')
-            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*3, used_par_names(j,:), results.fit.rel_residuals{1}(j));
         end
     end
     % Time in seconds
-    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*6, (pe_end-pe_start)*24*60*60);
+    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*3, (pe_end-pe_start)*24*60*60);
     fclose(fid);
 
     best_global_theta_log{i}=results.fit.thetabest;
