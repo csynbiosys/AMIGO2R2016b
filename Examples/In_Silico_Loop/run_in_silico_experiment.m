@@ -10,7 +10,7 @@ AMIGO_Startup();
 cd ('Examples/In_Silico_Loop');
 Kb_vector = [0.0005, 0.0023, 0.0126, 0.023]; % Vector of values for Kb parameter    
 
-for Kb_index=2%1:length(Kb_vector)
+for Kb_index=1:length(Kb_vector)
     Kb = Kb_vector(Kb_index);
     for epcc_exps=1:numExperiments
         try
