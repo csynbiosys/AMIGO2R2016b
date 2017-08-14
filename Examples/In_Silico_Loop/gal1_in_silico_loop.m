@@ -59,7 +59,7 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % 
-totalDuration = 60*30;               % minutes
+totalDuration = 60*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
 stepDuration = 60;                   % minutes
@@ -305,7 +305,7 @@ end
 % Now log stuff every 3 hours
 for i=1:10
 
-    duration = i*3*60;  % Duration in minutes
+    duration = i*6*60;  % Duration in minutes
     
     clear inputs;
     inputs.model = model;
@@ -365,19 +365,19 @@ for i=1:10
     used_par_names = model.par_names(param_including_vector,:);
 
     for j=1:size(used_par_names,1)
-        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*3, used_par_names(j,:), results.fit.thetabest(j));
+        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
 	if isfield(results.fit,'rel_conf_interval')
-            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*3, used_par_names(j,:), results.fit.rel_conf_interval(j));
+            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
         end
         if isfield(results.fit,'residuals')
-           fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*3, used_par_names(j,:), results.fit.residuals{1}(j));
+           fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
         end
         if isfield(results.fit,'rel_residuals')
-            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*3, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
         end
     end
     % Time in seconds
-    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*3, (pe_end-pe_start)*24*60*60);
+    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*6, (pe_end-pe_start)*24*60*60);
     fclose(fid);
 
     best_global_theta_log{i}=results.fit.thetabest;
