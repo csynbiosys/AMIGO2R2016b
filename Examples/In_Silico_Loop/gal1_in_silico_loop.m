@@ -33,8 +33,8 @@ exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
 global_theta_guess = [logRand(0.1,10,5) 1 1 1 1];
-global_theta_guess(3) = logRand(0.1,5,1);
 global_theta_guess = global_theta_guess .* model.par;
+global_theta_guess(3) = logRand(0.1,5,1);
 global_theta_guess = global_theta_guess';
 
 % Max is one order of magnitude above truth and one order of magnitude
@@ -61,7 +61,7 @@ AMIGO_Prep(inputs);
 
 % Calculate the initial state based on current best estimate of theta.
 % The initial state is the steady state when gal is 0
-y0 = gal1_steady_state(global_theta_guess, 0);
+y0 = gal1_steady_state(global_theta_guess, 2);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Optimal experiment design
