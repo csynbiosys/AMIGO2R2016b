@@ -39,6 +39,7 @@ global_theta_guess (3) = logRand(0.1,5,1);
 global_theta_guess = global_theta_guess';
 best_global_theta = global_theta_guess;
 
+
 % Max is one order of magnitude above truth and one order of magnitude
 % below truth
 global_theta_max = model.par*10.0;   % Maximum allowed values for the paramters
@@ -67,8 +68,8 @@ oidDuration = 300;                   % seconds
 for i=1:numLoops
 
     % Calculate the initial state based on current best estimate of theta.
-    % The initial state is the steady state when gal is 2
-    y0 = gal1_steady_state(global_theta_guess, 2);
+    % The initial state is the steady state when gal is 0
+    y0 = gal1_steady_state(global_theta_guess, 0);
 
     % Need to determine the starting state of the next part of the
     % experiment we wish to design the input for. We get this state by
