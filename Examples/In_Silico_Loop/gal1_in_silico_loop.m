@@ -48,7 +48,7 @@ global_theta_min = model.par*0.1;    % Minimum allowed values for the parameters
 global_theta_max(3) = 5;
 
 % Focusing on the 5 parameters for transcription
-param_including_vector = [true,true,true,true,true,false,false,false,false];
+param_including_vector = [false,true,true,true,true,false,false,false,false];
 
 % Compile the model
 clear inputs;
@@ -178,7 +178,7 @@ for i=1:numLoops
     newExps.n_steps{1}=(i*duration)/stepDuration; 
     newExps.t_con{1}=0:stepDuration:(i*duration);
     
-    % Megre the input signal
+    % Merge the input signal
     if exps.n_exp == 0
         newExps.u{1}=results.oed.u{results.oed.n_exp};  
     else
@@ -303,7 +303,7 @@ for i=1:numLoops
 
 end
 
-% Now log stuff every 5 hours
+% Now log stuff every 6 hours
 for i=1:10
 
     duration = i*6*60;  % Duration in minutes
