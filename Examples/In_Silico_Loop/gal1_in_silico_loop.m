@@ -33,7 +33,7 @@ gal1_load_model;
 exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
-global_theta_guess = [logRand(0.1, 10,5) 1 1 1 1];
+global_theta_guess = [1 logRand(0.1, 10,4) 1 1 1 1];
 global_theta_guess = global_theta_guess.*model.par;
 global_theta_guess (3) = logRand(0.1,5,1);
 global_theta_guess = global_theta_guess';
