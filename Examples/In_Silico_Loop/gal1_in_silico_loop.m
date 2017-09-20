@@ -62,7 +62,7 @@ AMIGO_Prep(inputs);
 totalDuration = 60*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
-stepDuration = 60;                   % minutes
+stepDuration = 180;                   % minutes
 oidDuration = 300;                   % seconds
 
 for i=1:numLoops
