@@ -59,10 +59,10 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % 
-totalDuration = 60*60;               % minutes
+totalDuration = 30*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
-stepDuration = 60;                   % minutes
+stepDuration = 120;                   % minutes
 oidDuration = 300;                   % seconds
 
 for i=1:numLoops
@@ -119,11 +119,10 @@ for i=1:numLoops
 
     % OED of the input 
     inputs.exps.u_type{iexp}='od';
-    inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment
-    inputs.exps.n_steps{iexp}=duration/stepDuration;                % Number of steps
-    inputs.exps.n_steps{iexp}
-    inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
-    inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
+    inputs.exps.u_interp{iexp}='pulse-up';                             % Stimuli definition for experiment
+    inputs.exps.n_pulses{iexp}=duration/stepDuration;                % Number of steps
+    inputs.exps.u_min{iexp}=0;%0*ones(1,inputs.exps.n_steps{iexp});
+    inputs.exps.u_max{iexp}=2;%*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
     inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
@@ -148,7 +147,7 @@ for i=1:numLoops
     inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
     inputs.nlpsol.eSS.local.nl2sol.maxfeval =     400;     % max number of function evaluation
 
-    inputs.plotd.plotlevel='noplot';
+    inputs.plotd.plotlevel='full';
     
     inputs.pathd.results_folder = results_folder;                        
     inputs.pathd.short_name     = short_name;
@@ -158,7 +157,8 @@ for i=1:numLoops
     results = AMIGO_OED(inputs);
     oed_results{i} = results;
     oed_end = now;
-
+    
+    results.plotd.plotlevel = 'full';
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Create a new experiment to simulate with the merged input
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -174,9 +174,9 @@ for i=1:numLoops
     newExps.n_s{1}=(i*duration)/5 + 1;        % Number of sampling times
     newExps.t_s{1}=0:5:(i*duration);          % Times of samples
     
-    newExps.u_interp{1}='step';
-    newExps.n_steps{1}=(i*duration)/stepDuration; 
-    newExps.t_con{1}=0:stepDuration:(i*duration);
+    newExps.u_interp{1}='pulse-up';
+    newExps.n_pulses{1}=(i*duration)/stepDuration; 
+    %newExps.t_con{1}=0:stepDuration:(i*duration);
     
     % Merge the input signal
     if exps.n_exp == 0
@@ -267,14 +267,16 @@ for i=1:numLoops
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
 
-    inputs.plotd.plotlevel='noplot';
+ 
 
     pe_start = now;
     results = AMIGO_PE(inputs);
     pe_inputs{i} = inputs;
     pe_results{i} = results;
     pe_end= now;
-
+    
+    results.plotd.plotlevel = 'full';
+    
     % Save the best theta
     best_global_theta(param_including_vector)=results.fit.thetabest;  
 
@@ -303,8 +305,8 @@ for i=1:numLoops
 
 end
 
-% Now log stuff every 6 hours
-for i=1:10
+% Now log stuff at the end
+for i=5
 
     duration = i*6*60;  % Duration in minutes
     
@@ -317,9 +319,9 @@ for i=1:10
     inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
     inputs.exps.t_s{1}          = 0:5:duration;            % Times of samples
     
-    inputs.exps.n_steps{1}      = sum(exps.t_con{1} < duration);
-    inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_steps{1}+1);
-    inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_steps{1});
+    inputs.exps.n_pulses{1}      = sum(exps.t_con{1} < duration);
+    %inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_steps{1}+1);
+    inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_pulses{1});
     
     inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
     inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
