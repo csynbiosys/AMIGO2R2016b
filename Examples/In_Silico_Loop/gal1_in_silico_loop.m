@@ -59,7 +59,7 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % 
-totalDuration = 60*60;               % minutes
+totalDuration = 30*60; %60*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
 stepDuration = 60;                   % minutes
@@ -84,7 +84,7 @@ for i=1:numLoops
         inputs.model.par = best_global_theta;
         inputs.exps = exps;
     
-        inputs.plotd.plotlevel='noplot';
+        inputs.plotd.plotlevel='full';
         inputs.pathd.results_folder = results_folder;                        
         inputs.pathd.short_name     = short_name;
         inputs.pathd.runident       = strcat('sim-',int2str(i));
@@ -119,9 +119,8 @@ for i=1:numLoops
 
     % OED of the input 
     inputs.exps.u_type{iexp}='od';
-    inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment
+    inputs.exps.u_interp{iexp}='step';                             % Stimuli definition for experiment
     inputs.exps.n_steps{iexp}=duration/stepDuration;                % Number of steps
-    inputs.exps.n_steps{iexp}
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
     inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
 
@@ -148,7 +147,7 @@ for i=1:numLoops
     inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
     inputs.nlpsol.eSS.local.nl2sol.maxfeval =     400;     % max number of function evaluation
 
-    inputs.plotd.plotlevel='noplot';
+    inputs.plotd.plotlevel='full';
     
     inputs.pathd.results_folder = results_folder;                        
     inputs.pathd.short_name     = short_name;
@@ -159,6 +158,8 @@ for i=1:numLoops
     oed_results{i} = results;
     oed_end = now;
 
+    results.plotd.plotlevel='full';
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Create a new experiment to simulate with the merged input
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,15 +177,18 @@ for i=1:numLoops
     
     newExps.u_interp{1}='step';
     newExps.n_steps{1}=(i*duration)/stepDuration; 
-    newExps.t_con{1}=0:stepDuration:(i*duration);
+    %newExps.t_con{1}=0:stepDuration:(i*duration);
     
     % Merge the input signal
+    exps.n_exp
     if exps.n_exp == 0
         newExps.u{1}=results.oed.u{results.oed.n_exp};  
+        newExps.t_con{1}=results.oed.t_con{results.oed.n_exp};
     else
         newExps.u{1}=[exps.u{1} results.oed.u{results.oed.n_exp}];
+        newExps.t_con{1}=[exps.t_con{1} results.oed.t_con{results.oed.n_exp}];
     end
-    
+ 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Mock an experiment
@@ -209,6 +213,9 @@ for i=1:numLoops
     
     sim = AMIGO_SData(inputs);
     
+    %results.plotd.plotlevel='full';
+
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Now we need to add this experiment output to newExps and copy
     % to exps
@@ -229,7 +236,7 @@ for i=1:numLoops
     newExps.noise_type='homo_var';                                % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     
     exps = newExps;
-    
+   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parameter estimation
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -267,13 +274,16 @@ for i=1:numLoops
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
 
-    inputs.plotd.plotlevel='noplot';
-
+    inputs.plotd.plotlevel='full';
+    
     pe_start = now;
     results = AMIGO_PE(inputs);
     pe_inputs{i} = inputs;
     pe_results{i} = results;
     pe_end= now;
+
+   
+    results.plotd.plotlevel='full';
 
     % Save the best theta
     best_global_theta(param_including_vector)=results.fit.thetabest;  
@@ -303,8 +313,9 @@ for i=1:numLoops
 
 end
 
+
 % Now log stuff every 6 hours
-for i=1:10
+for i=1:5
 
     duration = i*6*60;  % Duration in minutes
     
@@ -360,6 +371,7 @@ for i=1:10
     pe_inputs{i} = inputs;
     pe_results2{i} = results;
     pe_end= now;
+    
 
     % Write some results to the output file
     fid = fopen(resultFileName,'a');
@@ -367,7 +379,7 @@ for i=1:10
 
     for j=1:size(used_par_names,1)
         fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
-	if isfield(results.fit,'rel_conf_interval')
+        if isfield(results.fit,'rel_conf_interval')
             fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
         end
         if isfield(results.fit,'residuals')
