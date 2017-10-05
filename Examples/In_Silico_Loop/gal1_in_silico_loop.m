@@ -121,8 +121,8 @@ for i=1:numLoops
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='pulse-up';                             % Stimuli definition for experiment
     inputs.exps.n_pulses{iexp}=duration/stepDuration;                % Number of steps
-    inputs.exps.u_min{iexp}=0;%0*ones(1,inputs.exps.n_steps{iexp});
-    inputs.exps.u_max{iexp}=2;%*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
+    inputs.exps.u_min{iexp}=0; %*ones(1,inputs.exps.n_pulses{iexp});
+    inputs.exps.u_max{iexp}=2; %*ones(1,inputs.exps.n_pulses{iexp});% Minimum and maximum value for the input
 
     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
     inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
@@ -267,7 +267,7 @@ for i=1:numLoops
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
 
- 
+    inputs.plotd.plotlevel='full';
 
     pe_start = now;
     results = AMIGO_PE(inputs);
@@ -306,7 +306,7 @@ for i=1:numLoops
 end
 
 % Now log stuff at the end
-for i=5
+for i=1:5
 
     duration = i*6*60;  % Duration in minutes
     
