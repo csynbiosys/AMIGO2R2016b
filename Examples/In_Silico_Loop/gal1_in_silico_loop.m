@@ -84,7 +84,7 @@ for i=1:numLoops
         inputs.model.par = best_global_theta;
         inputs.exps = exps;
     
-        inputs.plotd.plotlevel='noplot';
+        inputs.plotd.plotlevel='full';
         inputs.pathd.results_folder = results_folder;                        
         inputs.pathd.short_name     = short_name;
         inputs.pathd.runident       = strcat('sim-',int2str(i));
@@ -180,9 +180,11 @@ for i=1:numLoops
     
     % Merge the input signal
     if exps.n_exp == 0
-        newExps.u{1}=results.oed.u{results.oed.n_exp};  
+        newExps.u{1}=results.oed.u{results.oed.n_exp};
+        newExps.t_con{1}=results.oed.t_con{results.oed.n_exp};
     else
         newExps.u{1}=[exps.u{1} results.oed.u{results.oed.n_exp}];
+        newExps.t_con{1}=[exps.t_con{1} results.oed.t_con{results.oed.n_exp}];
     end
     
     
@@ -304,95 +306,95 @@ for i=1:numLoops
 	best_global_theta_log{i}=best_global_theta;
 
 end
-
-% Now log stuff at the end
-for i=1:5
-
-    duration = i*6*60;  % Duration in minutes
-    
-    clear inputs;
-    inputs.model = model;
-    inputs.exps  = exps;
-    
-    % Reduce the input to a smaller set of values
-    inputs.exps.t_f{1}          = duration;                % Experiment duration
-    inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
-    inputs.exps.t_s{1}          = 0:5:duration;            % Times of samples
-    
-    inputs.exps.n_pulses{1}      = sum(exps.t_con{1} < duration);
-    %inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_steps{1}+1);
-    inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_pulses{1});
-    
-    inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
-    inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
-
-    inputs.pathd.results_folder = results_folder;                        
-    inputs.pathd.short_name     = short_name;
-    inputs.pathd.runident       = strcat('pe-',int2str(i));
-
-    % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
-    inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
-    inputs.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector)); 
-    inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the paramters
-    inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
-
-    % COST FUNCTION RELATED DATA
-    inputs.PEsol.PEcost_type='lsq';        % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
-    inputs.PEsol.lsq_type='Q_I';
-
-    % SIMULATION
-    inputs.ivpsol.ivpsolver='cvodes';
-    inputs.ivpsol.senssolver='cvodes';
-    inputs.ivpsol.rtol=1.0D-7;
-    inputs.ivpsol.atol=1.0D-7;
-
-
-    % OPTIMIZATION
-    inputs.nlpsol.nlpsolver='eSS';
-    inputs.nlpsol.eSS.maxeval = 200000;
-    inputs.nlpsol.eSS.maxtime = 300;
-    inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
-    inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
-    inputs.rid.conf_ntrials=500;
-
-    inputs.plotd.plotlevel='noplot';
-
-    pe_start = now;
-    results = AMIGO_PE(inputs);
-    pe_inputs{i} = inputs;
-    pe_results2{i} = results;
-    pe_end= now;
-
-    % Write some results to the output file
-    fid = fopen(resultFileName,'a');
-    used_par_names = model.par_names(param_including_vector,:);
-
-    for j=1:size(used_par_names,1)
-        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
-	if isfield(results.fit,'rel_conf_interval')
-            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
-        end
-        if isfield(results.fit,'residuals')
-           fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
-        end
-        if isfield(results.fit,'rel_residuals')
-            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
-        end
-    end
-    % Time in seconds
-    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*6, (pe_end-pe_start)*24*60*60);
-    fclose(fid);
-
-    best_global_theta_log{i}=results.fit.thetabest;
-
-end
-
-
-true_param_values = model.par(param_including_vector);
-save([epccOutputResultFileNameBase,'.mat'], 'pe_results','pe_results2','oed_results','exps','inputs','true_param_values');
-
-
-
-
-
-
+% 
+% % Now log stuff at the end
+% for i=1:5
+% 
+%     duration = i*6*60;  % Duration in minutes
+%     
+%     clear inputs;
+%     inputs.model = model;
+%     inputs.exps  = exps;
+%     
+%     % Reduce the input to a smaller set of values
+%     inputs.exps.t_f{1}          = duration;                % Experiment duration
+%     inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
+%     inputs.exps.t_s{1}          = 0:5:duration;            % Times of samples
+%     
+%     inputs.exps.n_pulses{1}      = sum(exps.t_con{1} < duration);
+%     inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_pulses{1}+1);
+%     inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_pulses{1});
+%     
+%     inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
+%     inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
+% 
+%     inputs.pathd.results_folder = results_folder;                        
+%     inputs.pathd.short_name     = short_name;
+%     inputs.pathd.runident       = strcat('pe-',int2str(i));
+% 
+%     % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
+%     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
+%     inputs.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector)); 
+%     inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the paramters
+%     inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
+% 
+%     % COST FUNCTION RELATED DATA
+%     inputs.PEsol.PEcost_type='lsq';        % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
+%     inputs.PEsol.lsq_type='Q_I';
+% 
+%     % SIMULATION
+%     inputs.ivpsol.ivpsolver='cvodes';
+%     inputs.ivpsol.senssolver='cvodes';
+%     inputs.ivpsol.rtol=1.0D-7;
+%     inputs.ivpsol.atol=1.0D-7;
+% 
+% 
+%     % OPTIMIZATION
+%     inputs.nlpsol.nlpsolver='eSS';
+%     inputs.nlpsol.eSS.maxeval = 200000;
+%     inputs.nlpsol.eSS.maxtime = 300;
+%     inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
+%     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
+%     inputs.rid.conf_ntrials=500;
+% 
+%     inputs.plotd.plotlevel='noplot';
+% 
+%     pe_start = now;
+%     results = AMIGO_PE(inputs);
+%     pe_inputs{i} = inputs;
+%     pe_results2{i} = results;
+%     pe_end= now;
+% 
+%     % Write some results to the output file
+%     fid = fopen(resultFileName,'a');
+%     used_par_names = model.par_names(param_including_vector,:);
+% 
+%     for j=1:size(used_par_names,1)
+%         fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
+% 	if isfield(results.fit,'rel_conf_interval')
+%             fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
+%         end
+%         if isfield(results.fit,'residuals')
+%            fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
+%         end
+%         if isfield(results.fit,'rel_residuals')
+%             fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+%         end
+%     end
+%     % Time in seconds
+%     fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*6, (pe_end-pe_start)*24*60*60);
+%     fclose(fid);
+% 
+%     best_global_theta_log{i}=results.fit.thetabest;
+% 
+% end
+% 
+% 
+% true_param_values = model.par(param_including_vector);
+% save([epccOutputResultFileNameBase,'.mat'], 'pe_results','pe_results2','oed_results','exps','inputs','true_param_values');
+% 
+% 
+% 
+% 
+% 
+% 
