@@ -182,6 +182,10 @@
                       fprintf(fid2,'\t\t end;\n'); 
                 end
                 
+                if isempty(inputs.nlpsol.global_solver)
+                    inputs.nlpsol.global_solver=inputs.nlpsol.nlpsolver;
+                end
+                  
                 switch inputs.nlpsol.global_solver 
                 case 'de'    
                      fprintf(fid2,'\n%% Death penalty for DE\n');  
