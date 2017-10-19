@@ -59,10 +59,10 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % 
-totalDuration = 30*60;               % minutes
+totalDuration = 50*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
-stepDuration = 900;                   % minutes
+stepDuration = 1500;                   % minutes
 oidDuration = 1200;                   % seconds
 
 for i=1:numLoops
@@ -135,7 +135,7 @@ for i=1:numLoops
       
     inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     inputs.exps.std_dev{iexp}=[0.1];     
-    inputs.OEDsol.OEDcost_type='Eopt';
+    inputs.OEDsol.OEDcost_type='Dopt';
     
     
    % final time constraint 
@@ -160,10 +160,10 @@ for i=1:numLoops
     inputs.nlpsol.eSS.maxeval = 666*oidDuration;
     inputs.nlpsol.eSS.maxtime = oidDuration;
     inputs.nlpsol.eSS.local.solver = 'fminsearch'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used). 
-    inputs.nlpsol.eSS.local.finish = 'fminsearch';
+    inputs.nlpsol.eSS.local.finish = 'fmincon';
                                                        
     inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
-    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     500;   %500  % max number of function evaluation
+    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     500;     % max number of function evaluation
     inputs.nlpsol.eSS.log_var=[1:1:inputs.exps.n_pulses{iexp}];
     inputs.plotd.plotlevel='full';
     

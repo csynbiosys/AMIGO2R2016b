@@ -59,11 +59,11 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % 
-totalDuration = 30*60;               % minutes
+totalDuration = 50*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
-stepDuration = 450;                   % minutes
-oidDuration = 1200;                   % seconds
+stepDuration = 1500;                   % minutes
+oidDuration = 600;                   % seconds
 
 for i=1:numLoops
 
@@ -135,7 +135,7 @@ for i=1:numLoops
       
     inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default) 
     inputs.exps.std_dev{iexp}=[0.1];     
-    inputs.OEDsol.OEDcost_type='Eopt';
+    inputs.OEDsol.OEDcost_type='Dopt';
     
     
    % final time constraint 
@@ -416,10 +416,13 @@ end
 
 
 true_param_values = model.par(param_including_vector);
-save([epccOutputResultFileNameBase,'.mat'], 'pe_results','pe_results2','oed_results','exps','inputs','true_param_values');
+save([epccOutputResultFileNameBase,'.mat'], 'pe_results','oed_results','exps','inputs','true_param_values');
 
-
-
-
-
+% 
+% 
+% 
+% 
+% 
+% true_param_values = model.par(param_including_vector);
+% save([epccOutputResultFileNameBase,'.mat'],'oed_results','exps','inputs','true_param_values');
 
