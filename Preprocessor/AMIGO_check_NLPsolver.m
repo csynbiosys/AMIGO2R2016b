@@ -27,12 +27,11 @@ end
 switch opt_solver
     case {'de','sres','ess','eSS','globalm','monlot','nsga2'}
         inputs.nlpsol.nlpsolver=opt_solver;
-
+        inputs.nlpsol.global_solver=opt_solver;
     case {'wsm_de','wsm_sres','wsm_ssm','wsm_fssm','wsm_ess','wsm_globalm'}
         inputs.nlpsol.nlpsolver='wsm';
         inputs.nlpsol.global_solver=opt_solver(1,[5:end]);
-        inputs.nlpsol.global_solver
-        inputs.nlpsol.local_solver=[];
+             inputs.nlpsol.local_solver=[];
         
     case {'wsm_fmincon','wsm_n2fb','wsm_dn2fb','wsm_dhc','wsm_ipopt','wsm_solnp','wsm_nomad','wsm_fsqp','wsm_misqp','wsm_fminsearch'}
         inputs.nlpsol.nlpsolver='wsm';
