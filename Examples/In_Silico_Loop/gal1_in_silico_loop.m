@@ -32,9 +32,9 @@ gal1_load_model;
 exps.n_exp=0;
 
 % Initial guess for theta - the global unknows of model
-global_theta_guess = [logRand(0.1,10,5) 1 1 1 1];
-global_theta_guess(3) = logRand(0.1,5,1);
+global_theta_guess = [1 logRand(0.1,10,4) 1 1 1 1];
 global_theta_guess = global_theta_guess .* model.par;
+global_theta_guess(3) = logRand(0.1,5,1);
 global_theta_guess = global_theta_guess';
 
 % Max is one order of magnitude above truth and one order of magnitude
@@ -45,7 +45,7 @@ global_theta_min = model.par*0.1;    % Minimum allowed values for the parameters
 global_theta_max(3) = 5;
 
 % Focusing on the 5 parameters for transcription
-param_including_vector = [true,true,true,true,true,false,false,false,false];
+param_including_vector = [false,true,true,true,true,false,false,false,false];
 
 % Compile the model
 clear inputs;
@@ -56,12 +56,12 @@ inputs.pathd.runident       = 'initial_setup';
 AMIGO_Prep(inputs);
 
 % Calculate the initial state based on current best estimate of theta.
-% The initial state is the steady state when gal is 0
-y0 = gal1_steady_state(global_theta_guess, 0);
+% The initial state is the steady state when gal is 2
+y0 = gal1_steady_state(global_theta_guess, 2);
        
 % Fixed parts of the experiment
-duration = 60*60;     % Duration in minutes
-numCycles = 30;       % Number of 2-0 cycles
+duration = 50*60;     % Duration in minutes
+numCycles = 25;       % Number of 2-0 cycles
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a new experiment to simulate with the OID input
@@ -127,7 +127,7 @@ exps = newExps;
 
 for i=1:10
 
-    duration = i*6*60;  % Duration in minutes
+    duration = i*5*60;  % Duration in minutes
     
     clear inputs;
     inputs.model = model;
@@ -188,19 +188,19 @@ for i=1:10
 
 
     for j=1:size(used_par_names,1)
-        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*6, used_par_names(j,:), results.fit.thetabest(j));
+        fprintf(fid,'HOUR %d PARAM_FIT %s %f\n', i*5, used_par_names(j,:), results.fit.thetabest(j));
         if isfield(results.fit,'rel_conf_interval')
-            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*6, used_par_names(j,:), results.fit.rel_conf_interval(j));
+            fprintf(fid,'HOUR %d REL_CONF %s %f\n',  i*5, used_par_names(j,:), results.fit.rel_conf_interval(j));
         end
         if isfield(results.fit,'residuals')
-            fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.residuals{1}(j));
+            fprintf(fid,'HOUR %d RESIDUAL %s %f\n', i*5, used_par_names(j,:), results.fit.residuals{1}(j));
         end
         if isfield(results.fit,'rel_residuals')
-            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*6, used_par_names(j,:), results.fit.rel_residuals{1}(j));
+            fprintf(fid,'HOUR %d REL_RESIDUAL %s %f\n', i*5, used_par_names(j,:), results.fit.rel_residuals{1}(j));
         end
     end
     % Time in seconds
-    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*6, (pe_end-pe_start)*24*60*60);
+    fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*5, (pe_end-pe_start)*24*60*60);
     fclose(fid);
 
     best_global_theta_log{i}=results.fit.thetabest;
