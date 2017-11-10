@@ -98,7 +98,7 @@ inputs.exps.data_type='pseudo';
 inputs.exps.noise_type='homo_var';
 inputs.exps.std_dev{1}=[0.1];
     
-inputs.plotd.plotlevel='full';
+inputs.plotd.plotlevel='noplot';
     
 inputs.pathd.results_folder = results_folder;                        
 inputs.pathd.short_name     = short_name;
@@ -174,7 +174,7 @@ for i=1:10
     inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
     inputs.rid.conf_ntrials=500;
 
-    inputs.plotd.plotlevel='full';
+    inputs.plotd.plotlevel='noplot';
 
     pe_start = now;
     results = AMIGO_PE(inputs);
