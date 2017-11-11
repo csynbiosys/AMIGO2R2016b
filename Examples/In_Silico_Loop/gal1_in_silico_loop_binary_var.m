@@ -31,11 +31,19 @@ gal1_load_model;
 % We start with no experiments
 exps.n_exp=0;
 
-% Initial guess for theta - the global unknows of model
-global_theta_guess = [1 logRand(0.1,10,4) 1 1 1 1];
-global_theta_guess = global_theta_guess .* model.par;
-global_theta_guess(3) = logRand(0.1,5,1);
-global_theta_guess = global_theta_guess';
+% Initial guess for theta - the global unknows of model, imposing
+% constraints on the maximum and minimum fluorescence
+r_max = gal1_steady_state(model.par,2);
+y0 = r_max+0.01;
+
+while y0(1,3)> r_max(1,3) || y0(1,3)<0.16
+    global_theta_guess = [1 logRand(0.1,10,4) 1 1 1 1];
+    global_theta_guess = global_theta_guess .* model.par;
+    global_theta_guess(3) = logRand(0.1,5,1);
+    global_theta_guess = global_theta_guess';
+    y0 = gal1_steady_state(global_theta_guess,2);
+end
+
 
 % Max is one order of magnitude above truth and one order of magnitude
 % below truth
@@ -64,7 +72,7 @@ y0 = gal1_steady_state(global_theta_guess, 2);
        
 % Fixed parts of the experiment
 duration = 50*60;                                    % Duration in minutes
-stepDuration = 60;                                   % Step duration in minutes
+%stepDuration = 60;                                   % Step duration in minutes
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a new experiment to simulate with the OID input
@@ -82,9 +90,32 @@ newExps.n_s{1}=duration/5 + 1;          % Number of sampling times
 newExps.t_s{1}=0:5:duration ;           % Times of samples
     
 newExps.u_interp{1}='step';
-newExps.n_steps{1}=50; 
-newExps.u{1}=rand(1,50)*2;                       
-newExps.t_con{1}=0:60:3000;  
+
+
+%%%%%%%%%%%%%% random design of the input
+t_con = [0];
+q = 0;
+while q<3000
+    a = q+190;
+    b = 3000;
+    if a<3000-190
+        q = floor(a+(b-a)*rand(1,1));
+        t_con = [t_con q];
+    else
+        break
+    end
+end
+t_con = [t_con 3000]; 
+u_p = repmat([2,0],1,floor(length(t_con)/2));
+
+%%%%%%%%%%%%%%
+newExps.t_con{1} = t_con;
+newExps.n_steps{1}=length(t_con)-1; 
+if rem(length(t_con),2) == 0
+    newExps.u{1}= u_p(1:length(t_con)-1);     
+else 
+    newExps.u{1}= u_p;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Mock an experiment
@@ -139,9 +170,15 @@ for i=1:10
     % Reduce the input to a smaller set of values
     inputs.exps.t_f{1}          = duration;                % Experiment duration
     inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
-    inputs.exps.t_s{1}          = 0:5:duration ;           % Times of samples
-    inputs.exps.n_steps{1}      = duration/stepDuration; 
-    inputs.exps.t_con{1}        = 0:stepDuration:duration;
+    inputs.exps.t_s{1}          = 0:5:duration ;           % Times of samples 
+    if i == 10
+        inputs.exps.t_con{1}        = exps.t_con{1,1}(exps.t_con{1,1} <= duration);
+        inputs.exps.n_steps{1}      = length(inputs.exps.t_con{1})-1;
+    else
+        inputs.exps.t_con{1}        = [exps.t_con{1,1}(exps.t_con{1,1}<duration),duration];
+        inputs.exps.n_steps{1}      = length(inputs.exps.t_con{1})-1;
+    
+    end    
     inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_steps{1});
     inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
     inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
@@ -202,7 +239,6 @@ for i=1:10
         end
     end
 
-   
     % Time in seconds
     fprintf(fid,'HOUR %d PE_TIME %.1f\n',  i*5, (pe_end-pe_start)*24*60*60);
     fclose(fid);
