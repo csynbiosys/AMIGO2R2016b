@@ -31,11 +31,18 @@ gal1_load_model;
 % We start with no experiments
 exps.n_exp=0;
 
-% Initial guess for theta - the global unknows of model
-global_theta_guess = [1 logRand(0.1,10,4) 1 1 1 1];
-global_theta_guess = global_theta_guess .* model.par;
-global_theta_guess(3) = logRand(0.1,5,1);
-global_theta_guess = global_theta_guess';
+% Initial guess for theta - the global unknows of model, imposing
+% constraints on the maximum and minimum fluorescence
+r_max = gal1_steady_state(model.par,2);
+y0 = r_max+0.01;
+
+while y0(1,3)> r_max(1,3) || y0(1,3)<0.16
+    global_theta_guess = [1 logRand(0.1,10,4) 1 1 1 1];
+    global_theta_guess = global_theta_guess .* model.par;
+    global_theta_guess(3) = logRand(0.1,5,1);
+    global_theta_guess = global_theta_guess';
+    y0 = gal1_steady_state(global_theta_guess,2);
+end
 
 % Max is one order of magnitude above truth and one order of magnitude
 % below truth
