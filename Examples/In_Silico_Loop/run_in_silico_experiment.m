@@ -12,8 +12,10 @@ for epcc_exps=1:numExperiments
     try
         epccOutputResultFileNameBase = [resultBase,'-',num2str(epcc_exps)];
         %gal1_in_silico_loop;
-        gal1_in_silico_loop_binary_single;
+        %gal1_in_silico_loop_binary_single;
+        %gal1_in_silico_loop_binary_single_telegraph;
         %gal1_in_silico_loop_binary_var;
+        gal1_in_silico_loop_binary_var_telegraph;
     catch err
         %open file
         errorFile = [resultBase,'-',num2str(epcc_exps),'.errorLog'];
