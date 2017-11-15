@@ -4,6 +4,7 @@
 
 global epccOutputResultFileNameBase;
 global epccNumLoops;
+global stepd;
 resultFileName = [epccOutputResultFileNameBase,'.dat'];
 
 rng shuffle;
@@ -70,7 +71,7 @@ AMIGO_Prep(inputs);
 totalDuration = 50*60;               % minutes
 numLoops = epccNumLoops;
 duration = totalDuration/numLoops;   % minutes
-stepDuration = 750;                   % minutes
+stepDuration = stepd;                   % minutes
 oidDuration = 1200;                   % seconds
 
 for i=1:numLoops
@@ -165,11 +166,11 @@ for i=1:numLoops
 
     % OPTIMIZATION
     inputs.nlpsol.nlpsolver='de';
-    inputs.nlpsol.DE.NP = max([100, (2*inputs.exps.n_steps{iexp}-1)]); % NP is the number of population members, usually greater than 10*number of decision variables
-    inputs.nlpsol.DE.itermax = 100; % maximum number of iterations ('generations')
+    inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]); % NP is the number of population members, usually greater than 10*number of decision variables
+    inputs.nlpsol.DE.itermax = 600; % maximum number of iterations ('generations')
     inputs.nlpsol.DE.cvarmax = 1e-5; % cvarmax: maximum variance for a population at convergence
-    inputs.nlpsol.DE.F = 1; % F: DE-stepsize [0,2]
-    inputs.nlpsol.DE.CR = 0.85; % CR: crossover probability constant [0,1]
+    inputs.nlpsol.DE.F = 0.5;%;1; % F: DE-stepsize [0,2]
+    inputs.nlpsol.DE.CR = 0.3;%0.85; % CR: crossover probability constant [0,1]
     inputs.nlpsol.DE.strategy =3;           
                                     % strategy       
                                 %                1 --> DE/best/1/exp           
