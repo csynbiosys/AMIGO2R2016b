@@ -120,7 +120,7 @@
               switch inputs.nlpsol.global_solver
                 case 'de'
                 fprintf(fid2,'\n%% Death penalty for DE\n');   
-                fprintf(fid2,'\nswitch privstruct.global_solver\n');  
+                fprintf(fid2,'\nswitch inputs.nlpsol.global_solver\n');  
                 fprintf(fid2,'\ncase ''de''\n');
                 for icons=1:inputs.exps.n_const_eq_tf{iexp}  
                 fprintf(fid2,'\t if hh{%u}(1,%u) >%f\n',iexp,icons,inputs.exps.eq_const_max_viol); 
@@ -189,7 +189,7 @@
                 switch inputs.nlpsol.global_solver 
                 case 'de'    
                      fprintf(fid2,'\n%% Death penalty for DE\n');  
-                      fprintf(fid2,'\t\tswitch privstruct.global_solver\n ');
+                      fprintf(fid2,'\t\tswitch inputs.nlpsol.global_solver \n ');
                       fprintf(fid2,'\t\tcase ''de''\n')
                       for icons=1:inputs.exps.n_const_ineq_tf{iexp} 
                         fprintf(fid2,'\t\tif hh{%u}(1,%u) > %f;\n',iexp,icons,inputs.exps.ineq_const_max_viol); 
