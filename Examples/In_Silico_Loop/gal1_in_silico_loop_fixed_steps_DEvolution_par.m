@@ -8,7 +8,7 @@
 
 function [out]=gal1_in_silico_loop_fixed_steps_DEvolution_par(epccOutputResultFileNameBase,epccNumLoops,stepd,ii)
 
-    resultFileName = [strcat(epccOutputResultFileNameBase,num2str(ii)),'.dat'];
+    resultFileName = [strcat(epccOutputResultFileNameBase,'-',num2str(stepd),'-',num2str(ii)),'.dat'];
     numExperiments=1;
     rng shuffle;
     rngToGetSeed = rng;
