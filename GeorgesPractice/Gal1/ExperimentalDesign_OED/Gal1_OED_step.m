@@ -90,9 +90,9 @@ inputs.model.par=theta;
  inputs.exps.u_min{1}=0*ones(1,inputs.exps.n_steps{1});
  inputs.exps.u_max{1}=100*ones(1,inputs.exps.n_steps{1});% Minimum and maximum value for the input
  inputs.exps.tf_type{1}='fixed';                       % [] Type of experiment duration: 'fixed'(default) | 'od' (to be designed) 
- inputs.exps.t_f{1}=2500;                               % Experiment duration
+ inputs.exps.t_f{1}=50*60;                               % Experiment duration
  inputs.exps.ts_type{1}='fixed';                       % [] Type of sampling times: 'fixed'(default) | 'od' (to be designed) 
- inputs.exps.n_s{1}=20;
+ inputs.exps.n_s{1}=2  ;
  inputs.exps.std_dev{1}=0.1;                           % Standard deviation of the noise for each experiment: Ex: 0.05 <=> 5%
 % 
 %  
@@ -146,7 +146,7 @@ inputs.PEsol.global_theta_guess=inputs.model.par;
 % COST FUNCTION RELATED DATA
 %==================================    
 
- inputs.exps.noise_type='hetero';                    % Type of experimental noise: 'homo' |'homo_var'| 'hetero'     
+ inputs.exps.noise_type='homo_var';                    % Type of experimental noise: 'homo' |'homo_var'| 'hetero'     
  inputs.OEDsol.OEDcost_type='Eopt';                % FIM based criterium: 'Dopt'|'Eopt'|'Aopt'|'Emod'|'DoverE'
  
  
