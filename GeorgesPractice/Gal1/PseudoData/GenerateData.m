@@ -25,7 +25,7 @@ inputs.exps.n_obs{1}=1;                                        % Number of obser
 inputs.exps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
 inputs.exps.obs{1}=char('Fluorescence=gal1_fluo');             % Observation function
  
-inputs.exps.exp_y0{1}=[ 2.0831    1.0415    1.0415];           % Initial conditions with 'correct' parameters          
+inputs.exps.exp_y0{1}=gal1_steady_state_George1(inputs,2);           % Initial conditions with 'correct' parameters          
     
 inputs.exps.t_f{1}=duration;         % Experiment duration
 ts=0:steplength:duration;
