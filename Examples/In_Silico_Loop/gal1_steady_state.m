@@ -1,22 +1,25 @@
-function [ res ] = gal1_steady_state( theta, gal)
-% Calculates the steady state for the parameters and galactose level
+function [ res ] = gal1_steady_state(theta, gal )
+%gal1_steady_state Calculates the steady state for theta and gal
+%   Computes analitically the stady state for the gal1 model, given theta
+%   and the galactose value
+    
+r = theta(1);
+h1 = theta(2);
+Km1 = theta(3);
+d1 = theta(4);
+alpha2 = theta(5);
+d2 = theta(6);
+Kf = theta(7);
+Kb = theta(8);
+% Define the values for alpha1 and Vm1
+alpha1=d1*Kb*(d2+Kf)*r/(Kf*alpha2);
+Vm1=(d1*Kb*(Kf+d2)/(alpha2*Kf) - alpha1) * (Km1^h1 + 2^h1)/2^h1;
 
-a1 = theta(1);
-Vm1 = theta(2);
-h1 = theta(3);
-Km1 = theta(4);
-d1 = theta(5);
-a2 = theta(6);
-d2 = theta(7);
-Kf = theta(8);
-Kb = theta(9);
-
-gal1_mrna = (a1 + Vm1*(gal^h1/(Km1^h1+gal^h1)))/d1;
-
-gal1_foldedP = (a2*gal1_mrna)/(Kf+d2);
-
+gal1_mrna = (alpha1 + Vm1*(gal^h1/(Km1^h1+gal^h1)))/d1;
+gal1_foldedP = (alpha2*gal1_mrna)/(Kf+d2);
 gal1_fluo = (Kf*gal1_foldedP)/Kb;
 
-res = [gal1_mrna gal1_foldedP gal1_fluo ];
+res = [gal1_mrna gal1_foldedP gal1_fluo];
 
 end
+
