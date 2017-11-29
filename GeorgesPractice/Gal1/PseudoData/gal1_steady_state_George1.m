@@ -1,4 +1,4 @@
-function [ res ] = gal1_steady_state_George1( inputs, gal)
+function res = gal1_steady_state_George1( inputs, gal)
 % Calculates the steady state for the parameters and galactose level
 
 theta=inputs.model.par;
