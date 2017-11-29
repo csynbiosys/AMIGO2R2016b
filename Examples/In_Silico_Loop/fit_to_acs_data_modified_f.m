@@ -22,7 +22,7 @@ function [out] = fit_to_acs_data_modified_f(epccOutputResultFileNameBase,epcc_ex
     
     % Specify folder name and short_name
     results_folder = strcat('Gal1-noDelay',datestr(now,'yyyy-mm-dd-HHMMSS'));
-    short_name     = strcat('gal1noD',datestr(now,'yyyy-mm-dd-HHMMSS'),'-',num2str(epcc_exps));
+    short_name     = strcat('gal1noD',num2str(epcc_exps));
 
     
     wd = cd;
