@@ -1,6 +1,6 @@
 function exps = gal1_load_experiments_George1(inputs)
 % Run a basic simulation - here we start in steady state and add gal1
-cprintf('loading gal1_experiments_George1\n');
+cprintf(['loading ',mfilename,'...\n']);
 
 exps.data_type='pseudo_pos'; 
 

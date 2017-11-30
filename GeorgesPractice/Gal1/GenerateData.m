@@ -20,6 +20,6 @@ inputs.pathd.results_folder = results_folder;
 inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'sim';
 
-AMIGO_SModel(inputs);
-
 sim = AMIGO_SData(inputs);
+
+AMIGO_SModel(inputs);

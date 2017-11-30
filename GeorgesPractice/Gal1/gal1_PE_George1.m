@@ -9,12 +9,12 @@ else
     param_including_vector=varargin{1};
 end
 
-inputs.pathd.runident = strcat('pe');
+inputs.pathd.runident = strcat('PE');
 
 best_global_theta=inputs.model.par;
 
 % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
-inputs.PEsol.id_global_theta=inputs.model.par_names(param_including_vector);
+inputs.PEsol.id_global_theta=inputs.model.par_names(param_including_vector,:);
 inputs.PEsol.global_theta_guess=best_global_theta(param_including_vector);
 inputs.PEsol.global_theta_max=10*inputs.PEsol.global_theta_guess;  % Maximum allowed values for the paramters
 inputs.PEsol.global_theta_min=0.1*inputs.PEsol.global_theta_guess;  % Minimum allowed values for the parameters

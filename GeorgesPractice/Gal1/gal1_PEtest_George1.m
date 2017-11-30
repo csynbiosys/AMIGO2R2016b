@@ -4,7 +4,7 @@ short_name     = 'gal1noD';
 
 inputs.pathd.results_folder = results_folder;
 inputs.pathd.short_name     = short_name;
-inputs.pathd.runident       = 'EP';
+inputs.pathd.runident       = 'pe';
 
 %============================
 % MODEL RELATED DATA
@@ -24,7 +24,7 @@ inputs.exps=gal1_load_experiments_George1(inputs);
 
 sim=AMIGO_SData(inputs);
 
-inputs.exps.exp_data{1}   = sim.sim.exp_data{1};
-inputs.exps.error_data{1} = sim.sim.error_data{1};
+inputs.exps.exp_data   = sim.sim.exp_data;
+inputs.exps.error_data = sim.sim.error_data;
 
 result=gal1_PE_George1(inputs);

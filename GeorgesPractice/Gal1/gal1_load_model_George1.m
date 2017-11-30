@@ -2,7 +2,7 @@ function model = gal1_load_model_George1()
 % Gal1 model but here we have eliminated parameter Vm1 using the fact
 % that the output is 1 when at steady state.  Thus we can cast Vm in
 % term of the other parameters.
-cprintf('loading gal1_model_George1\n');
+cprintf(['loading ',mfilename,'...\n']);
 model.input_model_type='charmodelC';                % Model introduction: 'charmodelC'|'c_model'|'charmodelM'|'matlabmodel'|'sbmlmodel'|                        
                                                            %                     'blackboxmodel'|'blackboxcost                             
 model.n_st=3;                                       % Number of states      
