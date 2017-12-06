@@ -33,18 +33,18 @@ inputs.ivpsol.atol=1.0D-7;
 % OPTIMIZATION
 inputs.nlpsol.nlpsolver='eSS';
 inputs.nlpsol.eSS.maxeval = 200000;
-inputs.nlpsol.eSS.maxtime = 100;
+inputs.nlpsol.eSS.maxtime = 500;
 inputs.nlpsol.eSS.local.solver = 'nl2sol';  % nl2sol not yet installed on my mac
 inputs.nlpsol.eSS.local.finish = 'nl2sol';  % nl2sol not yet installed on my mac
 
 inputs.nlpsol.multi_starts=10*sum(param_including_vector);    % [] Number of different initial guesses to run local methods in the multistart approach
 inputs.nlpsol.multistart.maxeval = 20000;            % Maximum number of function evaluations for the multistart
-inputs.nlpsol.multistart.maxtime = 500;              % Maximum allowed time for the optimization
+inputs.nlpsol.multistart.maxtime = 5000;              % Maximum allowed time for the optimization
 
 inputs.nlpsol.DE.NP = 10*sum(param_including_vector);         % Initial population size (around 10*npar)
-inputs.nlpsol.DE.itermax = 2000;                     % Maximum number of iteratios in DE
+inputs.nlpsol.DE.itermax = 5000;                     % Maximum number of iteratios in DE
 inputs.nlpsol.DE.F = 0.75; %0.75;  %1                   % F: DE-stepsize F ex [0, 2]
-inputs.nlpsol.DE.CR =0.5;                           %CR: crossover probabililty constant ex [0, 1]
+inputs.nlpsol.DE.CR =0.85;                           %CR: crossover probabililty constant ex [0, 1]
 inputs.nlpsol.DE.strategy =3; 
 
 inputs.plotd.plotlevel='medium';
