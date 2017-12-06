@@ -12,11 +12,11 @@ inputs.pathd.runident       = 'pe';
 
 inputs.model=gal1_load_model_George1();
 
-%==================================
+%==================================result
 % EXPERIMENTAL SCHEME RELATED DATA & DATA RELATED INFO
 %==================================
 
-inputs.exps=gal1_load_experiments_George1(inputs);
+inputs.exps=gal1_load_experiments_George2(inputs);
 
 %==================================
 % ACQUIRE PERSUDO DATA
@@ -27,4 +27,5 @@ sim=AMIGO_SData(inputs);
 inputs.exps.exp_data   = sim.sim.exp_data;
 inputs.exps.error_data = sim.sim.error_data;
 
-result=gal1_PE_George1(inputs);
+result=gal1_PE_George2(inputs);
+%result=gal1_PE_George1(inputs);

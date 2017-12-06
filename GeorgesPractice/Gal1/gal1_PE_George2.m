@@ -1,4 +1,4 @@
-function result = gal1_PE_George1(inputs,varargin)
+function result = gal1_PE_George2(inputs,varargin)
 % Parameter estimation for general models and experiments,
 % varargin is param_including_vector. if not given, assume all parameters
 % need to be estimated.
@@ -34,26 +34,24 @@ inputs.ivpsol.atol=1.0D-7;
 inputs.nlpsol.nlpsolver='eSS';
 inputs.nlpsol.eSS.maxeval = 200000;
 inputs.nlpsol.eSS.maxtime = 100;
-inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my mac
-inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
-inputs.rid.conf_ntrials=500;
+inputs.nlpsol.eSS.local.solver = 'nl2sol';  % nl2sol not yet installed on my mac
+inputs.nlpsol.eSS.local.finish = 'nl2sol';  % nl2sol not yet installed on my mac
+
+inputs.nlpsol.multi_starts=10*sum(param_including_vector);    % [] Number of different initial guesses to run local methods in the multistart approach
+inputs.nlpsol.multistart.maxeval = 20000;            % Maximum number of function evaluations for the multistart
+inputs.nlpsol.multistart.maxtime = 500;              % Maximum allowed time for the optimization
+
+inputs.nlpsol.DE.NP = 10*sum(param_including_vector);         % Initial population size (around 10*npar)
+inputs.nlpsol.DE.itermax = 2000;                     % Maximum number of iteratios in DE
+inputs.nlpsol.DE.F = 0.75; %0.75;  %1                   % F: DE-stepsize F ex [0, 2]
+inputs.nlpsol.DE.CR =0.5;                           %CR: crossover probabililty constant ex [0, 1]
+inputs.nlpsol.DE.strategy =3; 
 
 inputs.plotd.plotlevel='medium';
-
-
-inputs.nlpsol.multi_starts=100*sum(param_including_vector);                        % [] Number of different initial guesses to run local methods in the multistart approach
-inputs.nlpsol.multistart.maxeval = 20000;            % Maximum number of function evaluations for the multistart
-inputs.nlpsol.multistart.maxtime = 1200;                % Maximum allowed time for the optimization
-inputs.nlpsol.eSS.local.nl2sol.maxiter             =     300;        % max number of iteration
-inputs.nlpsol.eSS.local.nl2sol.maxfeval            =     4000;         % max number of function evaluation
-
-
 
 pe_start = now;
 pe_results = AMIGO_PE(inputs);
 pe_end= now;
-
-
 
 %Save the best theta
 best_global_theta(param_including_vector)=pe_results.fit.thetabest;
