@@ -30,10 +30,13 @@ inputs.exps=gal1_load_OED_George1(inputs);
 
 
 % Parameters to be considered for OED 
-inputs.PEsol.id_global_theta=char('r','alpha2','d2');  %  'all'|User selected  
+param_including_vector=[true,false,false,false,true,true,false,false];
+inputs.PEsol.id_global_theta=inputs.model.par_names(param_including_vector,:);
+inputs.PEsol.global_theta_guess=inputs.model.par(param_including_vector);
+%inputs.PEsol.id_global_theta=char('r','alpha2','d2');  %  'all'|User selected  
 %inputs.PEsol.id_global_theta='all';  %  'all'|User selected  
 % Nominal value of the parameters to compute the FIM
-inputs.PEsol.global_theta_guess=inputs.model.par; 
+%inputs.PEsol.global_theta_guess=inputs.model.par; 
 
 
 %==================================
