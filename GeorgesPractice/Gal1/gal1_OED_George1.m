@@ -40,7 +40,7 @@ inputs.PEsol.global_theta_guess=inputs.model.par;
 %==================================    
 
  inputs.exps.noise_type='hetero';                    % Type of experimental noise: 'homo' |'homo_var'| 'hetero'     
- inputs.OEDsol.OEDcost_type='Eopt';                % FIM based criterium: 'Dopt'|'Eopt'|'Aopt'|'Emod'|'DoverE'
+ inputs.OEDsol.OEDcost_type='Aopt';                % FIM based criterium: 'Dopt'|'Eopt'|'Aopt'|'Emod'|'DoverE'
  
  
 %==================================
@@ -75,7 +75,7 @@ inputs.nlpsol.nlpsolver='eSS';                        % [] NLP solver:
 %                                                       
  
 inputs.nlpsol.eSS.maxeval = 10000;                      % Maximum number of cost function evaluations
-inputs.nlpsol.eSS.maxtime = 300;                        % Maximum computational effort in seconds
+inputs.nlpsol.eSS.maxtime = 3000;                        % Maximum computational effort in seconds
 inputs.nlpsol.eSS.local.solver = 'fminsearch';             % Local solver: SQP type
 
                                                        
@@ -100,5 +100,5 @@ inputs.nlpsol.eSS.local.solver = 'fminsearch';             % Local solver: SQP t
 
 AMIGO_Prep(inputs)         % Calls the task for pre-processing
 
-warning off
+warning off;
 AMIGO_OED(inputs)           % Calls the task for Parameter Estimation
