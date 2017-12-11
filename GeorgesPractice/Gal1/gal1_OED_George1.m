@@ -30,7 +30,8 @@ inputs.exps=gal1_load_OED_George1(inputs);
 
 
 % Parameters to be considered for OED 
-inputs.PEsol.id_global_theta='all';  %  'all'|User selected  
+inputs.PEsol.id_global_theta=char('r','alpha2','d2');  %  'all'|User selected  
+%inputs.PEsol.id_global_theta='all';  %  'all'|User selected  
 % Nominal value of the parameters to compute the FIM
 inputs.PEsol.global_theta_guess=inputs.model.par; 
 
@@ -40,7 +41,7 @@ inputs.PEsol.global_theta_guess=inputs.model.par;
 %==================================    
 
  inputs.exps.noise_type='hetero';                    % Type of experimental noise: 'homo' |'homo_var'| 'hetero'     
- inputs.OEDsol.OEDcost_type='Aopt';                % FIM based criterium: 'Dopt'|'Eopt'|'Aopt'|'Emod'|'DoverE'
+ inputs.OEDsol.OEDcost_type='Dopt';                % FIM based criterium: 'Dopt'|'Eopt'|'Aopt'|'Emod'|'DoverE'
  
  
 %==================================
