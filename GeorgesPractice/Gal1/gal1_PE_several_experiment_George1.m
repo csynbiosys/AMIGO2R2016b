@@ -1,7 +1,6 @@
 % Proprocesses the data from Fiore 2016 ACS so that it can be processed
 % by Amigo2 reference from Lucia
-function [out] = gal1_PE_several_experiment_George1(fileName)
-resultFileName = fileName;
+function [out] = gal1_PE_several_experiment_George1(resultFileName, dataFileName)
 rng shuffle;
 rngToGetSeed = rng;
 
@@ -22,7 +21,7 @@ inputs.pathd.runident       = 'PEs';
 
 wd = cd;
 cd(cd);
-load('Data_Menolascina_yeast_161007.mat')
+load(dataFileName);
 cd(wd);
 
 
@@ -34,17 +33,17 @@ cd(wd);
 global_theta_min = [0, 0.5, 0.01, 0.0077,  0.3,  0.0023,0.01,  0.0023];  % Minimum allowed values for the parameters
 global_theta_max = [7e-5, 4.0, 0.5,    0.14,    1.3,  0.0092,  0.2,  0.0092];  % Maximum allowed values for the paramters
 
-global_theta_guess_min = [3.5e-5, 2.25, 0.255, 0.0077,0.1,0.0023,0.01,0.0023];
-global_theta_guess_max = [3.5e-5, 2.25, 0.255, 0.25,1.5,0.01,0.2,0.01];
+global_theta_guess_min = [3.5e-5, 2.25, 0.255, 0.0077,0.1,0.0023,0.01,0.0023]';
+global_theta_guess_max = [3.5e-5, 2.25, 0.255, 0.25,1.5,0.01,0.2,0.01]';
 
 % Initial guesses for theta - the global unknonws for the model - imposing
 % The maximum fluorescence is designed to be 1, no need for iterations
 
-global_theta_guess=global_theta_guess_min+(global_theta_guess_max-global_theta_guess_min).*rand(1,8);
+global_theta_guess=global_theta_guess_min+(global_theta_guess_max-global_theta_guess_min).*rand(8,1);
 
 
 best_global_theta = global_theta_guess;
-param_including_vector = [false,false,false,true,true,true,true,true];
+param_including_vector = [true,true,true,true,true,false,false,false];
 
 % Compile the model
 clear inputs;
@@ -56,8 +55,11 @@ AMIGO_Prep(inputs);
 
 clear inputs;
 % Read the model into the model variable
-inputs.model=local_load_model(best_global_theta);
+inputs.model=local_load_model();
 inputs.exps  = local_load_experiments(S.Data,global_theta_guess);
+inputs.pathd.results_folder = results_folder;
+inputs.pathd.short_name     = short_name;
+inputs.pathd.runident       = 'PEs';
 
 % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERMENTS)
 inputs.PEsol.id_global_theta=inputs.model.par_names(param_including_vector,:);
@@ -79,37 +81,14 @@ inputs.ivpsol.atol=1.0D-8;
 inputs.nlpsol.nlpsolver='eSS';
 inputs.nlpsol.eSS.maxeval = 200000;
 inputs.nlpsol.eSS.maxtime = 3000;
-inputs.nlpsol.eSS.log_var = [ 1 3 4 5 6 7 8];
+inputs.nlpsol.eSS.log_var = [1 2 3 4 5];
 inputs.nlpsol.eSS.local.solver = 'fmincon';  % nl2sol not yet installed on my mac
 inputs.nlpsol.eSS.local.finish = 'fmincon';  % nl2sol not yet installed on my mac
 inputs.rid.conf_ntrials=500;
 
-% GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERMENTS)
-inputs.PEsol.id_global_theta=inputs.model.par_names(param_including_vector,:);
-inputs.PEsol.global_theta_guess=best_global_theta(param_including_vector);
-inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the paramters
-inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
-
-% COST FUNCTION RELATED DATA
-inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost'
-inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero'
-
-% SIMULATION
-inputs.ivpsol.ivpsolver='cvodes';
-inputs.ivpsol.senssolver='cvodes';
-inputs.ivpsol.rtol=1.0D-8;
-inputs.ivpsol.atol=1.0D-8;
-
-% OPTIMIZATION
-inputs.nlpsol.nlpsolver='eSS';
-inputs.nlpsol.eSS.maxeval = 200000;
-inputs.nlpsol.eSS.maxtime = 3000;
-inputs.nlpsol.eSS.log_var = [ 1 3 4 5 6 7 8];
-inputs.nlpsol.eSS.local.solver = 'fmincon';  % nl2sol not yet installed on my mac
-inputs.nlpsol.eSS.local.finish = 'fmincon';  % nl2sol not yet installed on my mac
-inputs.rid.conf_ntrials=500;
 
 pe_start = now;
+%out=inputs; return;
 results = AMIGO_PE(inputs);
 pe_end = now;
 
@@ -142,11 +121,11 @@ best_global_theta(param_including_vector) = results.fit.thetabest;
 pe_results=results;
 exps=inputs.exps;
 pe_inputs=inputs;
-save([stract(fileName,'-',backupData),'.mat'],'pe_results','exps','pe_inputs','best_global_theta');
+save([stract(resultFileName,'-',backupData),'.mat'],'pe_results','exps','pe_inputs','best_global_theta');
 out = true;
 end
 
-function model = local_load_model(best_global_theta)
+function model = local_load_model()
 % Gal1 model but here we have eliminated parameter Vm1 using the fact
 % that the output is 1 when at steady state.  Thus we can cast Vm in
 % term of the other parameters.
@@ -166,14 +145,14 @@ model.eqns=...                                      % Equations describing syste
     'dgal1_mrna=alpha1+Vm1*(gal^h1/(Km1^h1+gal^h1))-d1*gal1_mrna',...
     'dgal1_foldedP=alpha2*gal1_mrna-(d2+Kf)*gal1_foldedP',...
     'dgal1_fluo=Kf*gal1_foldedP-Kb*gal1_fluo');
-model.par=best_global_theta;
+model.par=[0.000035,2.25,0.255,0.0738,0.8,0.0057,0.1050,0.0057];
+
 end
 
 function exps = local_load_experiments(data,global_theta_guess)
 ExcludeExperiments = {'Menolascina_extracted_160714','dataND053','dataND055','dataND057'};
 
 y0 = gal1_steady_state(global_theta_guess,2);
-
 
 iexp = 1;
 for countexp = 1:size(data,2)
