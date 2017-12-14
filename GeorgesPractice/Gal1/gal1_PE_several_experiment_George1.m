@@ -96,7 +96,7 @@ pe_end = now;
 
 % Write results to the output file
 fid = fopen(resultFileName,'a');
-used_par_names = model.par_names(param_including_vector,:);
+used_par_names = inputs.model.par_names(param_including_vector,:);
 
 for j=1:size(used_par_names,1)
     fprintf(fid,'PARAM_FIT %s %f\n', used_par_names(j,:), results.fit.thetabest(j));
