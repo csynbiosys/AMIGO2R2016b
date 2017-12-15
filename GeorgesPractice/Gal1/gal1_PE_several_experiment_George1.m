@@ -43,7 +43,7 @@ global_theta_guess=global_theta_guess_min+(global_theta_guess_max-global_theta_g
 
 
 best_global_theta = global_theta_guess;
-param_including_vector = [true,true,true,true,true,false,false,false];
+param_including_vector = [true,true,true,true,true,true,true,true];
 
 % Compile the model
 clear inputs;
@@ -81,7 +81,7 @@ inputs.ivpsol.atol=1.0D-8;
 inputs.nlpsol.nlpsolver='eSS';
 inputs.nlpsol.eSS.maxeval = 200000;
 inputs.nlpsol.eSS.maxtime = 3000;
-inputs.nlpsol.eSS.log_var = [1 2 3 4 5];
+inputs.nlpsol.eSS.log_var = 1:8;
 inputs.nlpsol.eSS.local.solver = 'fmincon';  % nl2sol not yet installed on my mac
 inputs.nlpsol.eSS.local.finish = 'fmincon';  % nl2sol not yet installed on my mac
 inputs.rid.conf_ntrials=500;
@@ -121,7 +121,7 @@ best_global_theta(param_including_vector) = results.fit.thetabest;
 pe_results=results;
 exps=inputs.exps;
 pe_inputs=inputs;
-save([stract(resultFileName,'-',backupData),'.mat'],'pe_results','exps','pe_inputs','best_global_theta');
+save([stract(resultFileName,'-backupData'),'.mat'],'pe_results','exps','pe_inputs','best_global_theta');
 out = true;
 end
 
