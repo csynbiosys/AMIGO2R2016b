@@ -121,7 +121,7 @@ best_global_theta(param_including_vector) = results.fit.thetabest;
 pe_results=results;
 exps=inputs.exps;
 pe_inputs=inputs;
-save([stract(resultFileName,'-backupData'),'.mat'],'pe_results','exps','pe_inputs','best_global_theta');
+save([strcat(resultFileName,'-backupData'),'.mat'],'pe_results','exps','pe_inputs','best_global_theta');
 out = true;
 end
 
