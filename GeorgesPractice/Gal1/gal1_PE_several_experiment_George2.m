@@ -1,5 +1,5 @@
-% Proprocesses the data from Fiore 2016 ACS so that it can be processed
-% by Amigo2 reference from Lucia
+% Proprocesses the data from Fiore 2016 ACS so that it can be processed by
+% Amigo2 reference from Lucia
 function output = gal1_PE_several_experiment_George2(numIterations)
 cd('../..');
 % AMIGO_Startup();
@@ -73,6 +73,9 @@ inputs.nlpsol.eSS.local.solver = 'fmincon';  % nl2sol not yet installed on my ma
 inputs.nlpsol.eSS.local.finish = 'fmincon';  % nl2sol not yet installed on my mac
 inputs.rid.conf_ntrials=500;
 
+initialguess=zeros(numIterations,sum(param_including_vector));
+results=initialguess;
+
 parfor exps=1:numIterations
 
 rng shuffle;
@@ -90,18 +93,19 @@ tempresults = AMIGO_PE(tempinputs);
 
 % Save the best theta
 results(exps,:)=tempresults.fit.thetabest';
-end
 
-output={results,seed,initialguess};
+end
+names=inputs.PEsol.id_global_theta;
+output={names,results,seed,initialguess};
 
 save('result.mat','output');
 
 end
 
 function model = local_load_model()
-% Gal1 model but here we have eliminated parameter Vm1 using the fact
-% that the output is 1 when at steady state.  Thus we can cast Vm in
-% term of the other parameters.
+% Gal1 model but here we have eliminated parameter Vm1 using the fact that
+% the output is 1 when at steady state.  Thus we can cast Vm in term of the
+% other parameters.
 cprintf(['loading ',mfilename,'...\n']);
 model.input_model_type='charmodelC';                % Model introduction: 'charmodelC'|'c_model'|'charmodelM'|'matlabmodel'|'sbmlmodel'|
 %                     'blackboxmodel'|'blackboxcost
