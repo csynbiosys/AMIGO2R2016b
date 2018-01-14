@@ -33,9 +33,10 @@ while y0(1,3)<0.9 || y0(1,3)>1
     y0 = gal1_steady_state(global_theta_guess,2);
 end
 
-ExcludeExperiments = {'Menolascina_extracted_160714','dataND053','dataND055','dataND057'};
+%ExcludeExperiments = {'Menolascina_extracted_160714','dataND053','dataND055','dataND057'};
+ExcludeExperiments = {'Menolascina_extracted_160714'};
 
-for countexp = 2%1:size(S.Data,2)
+for countexp = 1:size(S.Data,2)
     Name = S.Data(countexp).experimentName;
     if any(strcmp(Name,ExcludeExperiments))
         continue
@@ -63,15 +64,16 @@ for countexp = 2%1:size(S.Data,2)
     end
 
     exps.data_type      = 'real';    
-    exps.noise_type     = 'homo';
+    exps.noise_type     = 'homo_var';
     exps.exp_data{iexp} = S.Data(countexp).output;
-    IndexExitCP = find(S.Data(countexp).time_min >= t_con(2),1);
+    %IndexExitCP = find(S.Data(countexp).time_min >= t_con(2),1);
     
-    exps.std_dev{iexp}  = [nanmean(S.Data(countexp).output_std(1:IndexExitCP))];
-
+    %exps.std_dev{iexp}  = [nanmean(S.Data(countexp).output_std(1:IndexExitCP))];
+    exps.error_data{iexp} = S.Data(countexp).output_std;
     exps.exp_y0{iexp} = y0;  
     
     exps.n_exp = iexp;
+    fprintf('Experiment %d: %s',iexp,Name);
     iexp = iexp + 1;
 end
 
@@ -102,8 +104,8 @@ inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maxim
 inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
 
 % COST FUNCTION RELATED DATA
-inputs.PEsol.PEcost_type='lsq';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
-inputs.PEsol.lsq_type='Q_expmax';
+inputs.PEsol.PEcost_type='llk';                       % 'lsq' (weighted least squares default) | 'llk' (log likelihood) | 'user_PEcost' 
+%inputs.PEsol.lsq_type='Q_expmax';
 inputs.PEsol.llk_type='homo_var';                     % [] To be defined for llk function, 'homo' | 'homo_var' | 'hetero' 
 
 % SIMULATION
@@ -121,9 +123,11 @@ inputs.nlpsol.eSS.local.solver = 'lsqnonlin';  % nl2sol not yet installed on my 
 inputs.nlpsol.eSS.local.finish = 'lsqnonlin';  % nl2sol not yet installed on my mac
 inputs.rid.conf_ntrials=500;
 
-results = AMIGO_PE(inputs);
+% to run multiStart
+% inputs.nlpsol.nlpsolver='multi_fmincon';
+% inputs.nlpsol.multi_starts= 1000;
+
+
+results = AMIGO_GRank(inputs);
 
 % Run a simulation for each input
-
-
-    

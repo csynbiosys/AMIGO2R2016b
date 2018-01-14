@@ -46,7 +46,7 @@ function [out] = fit_to_acs_data_modified_f(epccOutputResultFileNameBase,epcc_ex
     
     % Define upper and lower boundaries on parameters value
     %                   r      h1   Km    d1       alpha2  d2    Kf    Kb
-    global_theta_min = [7e-8, 0.5, 0.01, 0.0077,  0.3,  0.0023,0.01,  0.0023];  % Minimum allowed values for the parameters
+    global_theta_min = [0, 0.5, 0.01, 0.0077,  0.3,  0.0023,0.01,  0.0023];  % Minimum allowed values for the parameters
     global_theta_max = [7e-5, 4.0, 0.5,    0.14,    1.3,  0.0092,  0.2,  0.0092];  % Maximum allowed values for the paramters
 
     % Initial guesses for theta - the global unknonws for the model - imposing
@@ -55,7 +55,7 @@ function [out] = fit_to_acs_data_modified_f(epccOutputResultFileNameBase,epcc_ex
     % normalised fluorescence, so that we will enter the cycle
     y0 = r_max+0.01;
     while y0(1,3)<0.9 || y0(1,3)>1
-        global_theta_guess = [logRand(7e-12,7e-3) logRand(0.5,4) logRand(0.01,1),logRand(0.0077,0.25),logRand(0.1,1.5),logRand(0.0023,0.01),logRand(0.01,0.2),logRand(0.0023,0.01)]; % extract a random value from a uniform distribution in the plausible range for the parameters
+        global_theta_guess = [logRand(0,7e-5) logRand(0.5,4) logRand(0.01,1),logRand(0.0077,0.25),logRand(0.1,1.5),logRand(0.0023,0.01),logRand(0.01,0.2),logRand(0.0023,0.01)]; % extract a random value from a uniform distribution in the plausible range for the parameters
         global_theta_guess = global_theta_guess';
         y0 = gal1_steady_state(global_theta_guess,2); % update the steady state(initial condition)of the system 
     end
@@ -69,7 +69,7 @@ function [out] = fit_to_acs_data_modified_f(epccOutputResultFileNameBase,epcc_ex
     ExcludeExperiments = {'Menolascina_extracted_160714','dataND053','dataND055','dataND057'};
     
     iexp = 1;
-    for countexp = 1:size(S.Data,2)
+    for countexp = 2%1:size(S.Data,2)
         Name = S.Data(countexp).experimentName;
         if any(strcmp(Name,ExcludeExperiments))
             continue
@@ -101,7 +101,8 @@ function [out] = fit_to_acs_data_modified_f(epccOutputResultFileNameBase,epcc_ex
         exps.exp_data{iexp} = S.Data(countexp).output;
         IndexExitCP = find(S.Data(countexp).time_min >= t_con(2),1);
 
-        exps.std_dev{iexp}  = [nanstd(S.Data(countexp).output(1:IndexExitCP))];
+        %exps.std_dev{iexp}  = [nanstd(S.Data(countexp).output(1:IndexExitCP))];
+        exps.std_dev{iexp}  = [nanmean(S.Data(countexp).output_std(1:IndexExitCP))];
 
         exps.exp_y0{iexp} = y0;
 
