@@ -86,9 +86,9 @@ tempinputs=inputs;
 
 best_global_theta =global_theta_guess_min+(global_theta_guess_max-global_theta_guess_min).*...
     rand(8,1);
+best_global_theta=best_global_theta(param_including_vector);
 initialguess(exps,:)=best_global_theta;
 tempinputs.PEsol.global_theta_guess=transpose(best_global_theta);
-
 tempresults = AMIGO_PE(tempinputs);
 
 % Save the best theta

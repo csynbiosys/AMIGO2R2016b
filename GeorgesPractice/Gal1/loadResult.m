@@ -1,24 +1,20 @@
 function corr = loadResult(filename)
+names=char('d1',...
+    'alpha2','d2','Kf','Kb');
+
 %load('result.mat');
 load(filename);
-par=output{1,1};
-guess=output{1,3};
+par=output{1,1}(:,4:end);
+guess=output{1,3}(:,4:end);
 
-n=length(names);
+n=size(names,1);
 for i=1:n
     figure(i);
-    subplot(1,2,1);
-    hold on;
-    plot(1,par(:,i),'o');
-    boxplot(par(:,i));
-    title(['Estimated ',names(i,:)]);
-    hold off;
-    
-    subplot(1,2,2);
     hold on;
     plot(1,guess(:,i),'o');
-    boxplot(guess(:,i));
-    title(['Initial Guess ',names(i,:)]);
+    plot(2,par(:,i),'o');
+    boxplot([guess(:,i),par(:,i)]);
+    title(['Initial Guess vs. Estimated ',names(i,:)]);
     hold off;
 end
 
@@ -34,6 +30,7 @@ labels = cellstr(names);
 text(ticks,0.9*ones(size(ticks)), labels, 'rotation',-90,'horizontalalignment','left');
 set(gca,'ytick',ticks);
 set(gca,'yticklabel',labels);
+colorbar;
 hold off;
 
 corr=corr(1:end-1,1:end-1);
