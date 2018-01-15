@@ -19,5 +19,6 @@ model.eqns=...                                      % Equations describing syste
                     'dgal1_foldedP=alpha2*gal1_mrna-(d2+Kf)*gal1_foldedP',...
                     'dgal1_fluo=Kf*gal1_foldedP-Kb*gal1_fluo');           
                 
-model.par=[0.001,2.22548971250921,0.1,0.0100614569676223,1,1,1,1];
+%model.par=[0.001,2.22548971250921,0.1,0.0100614569676223,1,1,1,1];
+model.par=[0.000035,2.25,0.255,0.0738,0.8,0.0057,0.1050,0.0057];
 end
