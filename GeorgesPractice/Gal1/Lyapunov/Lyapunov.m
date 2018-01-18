@@ -32,9 +32,9 @@ inputs.exps.t_s{1}=ts;      % times of samples
 
 
 
-inputs.exps.n_steps{1}=length(t)-1;
-inputs.exps.t_con{1}=t;
-inputs.exps.u{1}=u(1:(length(t)-1));
+% inputs.exps.n_steps{1}=length(t)-1;
+% inputs.exps.t_con{1}=t;
+% inputs.exps.u{1}=u(1:(length(t)));
 
 
 
@@ -51,7 +51,7 @@ res1=res1.sim.sim_data{1,1};
 
 
 
-inputs.exps.exp_y0{1}=gal1_steady_state_George1(inputs,0.5);           % Initial conditions with 'correct' parameters
+inputs.exps.exp_y0{1}=gal1_steady_state_George1(inputs,2);           % Initial conditions with 'correct' parameters
 inde=0;
 if (inde==0)
     inputs.exps.exp_y0{1}(3)=(1+delta)*inputs.exps.exp_y0{1}(3);
@@ -62,9 +62,9 @@ res2=AMIGO_SData(inputs);
 res2=res2.sim.sim_data{1,1};
 
 figure();
-plot(res2-res1);
+plot(inputs.exps.t_s{1,1},res2-res1);
 figure();
 hold on;
-plot(res1);
-plot(res2);
+plot(inputs.exps.t_s{1,1},res1);
+plot(inputs.exps.t_s{1,1},res2);
 hold off;
