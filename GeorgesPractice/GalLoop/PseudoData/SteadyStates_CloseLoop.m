@@ -1,4 +1,4 @@
-function states = galCloseLoop_SteadyStates(inputs,IPTGext)
+function states = SteadyStates_CloseLoop(inputs,IPTGext)
 
 par=containers.Map(cellstr(inputs.model.par_names),inputs.model.par);
 
