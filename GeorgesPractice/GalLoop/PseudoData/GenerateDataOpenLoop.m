@@ -3,7 +3,7 @@ short_name     = 'galOL1';
 
 %Compile the model
 
-testIPTG=[0,0.1,0.5,1,5,10,50,100,500,1000,5000,1e4];
+testIPTG=[0.1,0.5,1,5,10,50,100,500,1000,5000,1e4];
 
 
 clear inputs;
@@ -37,7 +37,7 @@ for i=1:inputs.exps.n_exp
     inputs.exps.t_s{i}=ts;      % times of samples
     
     inputs.exps.u_interp{i}='sustained';
-    inputs.exps.t_con{i}=[0 6000];                         % Input swithching times: Initial and final time
+    inputs.exps.t_con{i}=[0 duration];                         % Input swithching times: Initial and final time
     inputs.exps.u{i}=testIPTG(i);
     
     inputs.exps.noise_type = 'hetero';
@@ -51,7 +51,7 @@ inputs.pathd.results_folder = results_folder;
 inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'sim';
 
-inputs.plotd.plotlevel='min';
+inputs.plotd.plotlevel='noplot';
 
 sim=AMIGO_SData(inputs);
 
@@ -60,9 +60,9 @@ for i=1:inputs.exps.n_exp
     CitrineAU(i)=sim.sim.sim_data{1,i}(end);
 end
 
+figure();
 semilogx(ds(:,1),ds(:,2),'-o');
 hold on;
 semilogx(testIPTG,CitrineAU,'-o');
-
-
 hold off;
+figure();
