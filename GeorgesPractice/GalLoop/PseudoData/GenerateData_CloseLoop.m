@@ -56,6 +56,7 @@ inputs.plotd.plotlevel='noplot';
 sim=AMIGO_SData(inputs);
 
 CitrineAU=zeros(1,inputs.exps.n_exp);
+steadyAU=zeros(1,inputs.exps.n_exp);
 for i=1:inputs.exps.n_exp
     CitrineAU(i)=sim.sim.sim_data{1,i}(end);
     steadyAUt=SteadyStates_CloseLoop(inputs,testIPTG(i));
