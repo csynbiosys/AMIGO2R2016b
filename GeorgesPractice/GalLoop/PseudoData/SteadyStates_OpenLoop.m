@@ -5,7 +5,9 @@ par=containers.Map(cellstr(inputs.model.par_names),inputs.model.par);
 Ltotal=par('kLacI')/par('kd');
 
 K1=par('k_1')/par('k1');
+%K1=(par('k_1')+par('kd'))/par('k1');
 K2=par('k_2')/par('k2');
+K2=(par('k_2')+par('kd'))/par('k2');
 gamma=par('kcat')/(par('kd')*par('kout'));
 
 state=containers.Map(cellstr(inputs.model.st_names),zeros(1,inputs.model.n_st));
