@@ -1,4 +1,4 @@
-function state = SteadyStatesOpenLoop(inputs,IPTGext)
+function state = SteadyStates_OpenLoop(inputs,IPTGext)
 
 par=containers.Map(cellstr(inputs.model.par_names),inputs.model.par);
 
@@ -17,7 +17,7 @@ state('Lac12m')=par('kTP1')/par('kd')*state('Lac12');
 state('IPTGint')=gamma*state('Lac12m')*IPTGext/(par('Km')+IPTGext);
 state('L0')=Ltotal*(1+state('IPTGint')/K2)^-2;
 state('L1')=2*state('IPTGint')*state('L0')/K2;
-state('L2')=state('L1')/4;
+state('L2')=state('IPTGint')^2*state('L0')/K2^2;
 state('G20')=(1+state('L0')/K1)^-2;
 state('G21')=2*state('L0')*state('G20')/K1;
 state('G22')=state('L0')^2*state('G20')/K1^2;
