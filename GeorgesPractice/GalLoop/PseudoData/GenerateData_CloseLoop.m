@@ -59,9 +59,9 @@ CitrineAU=zeros(1,inputs.exps.n_exp);
 for i=1:inputs.exps.n_exp
     CitrineAU(i)=sim.sim.sim_data{1,i}(end);
     steadyAUt=SteadyStates_CloseLoop(inputs,testIPTG(i));
-    steadyAU(i)=steadyAUt(1,2)*27.18;
+    steadyAU(:,i)=steadyAUt(1,2)/inputs.model.par(14);
 end
-
+inputs.exps.n_exp
 figure();
 % semilogx(ds(:,1),ds(:,2),'-o');
 % hold on;
@@ -70,4 +70,3 @@ hold on;
 semilogx(testIPTG,steadyAU,'-o');
 hold off;
 figure();
-steadyAUt

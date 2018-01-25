@@ -3,7 +3,7 @@ short_name     = 'galOL1';
 
 %Compile the model
 
-testIPTG=[0.1];%,0.5,1,5,10,50,100,500,1000,5000,1e4];
+testIPTG=[1e-2,1e-1,0.5,1,2,5,10,20,50,100,500,1000,5000,1e4];
 
 
 clear inputs;
@@ -11,7 +11,7 @@ inputs.pathd.results_folder = results_folder;
 inputs.pathd.short_name     = short_name;
 inputs.pathd.runident       = 'initial_setup';
 
-inputs.model=Model_OpenLoop1_George1();
+inputs.model=Model_OpenLoop_MeanEstimate_George1();
 
 AMIGO_Prep(inputs);
 
@@ -60,12 +60,14 @@ steadyAU=zeros(1,inputs.exps.n_exp);
 for i=1:inputs.exps.n_exp
     CitrineAU(i)=sim.sim.sim_data{1,i}(end);
     steadyAUt=SteadyStates_OpenLoop(inputs,testIPTG(i));
-    steadyAU(i)=steadyAUt(1,2)/27.18;
+    steadyAU(i)=steadyAUt(1,2)/inputs.model.par(14);
 end
 
+load('Fig2c.mat');
 figure();
-semilogx(ds(:,1),ds(:,2),'-o');
+semilogx(CitrineW(:,1),CitrineW(:,2),'-o');
 hold on;
+%semilogx(CitrineWO(:,1),CitrineWO(:,2),'-o');
 semilogx(testIPTG,CitrineAU,'-o');
 semilogx(testIPTG,steadyAU,'-o');
 hold off;
