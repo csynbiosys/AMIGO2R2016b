@@ -3,7 +3,7 @@ short_name     = 'galOL1';
 
 %Compile the model
 
-testIPTG=[0,0.1,0.5,1,5,10,50,100,500,1000,5000,1e4];
+testIPTG=[0,0.1,0.5,1,2,5,10,20,50,100,500,1000,5000,1e4];
 
 
 clear inputs;
