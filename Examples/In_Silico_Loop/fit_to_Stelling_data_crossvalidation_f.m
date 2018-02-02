@@ -2,7 +2,7 @@ function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileName
 % in this function, only 16/24 experiments are used for the fitting (training set). The
 % remaining being use as a test set 
 
-    resultFileName = [strcat(epccOutputResultFileNameBase),'-',num2str(epcc_exps),'.dat'];
+    resultFileName = [strcat(epccOutputResultFileNameBase),'.dat'];
     rng shuffle;
     rngToGetSeed = rng;
     
@@ -217,7 +217,7 @@ function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileName
 
     sim_inputs = inputs;
     sim_exps = exps;
-    save([strcat(epccOutputResultFileNameBase,'-',num2str(epcc_exps),'-sim'),'.mat'],'sim_results','sim_inputs','sim_exps','best_global_theta','SSE');
+    save([strcat(epccOutputResultFileNameBase,'-sim','.mat')],'sim_results','sim_inputs','sim_exps','best_global_theta','SSE');
     
 
     out = 1;
