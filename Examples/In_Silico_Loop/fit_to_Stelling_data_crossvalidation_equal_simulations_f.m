@@ -1,4 +1,4 @@
-function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess)
+function [out] = fit_to_Stelling_data_crossvalidation_equal_simulations_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess)
 % in this function, only 16/24 experiments are used for the fitting (training set). The
 % remaining being use as a test set 
 
@@ -26,7 +26,7 @@ function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileName
     short_name     = strcat('PLacOL');
  
     % Load experimental data
-    load('StellingData.mat');
+    load('StellingData_EqualSimulations.mat');
  
     % Read the model into the model variable
     PLac_load_model_scIncl; 
@@ -55,17 +55,15 @@ function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileName
         exps.t_f{iexp} = Data.t_con{1,exp_indexData}(end); 
         exps.n_s{iexp} = Data.n_samples{1,exp_indexData};
         exps.t_s{iexp} = Data.t_samples{1,exp_indexData}; 
+        exps.u_interp{iexp} = 'step';
+        exps.t_con{iexp} = Data.t_con{1,exp_indexData};
+        exps.n_steps{iexp} = length(exps.t_con{iexp})-1;
 
         if exp_indexData<13
-            exps.u_interp{iexp} = 'sustained';
-            exps.t_con{iexp} = Data.t_con{1,exp_indexData};
-            exps.u{iexp} = Data.input{1,exp_indexData};
+           exps.u{iexp} =  [0 Data.input{1,exp_indexData}];
 
         else
-            exps.u_interp{iexp} = 'step';
-            exps.t_con{iexp} = Data.t_con{1,exp_indexData};
-            exps.n_steps{iexp} = length(exps.t_con{iexp})-1;
-            exps.u{iexp} = [1000 Data.input{1,exp_indexData}];
+           exps.u{iexp} = [1000 Data.input{1,exp_indexData}];
         end
 
         exps.data_type = 'real';
@@ -168,27 +166,25 @@ function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileName
         exps.obs_names{iexp} = char('Fluorescence');
         exps.obs{iexp} = char('Fluorescence = Cit_AU');
         y0_to_use = PLac_Compute_SteadyState(best_global_theta,0);   
-        exps.exp_y0{iexp}=y0_to_use;    
+        exps.exp_y0{iexp}=y0_to_use;  
         exps.t_f{iexp} = Data.t_con{1,exp_indexData}(end); 
         exps.n_s{iexp} = Data.n_samples{1,exp_indexData};
         exps.t_s{iexp} = Data.t_samples{1,exp_indexData}; 
-        exps.exp_data{iexp} = Data.exp_data{1,exp_indexData};
-        exps.error_data{iexp} = Data.standard_dev{1,exp_indexData};
+        exps.u_interp{iexp} = 'step';
+        exps.t_con{iexp} = Data.t_con{1,exp_indexData};
+        exps.n_steps{iexp} = length(exps.t_con{iexp})-1;
 
         if exp_indexData<13
-            exps.u_interp{iexp} = 'sustained';
-            exps.t_con{iexp} = Data.t_con{1,exp_indexData};
-            exps.u{iexp} = Data.input{1,exp_indexData};
+           exps.u{iexp} =  [0 Data.input{1,exp_indexData}];
 
         else
-            exps.u_interp{iexp} = 'step';
-            exps.t_con{iexp} = Data.t_con{1,exp_indexData};
-            exps.n_steps{iexp} = length(exps.t_con{iexp})-1;
-            exps.u{iexp} = [1000 Data.input{1,exp_indexData}];
+           exps.u{iexp} = [1000 Data.input{1,exp_indexData}];
         end
         
-
+        exps.exp_data{iexp} = Data.exp_data{1,exp_indexData};
+        exps.error_data{iexp} = Data.standard_dev{1,exp_indexData};
     end
+   
     inputs.model = model;
     inputs.model.par = best_global_theta;
     inputs.exps  = exps;
@@ -206,7 +202,7 @@ function [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileName
     inputs.ivpsol.rtol=1.0D-8;
     inputs.ivpsol.atol=1.0D-8;
 
-
+    %inputs.plotd.plotlevel='full';
     sim_results = AMIGO_SObs(inputs);
 
     % Now computing sum of squared residuals

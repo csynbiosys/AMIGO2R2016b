@@ -24,7 +24,8 @@ parfor epcc_exps=1:numExperiments
         try
             global_theta_guess = ParFull(epcc_exps,:);
             epccOutputResultFileNameBase = [resultBase,'-',num2str(epcc_exps)];
-            [out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+            %[out] = fit_to_Stelling_data_crossvalidation_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+            [out] = fit_to_Stelling_data_crossvalidation_equal_simulations_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
         catch err
             %open file
             errorFile = [resultBase,'-',num2str(epcc_exps),'.errorLog'];
