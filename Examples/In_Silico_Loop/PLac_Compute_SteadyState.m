@@ -3,7 +3,8 @@ function [ res ] = PLac_Compute_SteadyState( theta, IPTG )
 %   Computes the steady state of the Stelling model for the given values of
 %   theta and the input IPTG.
 %  'kLacI','k2','kd','km2','k1','km1','kLac12','kTP1','kcat','Km','kout','kC','lk','sc_molec');    
-              
+
+
 kLacI = theta(1);
 k2 = theta(2);
 kd = theta(3);

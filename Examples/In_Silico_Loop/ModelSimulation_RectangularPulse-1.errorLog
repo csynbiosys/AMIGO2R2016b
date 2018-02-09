@@ -1,0 +1,13 @@
+Cell contents reference from a non-cell array object.
+
+Error in AMIGO_check_exps (line 148)
+                if(inputs.exps.n_steps{iexp}<=1)
+
+Error in AMIGO_SModel (line 86)
+[inputs,results]=AMIGO_check_exps(inputs,results);
+
+Error in PLac_in_silico_mod (line 71)
+sim = AMIGO_SModel(inputs);
+
+Error in run_in_silico_experiment (line 18)
+            PLac_in_silico_mod;

@@ -16,10 +16,11 @@ Citrine_iqr = zeros(1,length(IPTG));
 
 for i=1:length(unique(IPTG))
     c = FileName_Data_Tagged{FileName_Data_Tagged.iptg == IPTG(i),2};
+    length(c)
     c_corrected = (c-FRY11_Citrine_Median)/(yRG88_Citrine_Median-FRY11_Citrine_Median);
     Citrine_Median(1,i) = median(c_corrected);
     Citrine_q25(1,i) = quantile(c_corrected, 0.25);
-    Citrine_q75(1,i) = quantile(c_corrected, 0.25);
+    Citrine_q75(1,i) = quantile(c_corrected, 0.75);
     Citrine_iqr(1,i) = iqr(c_corrected);
 end
 
