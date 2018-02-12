@@ -26,7 +26,7 @@ function [out] = fit_to_InduciblePromoter_PseudoData_crossvalidation_f(epccOutpu
     short_name     = strcat('IndProm',int2str(epcc_exps));
  
 %     % Load pseudo-experimental data
-     load('PseudoData.mat');
+     load('PseudoData_HomoVar005.mat');
  
     % Read the model into the model variable
     InduciblePromoter_load_model; 
@@ -71,7 +71,7 @@ function [out] = fit_to_InduciblePromoter_PseudoData_crossvalidation_f(epccOutpu
         end
 
         exps.data_type = 'real'; % check if this is the case
-        exps.noise_type = 'hetero'; % check if this is the case
+        exps.noise_type = 'homo_var'; % check if this is the case
         exps.exp_data{iexp} = Data.exp_data{1,exp_indexData};
         exps.error_data{iexp} = Data.error_data{1,exp_indexData};
         exps.exp_y0{iexp} = y0;

@@ -23,11 +23,16 @@ end
 ParFull = M; % in this case I am fitting all the values
 save('MatrixParameters_PseudoData.mat','ParFull');
 
+                
+%          alpha1	Vm1     h1  Km1     d1     alpha2  d2     Kf           
+
 parfor epcc_exps=1:numExperiments
         try
             global_theta_guess = ParFull(epcc_exps,:);
             epccOutputResultFileNameBase = [resultBase,'-',num2str(epcc_exps)];
-            [out] = fit_to_InduciblePromoter_PseudoData_crossvalidation_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+            [out] = fit_to_InduciblePromoter_PseudoData_crossvalidation_f(epccOutputResultFileNameBase,epcc_exps,global_theta_guess); % How uses the homovar data (5%)
+            %[out] = fit_to_InduciblePromoter_PseudoData_crossvalidation_f_mod(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+
         catch err
             %open file
             errorFile = [resultBase,'-',num2str(epcc_exps),'.errorLog'];
