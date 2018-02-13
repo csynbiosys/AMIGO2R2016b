@@ -63,7 +63,7 @@ for iexp=1:nofExp
             values{iexp}=repmat(values{iexp},1,inputs.exps.n_pulses{iexp});
         otherwise %linear case by default
             timei1=inputs.exps.t_con{iexp}*timeScale;
-            step(iexp)=min(d/100,localGcd(cat(2,timei1,inputs.exps.t_s{iexp}*timeScale))));
+            step(iexp)=min(d/100,localGcd(cat(2,timei1,inputs.exps.t_s{iexp}*timeScale)));
             values{iexp}=interp1(timei1,inputs.exps.u{iexp},0:step(iexp):d);
     end
     command=[step(iexp),values{iexp}];
