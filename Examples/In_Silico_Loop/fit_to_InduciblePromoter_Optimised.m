@@ -65,7 +65,7 @@ for i=1:numLoops
     % simulating the model using the current best theta for the duration
     % for which we have designed input.
     if exps.n_exp == 0
-        oid_y0 = [y0];
+        oid_y0 = [y0 0];
         best_global_theta = global_theta_guess;
     else
         % Simulate the experiment without noise to find end state
@@ -81,7 +81,7 @@ for i=1:numLoops
         
         sim = AMIGO_SData(inputs);
         
-        oid_y0 = [sim.sim.states{1}(end,:)];
+        oid_y0 = [sim.sim.states{1}(end,:) 0];
         
     end
     
@@ -128,13 +128,13 @@ for i=1:numLoops
     inputs.OEDsol.OEDcost_type='Dopt';
     
     
-%     % final time constraint
-%     for iexp=1:inputs.exps.n_exp
-%         inputs.exps.n_const_ineq_tf{iexp}=1;
-%         inputs.exps.const_ineq_tf{iexp}=char('cviol');     % c<=0
-%     end
-%     inputs.exps.ineq_const_max_viol=1.0e-5;
-%     
+    % final time constraint
+    for iexp=1:inputs.exps.n_exp
+        inputs.exps.n_const_ineq_tf{iexp}=1;
+        inputs.exps.const_ineq_tf{iexp}=char('cviol');     % c<=0
+    end
+    inputs.exps.ineq_const_max_viol=1.0e-5;
+    
 
     
     
@@ -190,7 +190,7 @@ for i=1:numLoops
     newExps.n_obs{1}=1;                                        % Number of observed quantities per experiment
     newExps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
     newExps.obs{1}= char('Fluorescence = Cit_fluo');           % Observation function
-    newExps.exp_y0{1}= y0;
+    newExps.exp_y0{1}= [y0 0];
     
     newExps.t_f{1}=i*duration;                % Experiment duration
     newExps.n_s{1}=(i*duration)/5 + 1;        % Number of sampling times
