@@ -2,87 +2,62 @@
 % In silico experiment loop script - runs PE, OED, mock experiment loops
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [out]=gal1_in_silico_loop_fixed_steps_DEvolution_par(epccOutputResultFileNameBase,epccNumLoops,stepd,ii)
+function [out]=fit_to_InduciblePromoter_Optimised(epccOutputResultFileNameBase,epccNumLoops,stepd,epcc_exps,global_theta_guess)
 
-resultFileName = [strcat(epccOutputResultFileNameBase,'-',num2str(ii)),'.dat'];
-rng shuffle;
-rngToGetSeed = rng;
+    resultFileName = [strcat(epccOutputResultFileNameBase),'.dat'];
+    rng shuffle;
+    rngToGetSeed = rng;
 
-% Write the header information
-fid = fopen(resultFileName,'w');
-fprintf(fid,'HEADER DATE %s\n', datestr(datetime()));
-fprintf(fid,'HEADER RANDSEED %d\n',rngToGetSeed.Seed);
-fclose(fid);
+    % Write the header information
+    fid = fopen(resultFileName,'w');
+    fprintf(fid,'HEADER DATE %s\n', datestr(datetime()));
+    fprintf(fid,'HEADER RANDSEED %d\n',rngToGetSeed.Seed);
+    fclose(fid);
 
-startTime = datenum(now);
+    startTime = datenum(now);
 
-clear model;
-clear exps;
-clear best_global_theta_log;
-clear pe_results;
-clear ode_results;
+    clear model;
+    clear exps;
+    clear best_global_theta_log;
+    clear pe_results;
+    clear ode_results;
 
-results_folder = strcat('Gal1-noDelay',datestr(now,'yyyy-mm-dd-HHMMSS'));
-short_name     = 'gal1noD';
+    results_folder = strcat('InduciblePromoter',datestr(now,'yyyy-mm-dd-HHMMSS'));
+    short_name     = strcat('IndProm',int2str(epcc_exps));
 
-% Read the model into the model variable
-gal1_load_model;
+    % Read the model into the model variable
+    InduciblePromoter_load_model;
 
-% We start with no experiments
-exps.n_exp=0;
-
-% % Initial guess for theta - the global unknows of model HOW IT WAS
-% ORIGINALLY!
-% global_theta_guess = [1 logRand(0.1, 10,4) 1 1 1 1];
-% global_theta_guess = global_theta_guess.*model.par;
-% global_theta_guess (3) = logRand(0.1,5,1);
-% global_theta_guess = global_theta_guess';
-% best_global_theta =global_theta_guess;
-
-% Initial guess for theta - the global unknows of model
-global_theta_guess = [1 1 1 1 1 1 1 1 1];
-global_theta_guess = global_theta_guess.*model.par;
-%global_theta_guess (3) = logRand(0.1,5,1);
-global_theta_guess = global_theta_guess';
-best_global_theta =global_theta_guess;
+    % We start with no experiments
+    exps.n_exp=0;
 
 
-% Max is one order of magnitude above truth and one order of magnitude
-% below truth
-global_theta_max = model.par*10.0;   % Maximum allowed values for the paramters
-global_theta_min = model.par*0.1;    % Minimum allowed values for the parameters
-% Don't want h1 too high
-global_theta_max(3) = 5;
+    % Defining boundaries for the parameters (taken from scientific literature)
+    global_theta_max = [0.4950,0.4950,4.9,10,0.23,6.8067,0.2449,0.0217];   % Maximum allowed values for the paramters
+    global_theta_min = [3.88e-5,3.88e-2,0.5,2,7.7e-3,0.2433,5.98e-5,0.012];    % Minimum allowed values for the parameters
 
-% Focusing on the 5 parameters for transcription
-param_including_vector = [false,true,true,true,true,false,false,false,false];
+    global_theta_guess = global_theta_guess';
+    param_including_vector = [false,true,true,true,true,false,false,false,false];
 
-% Compile the model
-clear inputs;
-inputs.model = model;
-inputs.pathd.results_folder = results_folder;
-inputs.pathd.short_name     = short_name;
-inputs.pathd.runident       = 'initial_setup';
-AMIGO_Prep(inputs);
+    % Compile the model
+    clear inputs;
+    inputs.model = model;
+    inputs.pathd.results_folder = results_folder;
+    inputs.pathd.short_name     = short_name;
+    inputs.pathd.runident       = 'initial_setup';
+    AMIGO_Prep(inputs);
 
-%
-totalDuration = 50*60;               % minutes
-numLoops = epccNumLoops;
-duration = totalDuration/numLoops;   % minutes
-stepDuration = stepd;                   % minutes
-%oidDuration = 1200;                   % seconds
-MemInfo_OID = struct;   % creation of structure with memory usage info at each OID iteration
-MemInfo_PE = struct;    % creation of structure with memory usage info at each PE iteration
-MemInfo_PEperiodic = struct; % creation of structure with memory usage info at each PE iteration
+    %
+    totalDuration = 50*60;               % minutes
+    numLoops = epccNumLoops
+    duration = totalDuration/numLoops;   % minutes
+    stepDuration = stepd;                   % minutes
+    %oidDuration = 1200;                   % seconds
 
 for i=1:numLoops
     
-    % Calculate the initial state based on current best estimate of theta.
-    % The initial state is the steady state when gal is 2
-    
-    %global_theta_guess=model.par;   % please modify this as required
-    
-    y0 = gal1_steady_state(global_theta_guess, 2);
+    %Compute the steady state considering the initial theta guess and 0 IPTG
+    y0 = InduciblePromoter_steady_state(global_theta_guess,0);
     
     
     % Need to determine the starting state of the next part of the
@@ -90,7 +65,8 @@ for i=1:numLoops
     % simulating the model using the current best theta for the duration
     % for which we have designed input.
     if exps.n_exp == 0
-        oid_y0 = [y0 0];   % we need to add 0 for the constraint handling equation
+        oid_y0 = [y0];
+        best_global_theta = global_theta_guess;
     else
         % Simulate the experiment without noise to find end state
         clear inputs;
@@ -105,7 +81,7 @@ for i=1:numLoops
         
         sim = AMIGO_SData(inputs);
         
-        oid_y0 = [sim.sim.states{1}(end,:) 0];
+        oid_y0 = [sim.sim.states{1}(end,:)];
         
     end
     
@@ -126,7 +102,8 @@ for i=1:numLoops
     inputs.exps.exp_type{iexp}='od';
     inputs.exps.n_obs{iexp}=1;                               % Number of observed quantities per experiment
     inputs.exps.obs_names{iexp}=char('Fluorescence');        % Name of the observed quantities per experiment
-    inputs.exps.obs{iexp}=char('Fluorescence=gal1_fluo');    % Observation function
+    inputs.exps.obs{iexp}=char('Fluorescence = Cit_fluo');    % Observation function
+
     
     % Fixed parts of the experiment
     inputs.exps.exp_y0{iexp}=oid_y0;                         % Initial conditions
@@ -136,34 +113,36 @@ for i=1:numLoops
     % OED of the input
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='step';                             % Stimuli definition for experiment
-    inputs.exps.n_steps{iexp}=duration/stepDuration;     %4           % Number of steps
+    inputs.exps.n_steps{iexp}=round(duration/stepDuration);        % Number of steps
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});
-    inputs.exps.u_max{iexp}=2*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
+    inputs.exps.u_max{iexp}=1000*ones(1,inputs.exps.n_steps{iexp});% Minimum and maximum value for the input
     
     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
-    inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
+    inputs.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector));
+    inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the paramters
+    inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
+
     
     inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default)
-    inputs.exps.std_dev{iexp}=[0.1];
+    inputs.exps.std_dev{iexp}=[0.05];
     inputs.OEDsol.OEDcost_type='Dopt';
     
     
-    % final time constraint
-    for iexp=1:inputs.exps.n_exp
-        inputs.exps.n_const_ineq_tf{iexp}=1;
-        inputs.exps.const_ineq_tf{iexp}=char('cviol');     % c<=0
-    end
-    inputs.exps.ineq_const_max_viol=1.0e-5;
-    
-    
-    
+%     % final time constraint
+%     for iexp=1:inputs.exps.n_exp
+%         inputs.exps.n_const_ineq_tf{iexp}=1;
+%         inputs.exps.const_ineq_tf{iexp}=char('cviol');     % c<=0
+%     end
+%     inputs.exps.ineq_const_max_viol=1.0e-5;
+%     
+
     
     
     % SIMULATION
     inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
     inputs.ivpsol.senssolver='cvodes';                    % [] Sensitivities solver: 'cvodes'(default, C)| 'sensmat'(matlab)|'fdsens2'|'fdsens5'
-    inputs.ivpsol.rtol=1.0D-7;                            % [] IVP solver integration tolerances
-    inputs.ivpsol.atol=1.0D-7;
+    inputs.ivpsol.rtol=1.0D-8;                            % [] IVP solver integration tolerances
+    inputs.ivpsol.atol=1.0D-8;
     
     % OPTIMIZATION
     inputs.nlpsol.nlpsolver='de';
@@ -199,7 +178,6 @@ for i=1:numLoops
     oed_results{i} = results;
     oed_end = now;
     
-    [MemInfo_OID.userview{i},MemInfo_OID.systemview{i}] = memory;
     results.plotd.plotlevel = 'noplot';
     
     
@@ -210,9 +188,9 @@ for i=1:numLoops
     clear newExps;
     newExps.n_exp = 1;
     newExps.n_obs{1}=1;                                        % Number of observed quantities per experiment
-    newExps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment
-    newExps.obs{1}=char('Fluorescence=gal1_fluo');             % Observation function
-    newExps.exp_y0{1}=[y0 0];
+    newExps.obs_names{1}=char('Fluorescence');                 % Name of the observed quantities per experiment    
+    newExps.obs{1}= char('Fluorescence = Cit_fluo');           % Observation function
+    newExps.exp_y0{1}= y0;
     
     newExps.t_f{1}=i*duration;                % Experiment duration
     newExps.n_s{1}=(i*duration)/5 + 1;        % Number of sampling times
@@ -220,7 +198,6 @@ for i=1:numLoops
     
     newExps.u_interp{1}='step';
     newExps.n_steps{1}=(i*duration)/stepDuration; %5
-    %newExps.t_con{1}=0:stepDuration:(i*duration);
     
     % Merge the input signal
     
@@ -246,13 +223,13 @@ for i=1:numLoops
     
     inputs.exps.data_type='pseudo';
     inputs.exps.noise_type='homo_var';
-    inputs.exps.std_dev{1}=[0.1];
+    inputs.exps.std_dev{1}=[0.05];
     
     inputs.plotd.plotlevel='noplot';
     
     inputs.pathd.results_folder = results_folder;
     inputs.pathd.short_name     = short_name;
-    inputs.pathd.runident       = strcat('sim-',int2str(i));
+    inputs.pathd.runident       = strcat('sim-',int2str(epcc_exps),'-',int2str(i));
     
     sim = AMIGO_SData(inputs);
     
@@ -287,11 +264,11 @@ for i=1:numLoops
     
     inputs.pathd.results_folder = results_folder;
     inputs.pathd.short_name     = short_name;
-    inputs.pathd.runident       = strcat('pe-',int2str(i));
+    inputs.pathd.runident       = strcat('pe-',int2str(epcc_exps),'-',int2str(i));
     
     % GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
     inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
-    inputs.PEsol.global_theta_guess=transpose(best_global_theta(param_including_vector));
+    inputs.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector));
     inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the paramters
     inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
     
@@ -321,8 +298,6 @@ for i=1:numLoops
     pe_inputs{i} = inputs;
     pe_results{i} = results;
     pe_end= now;
-    
-    [MemInfo_PE.userview{i},MemInfo_PE.systemview{i}] = memory;
     
     results.plotd.plotlevel = 'noplot';
     
@@ -409,11 +384,10 @@ for i=1:10
 
     pe_start = now;
     results = AMIGO_PE(inputs);
-    pe_inputs{i} = inputs;
+    pe_inputs2{i} = inputs;
     pe_results2{i} = results;
     pe_end= now;
-    
-    [MemInfo_PEperiodic.userview{i},MemInfo_PEperiodic.systemview{i}] = memory;
+
     % Write some results to the output file
     fid = fopen(resultFileName,'a');
     used_par_names = model.par_names(param_including_vector,:);
@@ -438,10 +412,10 @@ for i=1:10
 
 end
 
-
 true_param_values = model.par(param_including_vector);
+
 %save([epccOutputResultFileNameBase,'.mat'], 'pe_results','pe_results2','oed_results','exps','inputs','true_param_values');
-save([strcat(epccOutputResultFileNameBase,'-',num2str(ii)),'.mat'], 'pe_results','oed_results','exps','inputs','true_param_values','MemInfo_OID','MemInfo_PE','MemInfo_PEperiodic');
+save([strcat(epccOutputResultFileNameBase,'-',num2str(ii)),'.mat'], 'pe_inputs','pe_results','pe_inputs2','pe_results2','oed_results','exps','inputs','true_param_values','best_global_theta_log');
 out= 1;
 end
 
