@@ -12,19 +12,18 @@ theta_max = [0.4950,0.4950,4.9,10,0.23,6.8067,0.2449,0.0217];
 % Create a matrix of initial guesses for the parameters, having as many
 % rows as the number of PE iterations (numExperiments) 
 % Each vector is passed as input to the computing function
-M_norm = lhsdesign(numExperiments,length(theta_min));
-M = zeros(size(M_norm));
-for c=1:size(M_norm,2)
-    for r=1:size(M_norm,1)
-        M(r,c) = 10^(M_norm(r,c)*(log10(theta_max(1,c))-log10(theta_min(1,c)))+log10(theta_min(1,c))); % log exploration
-    end
-end 
+% M_norm = lhsdesign(numExperiments,length(theta_min));
+% M = zeros(size(M_norm));
+% for c=1:size(M_norm,2)
+%     for r=1:size(M_norm,1)
+%         M(r,c) = 10^(M_norm(r,c)*(log10(theta_max(1,c))-log10(theta_min(1,c)))+log10(theta_min(1,c))); % log exploration
+%     end
+% end 
+% 
+% ParFull = M; % in this case I am fitting all the values
+% save('MatrixParameters_InputComparison.mat','ParFull');
 
-ParFull = M; % in this case I am fitting all the values
-save('MatrixParameters_PseudoData.mat','ParFull');
-
-                
-%          alpha1	Vm1     h1  Km1     d1     alpha2  d2     Kf           
+load('MatrixParameters_InputComparison.mat');       
 
 parfor epcc_exps=1:numExperiments
         try
@@ -41,4 +40,3 @@ parfor epcc_exps=1:numExperiments
             fclose(fid);
         end
 end
-
