@@ -39,11 +39,6 @@ function [out] = fit_to_InduciblePromoter_Random(epccOutputResultFileNameBase,ep
     global_theta_min = [3.88e-5,3.88e-2,0.5,2,7.7e-3,0.2433,5.98e-5,0.012];    % Minimum allowed values for the parameters
 
     global_theta_guess = global_theta_guess';
-    % Focusing on the 5 parameters for transcription 
-    % CHECK WHAT MAKES SENSE based on identifiability analysis
-    % 
-    %
-    %
 
     param_including_vector = [true,true,true,true,true,true,true,true];
 
@@ -59,8 +54,8 @@ function [out] = fit_to_InduciblePromoter_Random(epccOutputResultFileNameBase,ep
        
     % Fixed parts of the experiment
     duration = 50*60;     % Duration in minutes
-    numPulses = 50;       % Number of pulses    
-    inducer = randi([0 1000],1,1);  % Extract 2 random integer values in the range of induction (0,1000)uM to be used as low and high values in the step
+    Stepd = 80;       % Number of steps    
+    inducer = randi([0 1000],1,round(duration/Stepd));  % Extract 2 random integer values in the range of induction (0,1000)uM to be used as low and high values in the step
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create a new experiment to simulate with the step input
@@ -78,9 +73,9 @@ function [out] = fit_to_InduciblePromoter_Random(epccOutputResultFileNameBase,ep
     newExps.t_s{1}=0:5:duration ;           % Times of samples
 
     newExps.u_interp{1}='step';
-    newExps.n_steps{1}=numPulses*2; 
-    newExps.u{1}=repmat([inducer 0],1,numPulses);
-    newExps.t_con{1}=union(0:60:duration,10:60:duration); 
+    newExps.n_steps{1}=round(duration/Stepd); 
+    newExps.u{1}= inducer;
+    newExps.t_con{1}=[0:80:3000 duration]; 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Mock the experiment
@@ -95,9 +90,9 @@ function [out] = fit_to_InduciblePromoter_Random(epccOutputResultFileNameBase,ep
 
     inputs.exps.data_type='pseudo';
     inputs.exps.noise_type='homo_var';
-    inputs.exps.std_dev{1}=[0.1];
+    inputs.exps.std_dev{1}=[0.05];
 
-    inputs.plotd.plotlevel='noplot';
+    inputs.plotd.plotlevel='full';
 
     inputs.pathd.results_folder = results_folder;                        
     inputs.pathd.short_name     = short_name;
@@ -136,11 +131,15 @@ function [out] = fit_to_InduciblePromoter_Random(epccOutputResultFileNameBase,ep
         inputs.exps.t_f{1}          = duration;                % Experiment duration
         inputs.exps.n_s{1}          = duration/5 + 1;          % Number of sampling times
         inputs.exps.t_s{1}          = 0:5:duration;            % Times of samples
-
-        inputs.exps.n_steps{1}      = sum(exps.t_con{1} < duration);
-        inputs.exps.t_con{1}        = exps.t_con{1}(1:inputs.exps.n_steps{1}+1);
+        if i==10
+            inputs.exps.t_con{1} = exps.t_con{1,1}(exps.t_con{1,1}<= duration);
+            inputs.exps.n_steps{1} = length(inputs.exps.t_con{1})-1;
+        else
+            inputs.exps.t_con{1} = [exps.t_con{1,1}(exps.t_con{1,1}< duration),duration];
+            inputs.exps.n_steps{1} = length(inputs.exps.t_con{1})-1;      
+        end
+            
         inputs.exps.u{1}            = exps.u{1}(1:inputs.exps.n_steps{1});
-
         inputs.exps.exp_data{1}     = exps.exp_data{1}(1:inputs.exps.n_s{1});
         inputs.exps.error_data{1}   = exps.error_data{1}(1:inputs.exps.n_s{1});
 
