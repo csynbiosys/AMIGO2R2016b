@@ -22,11 +22,8 @@ short_name     = strcat('PLacOL');
 load('StellingData_EqualSimulations.mat');
 
 % Read the model into the model variable
-PLac_load_model_scIncl; 
+InduciblePromoter_load_model_ForStellingData; 
 
-
-%Compute the steady state considering the initial theta guess and 0 IPTG
-y0 = PLac_Compute_SteadyState(model.par,0);
 
 exps_indexall = [22,3,10,19,17,15,4,14,6,8,21,20,13,24,7,11,16,23,2,18,1,12,5,9];
 
@@ -39,7 +36,7 @@ for iexp=1:length(exps_indexall)
     exps.n_obs{iexp} = 1; 
     exps.obs_names{iexp} = char('Fluorescence');
     exps.obs{iexp} = char('Fluorescence = Cit_AU');
-    y0_to_use = PLac_Compute_SteadyState(model.par,0);   
+    y0_to_use = InduciblePromoter_steady_state_ForStellingData(model.par,0);   
     exps.exp_y0{iexp}=y0_to_use;  
     exps.t_f{iexp} = Data.t_con{1,exp_indexData}(end); 
     exps.n_s{iexp} = Data.n_samples{1,exp_indexData};
@@ -89,6 +86,6 @@ end
 sim_inputs = inputs;
 sim_exps = exps;
 
-save('ResultsSSE_StellingCrossValidationEqual.mat','sim_results','sim_inputs','sim_exps','SSE');
+save('ResultsSSE_StellingInduciblePromoter.mat','sim_results','sim_inputs','sim_exps','SSE');
 %save('ResultsSSE_StellingBestOL.mat','sim_results','sim_inputs','sim_exps','SSE');
 
