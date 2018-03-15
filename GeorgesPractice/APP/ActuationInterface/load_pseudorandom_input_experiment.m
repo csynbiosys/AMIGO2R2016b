@@ -7,7 +7,7 @@ function [exps] = load_pseudorandom_input_experiment(number_of_replicates_per_in
 load('U_values_pseudoRandom_5_minute_sampling')
 
 % Calculate Initial values of the variables in the model using a fixed initial IPTGext value of 0.
-y0_init= get_steady_state_from_simulation(model);
+y0_init=  Stelling_model_steady_state(model.par,0);
 
 % running three experiments with 3 different switching times
 switching_time_options=60.*[150,500,500];%60.*[60, 75, 100, 120, 125, 150, 200, 250, 300, 375, 500, 600, 750, 1000];

@@ -1,4 +1,4 @@
-function result = closeLoopMain_George(model,exp,period,delay,n)
+function inputs = closeLoopMain_George(inputs,period,delay,n)
 %model -- the information of the model under study. The structure should be
 %   the same as in inputs.model
 %exp ---- the original experiment design
@@ -10,8 +10,6 @@ function result = closeLoopMain_George(model,exp,period,delay,n)
 inputs.pathd.results_folder = ['CloseLoopPE',datestr(now,'yyyy-mm-dd-HHMMSS')];
 inputs.pathd.short_name     = 'CLPE';
 inputs.pathd.runident       = 'CloseLoopPE';
-inputs.model=model;
-inputs.exp=exp;
 AMIGO_Prep(inputs);
 
 %PEOED is running as a timer, so that its thread could run without any
@@ -55,5 +53,5 @@ for i=1:n
     
 end
 
-result=PEOED.UserData;
+inputs=PEOED.UserData;
 end

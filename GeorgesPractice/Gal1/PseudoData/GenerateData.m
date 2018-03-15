@@ -25,4 +25,4 @@ inputs.pathd.runident       = 'sim';
 AMIGO_SData(inputs)
 
 sim_res=cell(1,1);
-sim_res{1} = AMIGO_SModel(inputs);
+%sim_res{1} = AMIGO_SModel(inputs);

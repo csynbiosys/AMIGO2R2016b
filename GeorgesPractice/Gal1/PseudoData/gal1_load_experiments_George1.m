@@ -26,7 +26,7 @@ exps.n_steps{1}=6;
 exps.u{1}=    [ 0    2    0    2  2 0];
 exps.t_con{1}=[0 1000 2000 3000 4000 5000 duration];
     
-exps.noise_type = 'hetero';
-exps.std_dev{1}=[0.1];
+exps.noise_type = 'homo_var';
+exps.std_dev{1}=[0.5];
 
 end
