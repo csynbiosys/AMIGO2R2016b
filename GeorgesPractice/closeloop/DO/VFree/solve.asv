@@ -1,19 +1,18 @@
-function [uOp,SSR,time] = solve(evaluationFcn,x0,u0,theta,lb,ub,target,method,size)
-% method can be: 'multiStart','ms',     2larget     longest
-%                'particleswarm','ps',  2small      shortest
-%                'simulannealbnd','sa', maxerror    2longest
-%                'genetic','ga'         leasterror  2short
+function [uOp,SSR,time] = solve(evaluationFcn,x0,u0,theta,lb,ub,target,Method,size)
+% method can be: 'multiStart','ms',     2error      longest
+%                'particleswarm','ps',  3 min
+%                'simulannealbnd','sa', maxerrorff
+%                'genetic','ga'         leasterror
 
 rng('default');
 rng('shuffle');
 
-fcn=@(u) sum((evaluationFcn(x0,theta,u)-target).^2);
-switch (method)
+switch (Method)
     case {'multiStart','ms'}
         problem=createOptimProblem(...
             'fmincon',...
             'x0',u0,...
-            'objective',fcn,...
+            'objective',@(u) sum((evaluationFcn(x0,theta,u)-target).^2),...
             'lb',lb,...
             'ub',ub);
         ms=MultiStart;
@@ -23,6 +22,7 @@ switch (method)
         [uOp,SSR]=run(ms,problem,size);
         time=toc;
     case {'particleswarm','ps'}
+        fcn=@(u) sum((evaluationFcn(x0,theta,u)-target).^2);
         options = optimoptions(...
             'particleswarm',...
             'SwarmSize',size,...
@@ -32,6 +32,7 @@ switch (method)
         [uOp,SSR]=particleswarm(fcn,length(u0),lb,ub,options);
         time=toc;
     case {'simulannealbnd','sa'}
+        fcn=@(u) sum((evaluationFcn(x0,theta,u)-target).^2);
         options = optimoptions(...
             'simulannealbnd',...
             'Display','none',...
@@ -40,6 +41,7 @@ switch (method)
         [uOp,SSR]=simulannealbnd(fcn,u0,lb,ub,options);
         time=toc;
     case {'genetic','ga'}
+        fcn=@(u) sum((evaluationFcn(x0,theta,u)-target).^2);
         options = optimoptions(...
             'ga',...
             'PopulationSize',size,...

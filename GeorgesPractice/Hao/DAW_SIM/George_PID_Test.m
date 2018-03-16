@@ -11,7 +11,7 @@ Experiment_Length=1000; % min
 % Load reference ouput r
 % Control output y from t=1~1000min
 % Specified output is r
-r(1:300)=0.6; r(301:600)=0.2; r(601:1120)=0.7; 
+r(1:361)=0.6; r(362:721)=0.4; r(722:1120)=0.5; 
 
 % Set parameters
 Normalize_Factor_Segmentation = 0.046735005043180;
@@ -46,13 +46,14 @@ for Time=1:Experiment_Length
 
     %% PID controller
     %%{
-    Controller_Out_Record(Time+120)=0+...
+    Controller_Out_Record(Time+120)=Controller_Out_Record(Time+119)+...
         Kp*(Denormalized_Error(Time+120)+...
         (sum(Denormalized_Error(Time:Time+120))*KTi+...
         Td*(Denormalized_Error(Time+120)-Denormalized_Error(Time+119))));
     %}
     %% estimate correct input using IRMA
-
+    
+    %{
     expect=dde23(@(t,sol,Z) IRMA5b(t,sol,Z,K,Controller_Out_Record(Time+120),0,t),...
         100 ,y0_for_Sim,[Time Time+120]);
     target=expect.y(1,end);
@@ -70,9 +71,15 @@ for Time=1:Experiment_Length
     else
         u(Time)=0;        
     end
-
+    %}
+    
     u(Time)=Controller_Out_Record(Time+120);
-
+    if (u(Time)>1)
+        u(Time)=1;
+    elseif (u(Time)<0)
+            u(Time)=0;
+    end
+     Controller_Out_Record(Time+120)=u(Time);
     %% Send input to actuators
     %{
     Gal_Axis=1;

@@ -1,7 +1,7 @@
 % reference:    https://en.wikipedia.org/wiki/Ziegler%E2%80%93Nichols_method
 %               http://www.cc.ntut.edu.tw/~jcjeng/Chap6_PID%20Tuning.pdf
-Ku=65;%96
-Tu=318;%155
+Ku=136;%96
+Tu=395;%155
 
 P=George_PID_Test(0.5*Ku,0,0);
 PI=George_PID_Test(0.45*Ku,1.2/Tu,0);

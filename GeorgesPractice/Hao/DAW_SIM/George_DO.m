@@ -1,4 +1,4 @@
-function George_DO()
+function [yout,u,r]=George_DO()
 
 % Parameters for IRMA
 load K;
@@ -11,7 +11,7 @@ Experiment_Length=1000; % min
 % Load reference ouput r
 % Control output y from t=1~1000min
 % Specified output is r
-r(1:300)=0.8; r(301:600)=0.5; r(601:1120)=0.6; 
+r(1:361)=0.8; r(362:721)=0.5; r(722:1120)=0.6; 
 
 % Set parameters
 Normalize_Factor_Segmentation = 0.046735005043180;
@@ -37,7 +37,7 @@ for Time=1:Experiment_Length
 
     %% estimate correct input using IRMA
     
-    u(Time)=George_psSolver(@(u) evalfcn(K,u,y0_for_Sim,Time),0,1,[r(Time+120),0]);
+    u(Time)=George_psSolver(@(u) evalfcn(K,u,y0_for_Sim,Time),0,1,[r(Time+2),r(Time+2)]);
 
 
     %% Send input to actuators
@@ -61,13 +61,12 @@ x=1:1120;
 figure;
 plot(x,r);
 hold on;
-plot(x(1:1000),Normalized_Fluo_Out); 
-plot(x,Controller_Out_Record);
-title(sprintf('Kp=%6f, Ti=%6f, Td=%6f',Kp,Ti,Td));
+% plot(x(1:1000),yout); 
+% plot(x(1:1000),u);
 hold off;
 end
 
 function value=evalfcn(K,u,y0,Time)
-sol=dde23(@(t,sol,Z) IRMA5b(t,sol,Z,K,u,0,t), 100 ,y0,[Time Time+120]);
-value=[sol.y(1,end),sol.y(1,end)-sol.y(1,end-1)];
+sol=dde23(@(t,sol,Z) IRMA5b(t,sol,Z,K,u,0,t), 100 ,y0,[Time Time+2]);
+value=[sol.y(1,end),sol.y(1,end-1)];
 end
