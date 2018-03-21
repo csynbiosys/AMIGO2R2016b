@@ -1,7 +1,7 @@
 clear;clc;
 load K
 %load y0gal
-load y0gal;
+load y0glu;
 u=1;
 %y0=repmat(0.01,[1 5]); % y0 for glucose steady state
 tt=linspace(0,1000,20);
