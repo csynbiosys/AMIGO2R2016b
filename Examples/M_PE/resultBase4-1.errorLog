@@ -1,0 +1,27 @@
+Subscripted assignment dimension mismatch.
+
+Error in AMIGO_sens (line 124)
+        dydpt_full(:,:,[index_theta]) = dydpt_optvar(:,:,1:n_est_par);
+
+Error in AMIGO_CramerRao (line 62)
+                [results,privstruct]=AMIGO_sens(inputs,results,privstruct,iexp);
+
+Error in AMIGO_PE (line 282)
+            [results,privstruct]=AMIGO_CramerRao(inputs,results,privstruct,1,inputs.exps.n_exp);
+
+Error in fit_M (line 159)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using AMIGO_check_theta_bounds (line 87)
+error_bounds_013
+
+Error in AMIGO_PE (line 88)
+[inputs]= AMIGO_check_theta_bounds(inputs);
+
+Error in fit_M (line 159)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);

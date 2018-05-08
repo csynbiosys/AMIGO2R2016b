@@ -1,0 +1,32 @@
+Error: <a href="matlab: opentoline('C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m',15,55)">File: M_load_model.m Line: 15 Column: 55
+</a>Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error: <a href="matlab: opentoline('C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m',15,55)">File: M_load_model.m Line: 15 Column: 55
+</a>Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Subscripted assignment dimension mismatch.
+
+Error in AMIGO_sens (line 124)
+        dydpt_full(:,:,[index_theta]) = dydpt_optvar(:,:,1:n_est_par);
+
+Error in AMIGO_CramerRao (line 62)
+                [results,privstruct]=AMIGO_sens(inputs,results,privstruct,iexp);
+
+Error in AMIGO_PE (line 282)
+            [results,privstruct]=AMIGO_CramerRao(inputs,results,privstruct,1,inputs.exps.n_exp);
+
+Error in fit_M (line 159)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
