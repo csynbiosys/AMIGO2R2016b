@@ -25,3 +25,136 @@ Error in fit_M (line 159)
 
 Error in Run_M_fit2 (line 47)
             [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Undefined function or variable 'global_theta_guess'.
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using AMIGO_check_theta_bounds (line 95)
+		 Impossible to continue. Stopping.
+
+
+Error in AMIGO_PE (line 88)
+[inputs]= AMIGO_check_theta_bounds(inputs);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using AMIGO_check_theta_bounds (line 95)
+		 Impossible to continue. Stopping.
+
+
+Error in AMIGO_PE (line 88)
+[inputs]= AMIGO_check_theta_bounds(inputs);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using AMIGO_check_theta_bounds (line 95)
+		 Impossible to continue. Stopping.
+
+
+Error in AMIGO_PE (line 88)
+[inputs]= AMIGO_check_theta_bounds(inputs);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using AMIGO_check_theta_bounds (line 95)
+		 Impossible to continue. Stopping.
+
+
+Error in AMIGO_PE (line 88)
+[inputs]= AMIGO_check_theta_bounds(inputs);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using AMIGO_check_theta_bounds (line 95)
+		 Impossible to continue. Stopping.
+
+
+Error in AMIGO_PE (line 88)
+[inputs]= AMIGO_check_theta_bounds(inputs);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using savefig (line 43)
+H must be an array of handles to valid figures.
+
+Error in saveasfig (line 6)
+savefig(h, name);
+
+Error in saveas (line 140)
+    feval( ['saveas' format], h, name )
+
+Error in AMIGO_plot_sensmat (line 59)
+        saveas(gcf, sprintf('%s_exp%d',inputs.pathd.sens_mat_path,iexp), 'fig');
+
+Error in AMIGO_post_plot_PE (line 66)
+         AMIGO_plot_sensmat      
+
+Error in AMIGO_PE (line 329)
+        AMIGO_post_plot_PE(inputs,results,privstruct);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using savefig (line 43)
+H must be an array of handles to valid figures.
+
+Error in saveasfig (line 6)
+savefig(h, name);
+
+Error in saveas (line 140)
+    feval( ['saveas' format], h, name )
+
+Error in AMIGO_plot_sensmat (line 59)
+        saveas(gcf, sprintf('%s_exp%d',inputs.pathd.sens_mat_path,iexp), 'fig');
+
+Error in AMIGO_post_plot_PE (line 66)
+         AMIGO_plot_sensmat      
+
+Error in AMIGO_PE (line 329)
+        AMIGO_post_plot_PE(inputs,results,privstruct);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error using savefig (line 43)
+H must be an array of handles to valid figures.
+
+Error in saveasfig (line 6)
+savefig(h, name);
+
+Error in saveas (line 140)
+    feval( ['saveas' format], h, name )
+
+Error in AMIGO_plot_sensmat (line 59)
+        saveas(gcf, sprintf('%s_exp%d',inputs.pathd.sens_mat_path,iexp), 'fig');
+
+Error in AMIGO_post_plot_PE (line 66)
+         AMIGO_plot_sensmat      
+
+Error in AMIGO_PE (line 329)
+        AMIGO_post_plot_PE(inputs,results,privstruct);
+
+Error in fit_M (line 161)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);

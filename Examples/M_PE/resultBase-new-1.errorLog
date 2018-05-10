@@ -1,0 +1,16 @@
+Index exceeds matrix dimensions.
+
+Error in ess_kernel (line 515)
+aaa=find(xl_log(log_var)==0);
+
+Error in AMIGO_call_OPTsolver (line 231)
+                [res_ssm]=ess_kernel(problem,inputs.nlpsol.eSS,inputs,results,privstruct);
+
+Error in AMIGO_PE (line 176)
+[results,privstruct]=AMIGO_call_OPTsolver(...
+
+Error in fit_M (line 164)
+    results = AMIGO_PE(inputs);
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);

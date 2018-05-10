@@ -54,11 +54,15 @@ function [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess
         %global_theta_max = [0.4950,0.4950,4.9,8,0.0173,6.8067,0.2449,0.5,1e2];   
         % based on active bounds in previous iteration
                %'alpha1','Vm1','h1','Km1','d1','alpha2','d2','Kf','sc_molec'
-    global_theta_min = [3.88e-5,3.88e-2,0.5,2,0.1,0.1,5e-5,0.012,1e-6];
-    global_theta_max = [0.4950,0.4950,4.9,7,0.23,3,5e-2,0.0217,1e2];  
+%     global_theta_min = [3.88e-5,3.88e-2,0.5,2,0.1,0.1,5e-5,0.012,1e-3];
+%     global_theta_max = [0.4950,0.4950,4.9,7,0.23,3,5e-2,0.0217,1e2];
+    global_theta_min = [3.88e-5,3.88e-2,0.5,0,1e-3,0.1,1e-3,5e-4,1e-4];
+    global_theta_max = [0.4950,0.4950,4.9,700,1e-2,3,5e-3,3e-3,1e4];  
     %global_theta_min = [3.88e-5,3.88e-2,0.5,2,7.7e-3,0.1,5e-5,0.012,1e-6];
-    %global_theta_max = [0.4950,0.4950,4.9,7,0.23,3,0.2449,0.0217,1e2];  
-    global_theta_guess = global_theta_guess';
+    %global_theta_max = [0.4950,0.4950,4.9,7,0.23,3,0.2449,0.0217,1e2];
+    G=sqrt(global_theta_min.*global_theta_max)';
+    A=(global_theta_min+global_theta_max)/2';
+    global_theta_guess = [A(1),A(2),1.7547,5.5954,0.0061,A(6),0.0029,0.0014,A(9)]';
     
     %Compute the steady state considering the initial theta guess and 0 IPTG
     y0 = M_steady_state(global_theta_guess,0);
@@ -102,6 +106,7 @@ function [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess
     end
 
     best_global_theta = global_theta_guess; 
+                   %'alpha1','Vm1','h1','Km1','d1','alpha2','d2','Kf','sc_molec'
     param_including_vector = [true,true,true,true,true,true,true,true,true];
 
     % Compile the model
@@ -147,7 +152,7 @@ function [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess
 %     inputs.nlpsol.DE.cvarmax = 1e-6;
     inputs.nlpsol.eSS.maxeval = 100000;%200000;
     inputs.nlpsol.eSS.maxtime = 1000;%5000;
-    inputs.nlpsol.eSS.log_var = [1 2 3 4 5 6 7 8 9];
+    inputs.nlpsol.eSS.log_var = [3,4,9];
     inputs.nlpsol.eSS.local.solver = 'nl2sol'; 
     %inputs.nlpsol.eSS.local.finish = 'lsqnonlin';
     %inputs.rid.conf_ntrials=500;

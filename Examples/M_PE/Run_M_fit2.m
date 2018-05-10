@@ -14,7 +14,7 @@ cd ('Examples/M_PE');
 % Specify the allowed boundaries of the parameters
 % theta_min = [3.88e-5,3.88e-2,0.5,2,7.7e-3,0.2433,5.98e-5,0.012,1e-6];
 % theta_max = [0.4950,0.4950,4.9,10,0.23,6.8067,0.2449,0.0217,1e2];
-%'alpha1','Vm1','h1','Km1','d1','alpha2','d2','Kf','sc_molec'
+
 theta_min = [3.88e-8,3.88e-5,0.5,1,0.0077,0.2433,2.39e-4,0.0058,1e-6];
 theta_max = [0.4950,0.4950,4.9,10,0.69,6.8067,0.2449,0.0462,1e2];
 
@@ -39,7 +39,7 @@ load('MatrixParameters_PRData.mat');
 
 %parfor epcc_exps=1:numExperiments
 for epcc_exps=1:numExperiments
-        try
+        %try
             %global_theta_guess = ParFull(epcc_exps,:);
             %global_theta_guess = [0.2475    0.2475    2.7000    5.5000    0.3488    3.5250    0.1226    0.0260   50.0000]
             global_theta_guess = [0.2475    0.2475    2.7000    5.5000    0.3488    3.4533    0.5000    0.5029   50.0000];
@@ -47,14 +47,14 @@ for epcc_exps=1:numExperiments
             [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
             %[out] = fit_M_MultiStart(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
 
-        catch err
-            %open file
-            errorFile = [resultBase,'-',num2str(epcc_exps),'.errorLog'];
-            fid = fopen(errorFile,'a+');
-            fprintf(fid, '%s', err.getReport('extended', 'hyperlinks','off'));
-            % close file
-            fclose(fid);
-        end
+%         catch err
+%             %open file
+%             errorFile = [resultBase,'-',num2str(epcc_exps),'.errorLog'];
+%             fid = fopen(errorFile,'a+');
+%             fprintf(fid, '%s', err.getReport('extended', 'hyperlinks','off'));
+%             % close file
+%             fclose(fid);
+%         end
 end
 
 elapsed = toc(timerVal);
