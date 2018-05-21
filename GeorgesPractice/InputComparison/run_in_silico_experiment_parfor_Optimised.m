@@ -5,9 +5,7 @@ AMIGO_Startup();
 
 cd ('Examples/PLacCDC2018/InputComparison/Scripts');
 
-% Upper and lower boundaries selected for the parameters (theta refers to the parameter vector)
-theta_min = [3.88e-5,3.88e-2,0.5,2,7.7e-3,0.2433,5.98e-5,0.012];
-theta_max = [0.4950,0.4950,4.9,10,0.23,6.8067,0.2449,0.0217];
+
 
 % Create a matrix of initial guesses for the vector of parameter estimates.
 % The matrix has as many rows as the number of PE iterations
