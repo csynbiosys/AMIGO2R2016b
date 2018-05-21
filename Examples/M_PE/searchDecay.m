@@ -18,21 +18,21 @@ di=maxg-ming;
 fit=cell(n,1);
 res=ones(n,1);  
 
-options = optimoptions('particleswarm',...
-    'display','off',...
-    'HybridFcn','fmincon',...
-    'SwarmSize',n,...
-    'UseParallel',true);
+option = optimoptions('fmincon',...
+    'display','off');
 
 % parfor test=1:n
-%     disp(num2str(test));
-%     [fit{test},res(test)] = particleswarm(cost,7,min,max,option);
+%     [fit{test},res(test)] = fmincon(cost,7,min,max,option);
 % end
 % 
 % [result.cost,ind]=min(res);
 % result.fit=fit{ind};
 
-[result.fit,result.cost] = particleswarm(cost,7,ming,maxg,options);
+[result.fit,result.cost] = particleswarm(cost,7,ming,maxg,optimoptions('particleswarm',...
+    'display','off',...
+    'HybridFcn','fmincon',...
+    'SwarmSize',n,...
+    'UseParallel',true));
 
 
 figure();

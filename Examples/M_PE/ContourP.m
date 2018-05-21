@@ -1,13 +1,15 @@
+global_theta_min = [3.88e-05,0.388,1,4,0.0277,0.1,0.0023,0.0077,1e-03];
+global_theta_max = [0.3,0.495,3,7,0.23,1,0.03,0.0231,0.1];
 
 
 inputs.PEsol.id_global_theta='all';               % 'all'|User selected
-inputs.PEsol.global_theta_max=[0.4950,0.4950,4.9,7,0.23,3,5e-2,0.0217,1e2];  
-inputs.PEsol.global_theta_min=[3.88e-5,3.88e-2,0.5,2,0.1,0.1,5e-5,0.012,1e-6];
-inputs.PEsol.global_theta_guess=[0.2475    0.2475    2.7000    5.5000    0.3488    3.4533    0.5000    0.5029   50.0000];
+inputs.PEsol.global_theta_max=global_theta_max;
+inputs.PEsol.global_theta_min=global_theta_min;
+inputs.PEsol.global_theta_guess=(global_theta_min+global_theta_max)/2;
 
 %==================================
 % NUMERICAL METHODS RELATED DATA
-%==================================
+%=================================
 %
 % SIMULATION
 inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: C:'cvodes'; MATLAB:'ode15s'(default)|'ode45'|'ode113'
@@ -25,7 +27,7 @@ inputs.ivpsol.atol=1.0D-7;
 % GRank DATA
 %==================================
 
-inputs.rank.gr_samples=2000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)
+inputs.rank.gr_samples=10000;                         % [] Number of samples for global sensitivities and global rank within LHS (default: 10000)
 
 
 %==================================
@@ -48,5 +50,6 @@ inputs.nlpsol.eSS.maxeval=2000;
 AMIGO_Prep(inputs);
 %inputs.plotd.plotlevel='noplot';
 tic;
+AMIGO_PE(intputs);
 AMIGO_ContourP(inputs);
 time=toc;
