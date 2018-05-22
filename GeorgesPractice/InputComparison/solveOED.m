@@ -1,5 +1,5 @@
-function [cost,designs,curve_time,curve_cost,rngSeed]...
-    =solveOED(theta_min,theta_max,numSteps,numLoops,global_theta_guess)
+function [cost,designs,curve_time,curve_cost,rngSeed]=solveOED...
+    (theta_min,theta_max,numSteps,numLoops,global_theta_guess)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % In silico experiment OID script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
