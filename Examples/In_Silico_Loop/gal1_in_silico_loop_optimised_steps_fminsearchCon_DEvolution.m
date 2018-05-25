@@ -9,7 +9,7 @@ resultFileName = [epccOutputResultFileNameBase,'.dat'];
 rng shuffle;
 rngToGetSeed = rng;
 
-% Write the header information
+% Write the header Esinformation
 fid = fopen(resultFileName,'w');  
 fprintf(fid,'HEADER DATE %s\n', datestr(datetime()));
 fprintf(fid,'HEADER RANDSEED %d\n',rngToGetSeed.Seed);

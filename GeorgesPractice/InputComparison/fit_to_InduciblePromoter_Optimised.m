@@ -158,12 +158,12 @@ for i=1:numLoops
     %inputs.nlpsol.global_solver='de';
     inputs.nlpsol.nlpsolver='de';                                           % Differential evolution
     inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    inputs.nlpsol.DE.itermax = round((100e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
+    inputs.nlpsol.DE.itermax = round((20e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
         %inputs.nlpsol.DE.itermax = round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
     inputs.nlpsol.DE.cvarmax = 1e-5;                                        % cvarmax: maximum variance for a population at convergence
     inputs.nlpsol.DE.F = 0.5;                                               % F: DE-stepsize [0,2]
     inputs.nlpsol.DE.CR = 0.3;                                              % CR: crossover probability constant [0,1]
-    inputs.nlpsol.DE.strategy =6;
+    inputs.nlpsol.DE.strategy =4;
     % strategy
     %                1 --> DE/best/1/exp
     %                2 --> DE/rand/1/exp

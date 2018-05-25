@@ -1,5 +1,5 @@
-function [results,cost,designs,curve_time,curve_cost]=solveOED...
-    (theta_min,theta_max,numSteps,numLoops,global_theta_guess,rngSeed)
+function [cost,designs,curve_time,curve_cost,rngSeed]=solveOEDTF...
+    (theta_min,theta_max,numSteps,numLoops,global_theta_guess,F)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % In silico experiment OID script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,7 +14,10 @@ totalDuration = 50*60;
 % In our case, all parameters are identifiable.
 param_including_vector = [true,true,true,true,true,true,true,true];
 
-rng(rngSeed);
+
+rng shuffle;
+rngSeed = rng;
+rngSeed = rngSeed.Seed;
 results_folder = strcat('InduciblePromoter',datestr(now,'yyyy-mm-dd-HHMMSS'));
 short_name     = strcat('IndProm');
 
@@ -116,23 +119,14 @@ for i=1:numLoops
     % OPTIMIZATION
     inputs.nlpsol.global_solver='de';                                             % Differential evolution
     %inputs.nlpsol.nlpsolver='de';
-    %inputs.nlpsol.local_solver='eSS';
-    inputs.nlpsol.local_solver='lsqnonlin';
+    inputs.nlpsol.local_solver='fminsearch';
     inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    inputs.nlpsol.DE.itermax = round((800e4)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    inputs.nlpsol.DE.timemax = round((800e4)/inputs.nlpsol.DE.NP); 
+    inputs.nlpsol.DE.itermax = round((10e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
     %inputs.nlpsol.DE.itermax = round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
     inputs.nlpsol.DE.cvarmax = 1e-5;                                        % cvarmax: maximum variance for a population at convergence
-    inputs.nlpsol.DE.F = 0.5;                                               % F: DE-stepsize [0,2]
-    inputs.nlpsol.DE.CR = 0.25;                                              % CR: crossover probability constant [0,1]
+    inputs.nlpsol.DE.F = F;                                               % F: DE-stepsize [0,2]
+    inputs.nlpsol.DE.CR = 0.1;                                              % CR: crossover probability constant [0,1]
     inputs.nlpsol.DE.strategy =6;
-
-%    
-    inputs.nlpsol.eSS.local.nl2sol.maxiter  =    600*666;     % max number of iteration
-    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     600;     % max number of function evaluation
-    inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
-    
-    
     % strategy
     %                1 --> DE/best/1/exp
     %                2 --> DE/rand/1/exp
@@ -158,8 +152,8 @@ for i=1:numLoops
         curve_time=cell2mat(results.nlpsol.conv_curve(:,1))';
         curve_cost=cell2mat(results.nlpsol.conv_curve(:,2))';
     catch
-        curve_time=results.nlpsol.conv_curve(1)';
-        curve_cost=results.nlpsol.conv_curve(2)';
+        curve_time=results.nlpsol.conv_curve(end,1)';
+        curve_cost=results.nlpsol.conv_curve(end,2)';
     end
 end
 end
