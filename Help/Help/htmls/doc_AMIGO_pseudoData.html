@@ -1,0 +1,1475 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>doc_AMIGO_pseudoData</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-21"><meta name="DC.source" content="doc_AMIGO_pseudoData.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #007946; 
+  font-size: x-large;
+}
+
+h1b {
+  color: #255DA5; 
+  font-size: x-large;
+}
+
+li {
+  color: #255DA5; /* bullet color */
+}
+li {
+  color: #255DA5; /* bullet color */
+}
+li span {
+  color: black; /* text color */
+}
+
+h2 {
+  color: #255DA5;
+  font-size: large;
+}
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 820px;
+  /* Hack for IE6 */
+  width: auto !important; width: 820px;
+  text-align: justify;
+}
+
+pre.codeinput {
+  background: #E9F4F6;
+  padding: 10px;
+  width: 820px;
+  text-align: justify;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+   width: 820px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1></h1><!--introduction--><p>
+<p style="color:#007946;font-size:18pt;text-align:right; margin-top: 1px; margin-bottom: 1px;"> <b>Pseudo-data generation with AMIGO_SData</b></p>
+<hr align="left" width="820">
+</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Description of AMIGO_SData with pseudo-data options</a></li><li><a href="#4">Example</a></li><li><a href="#7">1: Homoscedastic error for each observable</a></li><li><a href="#11">2: Known heteroscedastic error</a></li><li><a href="#15">3: Additive error scaling with the signal</a></li><li><a href="#19">4: Additive error scaling with the signal with detection limit</a></li><li><a href="#23">5: Multiplicative error</a></li><li><a href="#27">6: Multiplicative error with detection limit</a></li><li><a href="#30">See also</a></li><li><a href="#32">References</a></li></ul></div><h2>Description of AMIGO_SData with pseudo-data options<a name="1"></a></h2><p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> AMIGO_SData can be used to generate pseudo- experimental data for the purpose of numerical tests.  </dl>
+<dl> </dl>
+<dl> The following error models are admited:
+<ul>
+<li> Homocesdastic Gaussian additive error with constant standard deviation throughout time</li>
+<li> Heteroscedastic Gaussian additive error (different standard deviation value for each data)</li>
+<li> Heteroscedastic Gaussian additive error scaling with the signal </li>
+<li> Gaussian additive error scaling with the signal with detection limit
+</li>
+<li> Multiplicative error </li>
+<li> Multiplicative error with detection limit</li>
+</ul>
+</dl>
+<dl> Remark that inputs.model.par and inputs.exps.exp_y0{iexp} are used
+(by default) for simulation. Alternatively, inputs.PEsol.global_theta_guess, .global_theta_y0_guess, .local_theta_guess{iexp} and
+.local_theta_y0_guess{iexp}, will be used, if supplied by the user. </dl>
+</div>
+</p><h2>Example<a name="4"></a></h2><pre class="codeinput"><span class="comment">% TITLE: Linear reaction A-&gt;B-&gt;C</span>
+<span class="comment">%</span>
+<span class="comment">% A is transformed into B, and B into C</span>
+<span class="comment">% following 1st order reactions.</span>
+
+clear;
+<span class="comment">%============================</span>
+<span class="comment">% RESULTS PATHS RELATED DATA</span>
+<span class="comment">%============================</span>
+inputs.pathd.results_folder=<span class="string">'ABCreaction'</span>; <span class="comment">% Folder to keep results (in Results\)</span>
+inputs.pathd.short_name=<span class="string">'ABCreac'</span>;         <span class="comment">% Label to identify figures and reports</span>
+inputs.pathd.run_overwrite=<span class="string">'on'</span>;
+
+<span class="comment">%============================</span>
+<span class="comment">% MODEL DEFINITION</span>
+<span class="comment">%============================</span>
+inputs.model.input_model_type=<span class="string">'charmodelC'</span>; <span class="comment">% Model type- C</span>
+inputs.model.n_st=3;                        <span class="comment">% Number of states</span>
+inputs.model.n_par=2;                       <span class="comment">% Number of parameters</span>
+inputs.model.n_stimulus=0;                  <span class="comment">% Number of stimuli</span>
+inputs.model.st_names=char(<span class="string">'cA'</span>,<span class="string">'cB'</span>,<span class="string">'cC'</span>); <span class="comment">% Names of the states</span>
+inputs.model.par_names=char(<span class="string">'k1'</span>,<span class="string">'k2'</span>);     <span class="comment">% Names of the parameters</span>
+inputs.model.eqns=<span class="keyword">...</span><span class="comment">                       % Model equations</span>
+            char(<span class="string">'dcA = -k1*cA'</span>,<span class="keyword">...</span>
+                 <span class="string">'dcB =  k1*cA - k2*cB'</span>,<span class="keyword">...</span>
+                 <span class="string">'dcC =  k2*cB'</span>);
+
+<span class="comment">% Note that SData use the inputs.model.par for simulation and to generate data</span>
+k1=0.15; k2=1;
+inputs.model.par=[k1 k2];                  <span class="comment">% Nominal parameter values</span>
+
+<span class="comment">%============================</span>
+<span class="comment">% EXPERIMENTS RELATED INFO</span>
+<span class="comment">%============================</span>
+inputs.exps.n_exp       = 1;                <span class="comment">% Number of experiments</span>
+inputs.exps.exp_y0{1}   = [10 0 0];         <span class="comment">% Initial conditions</span>
+inputs.exps.n_obs{1}=3;                     <span class="comment">% Number of observables</span>
+inputs.exps.obs{1}= <span class="string">'states'</span>;               <span class="comment">% All states are measured</span>
+inputs.exps.t_f{1}=10;                      <span class="comment">% Experiment duration</span>
+inputs.exps.n_s{1}=11;                      <span class="comment">% Number of sampling times</span>
+inputs.exps.t_s{1}=0:10;                    <span class="comment">% Sampling times</span>
+
+<span class="comment">%==================================</span>
+<span class="comment">% NUMERICAL METHDOS RELATED DATA</span>
+<span class="comment">%==================================</span>
+
+<span class="comment">% SIMULATION                             % Default for charmodel C: CVODES</span>
+</pre><p>More information regarding the inputs used in this example can be found <a href="sdataex2.html">here</a>.</p><pre class="codeinput">    AMIGO_htmldoc_inputs(inputs,fullfile(pwd,<span class="string">'html'</span>,<span class="string">'sdataex2.html'</span>));
+<span class="comment">%====================================================</span>
+<span class="comment">% CALL AMIGO2 from COMMAND LINE - LEAST SQUARES CASE</span>
+<span class="comment">%====================================================</span>
+<span class="comment">% It is recommended to keep all inputs in a 'problem_file'.m.</span>
+<span class="comment">% AMIGO2 PE task can be called as follows:</span>
+<span class="comment">% AMIGO_PE('problem_file','run_ident') or AMIGO_ContourP(inputs)</span>
+
+
+AMIGO_Prep(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Pre processing....this may take a few seconds.
+
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+------&gt; Generating C code ...
+
+
+------&gt; Mexing files....
+
+Building with 'MinGW64 Compiler (C)'.
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c: In function 'simulate_amigo_model':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c:330:16: warning: passing argument 1 of 'mexPrintf' from incompatible pointer type
+      mexPrintf(stderr,"\nSolver failed at flag = CVode(cvode_mem, tout, y, &amp;t, CV_TSTOP_RETURN);. . .\n");
+                ^
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\include\include_amigo/simulate_amigo_model.h:4:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c:1:
+C:\MATLAB_R2015b_64/extern/include/mex.h:202:27: note: expected 'const char *' but argument is of type 'struct FILE *'
+ LIBMWMEX_API_EXTERN_C int mexPrintf(
+                           ^
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_interface\interface_with_matlab.c: In function 'mexFunction':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_interface\interface_with_matlab.c:200:17: warning: assignment from incompatible pointer type
+    stats_struct = mxGetPr(plhs[5]);
+                 ^
+
+MEX completed successfully.
+
+
+------&gt;Files generated....
+</pre><p>
+<hr align="left" width="820">
+</p><h2>1: Homoscedastic error for each observable<a name="7"></a></h2><p>Additive Gaussian measurement error model with constant standard deviation <img src="doc_AMIGO_pseudoData_eq17109311210768947725.png" alt="$\hat y_j(t_i) = y_j(t_i) + \epsilon_{ij}$">, where:</p><div><ul><li><img src="doc_AMIGO_pseudoData_eq13363859532314412964.png" alt="$y_j(t_i)$"> is the simulated value at time <img src="doc_AMIGO_pseudoData_eq14450145758366837506.png" alt="$t_i$"> of observable <img src="doc_AMIGO_pseudoData_eq05755948769784079355.png" alt="$y_j$"></li><li><img src="doc_AMIGO_pseudoData_eq05649792678098733303.png" alt="$\epsilon_{ij}$"> is a random variable: <img src="doc_AMIGO_pseudoData_eq08062466072620319847.png" alt="$\epsilon_{:,j} \sim N(0,\sigma^{(r)}_j\max(y_j(:))I_{N_t})$"></li><li><img src="doc_AMIGO_pseudoData_eq00778707252565146256.png" alt="$\sigma^{(r)}$"> is the <i>relative</i> standard deviation given by the user through inputs.exps.std_dev  for each observable separately.</li></ul></div><p>Useful if we approximately know the relative error (in %100) in the measurements. Note that the maximum value of each observable is used to scale the <i>relative</i> standard deviation.</p><p>
+<hr align="left" width="820">
+</p><pre class="codeinput">inputs.exps.data_type = <span class="string">'pseudo'</span>;
+inputs.exps.noise_type = <span class="string">'homo_var'</span>;
+inputs.exps.std_dev{1} = [0.1 0.03 0.07];
+results = AMIGO_SData(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Homocedastic noise with varying variance.
+		 Maximum standard deviation:
+
+			*Experiment 1:
+ 
+			Observable 1, 10.000000 (percent) 
+			Observable 2, 3.000000 (percent) 
+			Observable 3, 7.000000 (percent)
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 100000
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		10.3333  0.0331777  -0.254469
+		7.51449  0.858696  0.696387
+		7.02123  1.05862  1.86984
+		6.25385  1.07884  2.36869
+		4.82834  0.944495  4.3207
+		4.09919  0.808777  4.26653
+		3.83938  0.686582  5.68487
+		2.94854  0.599344  6.38452
+		1.66968  0.543743  6.48628
+		3.32899  0.484423  6.90654
+		1.31175  0.395219  7.82511
+		];
+
+
+		Error data 1: 
+		Standard deviation: 10%
+		Standard deviation: 3%
+		Standard deviation: 7%
+		inputs.exps.error_data{1}=[
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		1  0.0320545  0.516246
+		];
+
+
+
+--------------------------------------------------------------------------
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1\strreport_ABCreac_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_pseudoData_01.png" alt=""> <p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> REMARKS on Homocesdastic Gaussian additive error with constant standard deviation throughout time  </dl>
+<dl> </dl>
+<ul>
+<li> Maximum measurement value for each observable is being used to compute relative error. This may induce large errors for lower signal values.</li>
+<li> It is possible to forze positive pseudo-data by means of 'pseudo_pos' option.</li>
+<li> Error bars have the same magnitude throughout time </li>
+<li> Different observables result in different error magnitudes, thus
+taking into account the effect of different measurement scales.
+</li>
+<li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+</ul>
+</dl>
+</div>
+</p><p>
+<hr align="left" width="820">
+</p><h2>2: Known heteroscedastic error<a name="11"></a></h2><p>Additive Gaussian measurement error model with unique standard deviation for each point: <img src="doc_AMIGO_pseudoData_eq17109311210768947725.png" alt="$\hat y_j(t_i) = y_j(t_i) + \epsilon_{ij}$">, where:</p><div><ul><li><img src="doc_AMIGO_pseudoData_eq13363859532314412964.png" alt="$y_j(t_i)$"> is the simulated value at time <img src="doc_AMIGO_pseudoData_eq14450145758366837506.png" alt="$t_i$"> of observable <img src="doc_AMIGO_pseudoData_eq05755948769784079355.png" alt="$y_j$"></li><li><img src="doc_AMIGO_pseudoData_eq05649792678098733303.png" alt="$\epsilon_{ij}$"> is a random variable: <img src="doc_AMIGO_pseudoData_eq07345161704493437572.png" alt="$\epsilon_{ij} \sim N(0,\sigma_{ij})$"></li><li><img src="doc_AMIGO_pseudoData_eq05280694669278535212.png" alt="$\sigma_{ij}$"> is the <i>absolut</i> standard deviation given by the user through inputs.exps.error_data  for each measurement point.</li></ul></div><p>Useful if we know the measurement accuracy in each timepoint.</p><p>
+<hr align="left" width="820">
+</p><pre class="codeinput">inputs.exps.data_type = <span class="string">'pseudo'</span>;
+inputs.exps.noise_type = <span class="string">'hetero'</span>;
+inputs.exps.error_data{1} = <span class="keyword">...</span>
+    [1.0      0.01      0.01
+    0.9000    0.0500    0.0500
+    0.8056    0.2000    0.1000
+    0.7111    0.3500    0.1500
+    0.6167    0.5000    0.2000
+    0.5222    0.5000    0.2500
+    0.4278    0.5000    0.3000
+    0.3333    0.3875    0.3500
+    0.2389    0.2750    0.4000
+    0.1444    0.1625    0.4500
+    0.0500    0.0500    0.5000];
+
+results = AMIGO_SData(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Heterocedastic noise. 
+		 Standard deviation is given for each point:
+
+			*Experiment 1:
+ 
+	Time				Observables (abs STD)
+	t(1)	 1	0.01	0.01	
+	t(2)	0.9	0.05	0.05	
+	t(3)	0.81	0.2	0.1	
+	t(4)	0.71	0.35	0.15	
+	t(5)	0.62	0.5	0.2	
+	t(6)	0.52	0.5	0.25	
+	t(7)	0.43	0.5	0.3	
+	t(8)	0.33	0.39	0.35	
+	t(9)	0.24	0.28	0.4	
+	t(10)	0.14	0.16	0.45	
+	t(11)	0.05	0.05	0.5	
+
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 100000
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		8.19634  -0.00640975  -0.00103628
+		8.63745  0.804139  0.430569
+		7.46388  1.03935  1.55988
+		6.63625  1.07434  2.44801
+		4.94242  1.2773  3.84577
+		3.98727  0.882192  4.46763
+		2.937  0.331279  5.2899
+		3.68106  0.0257513  5.60903
+		3.26948  0.369584  6.66625
+		2.52824  0.23566  6.97945
+		2.35027  0.42986  7.48302
+		];
+
+
+		Error data 1: 
+		Standard deviation: 10%
+		Standard deviation: 3%
+		Standard deviation: 7%
+		inputs.exps.error_data{1}=[
+		1  0.01  0.01
+		0.9  0.05  0.05
+		0.8056  0.2  0.1
+		0.7111  0.35  0.15
+		0.6167  0.5  0.2
+		0.5222  0.5  0.25
+		0.4278  0.5  0.3
+		0.3333  0.3875  0.35
+		0.2389  0.275  0.4
+		0.1444  0.1625  0.45
+		0.05  0.05  0.5
+		];
+
+
+
+--------------------------------------------------------------------------
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1\strreport_ABCreac_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_pseudoData_02.png" alt=""> <p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> REMARKS on Known heteroscedastic error   </dl>
+<dl> </dl>
+<ul>
+<li> Error bars represent the values introduced by users.</li>
+<li> Different accuracies can be defined for each timepoint in each observable.</li>
+<li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+</ul>
+</dl>
+</div>
+</p><p>
+<hr align="left" width="820">
+</p><h2>3: Additive error scaling with the signal<a name="15"></a></h2><p>
+<a name="additive_scaling"> </a>
+</p><p>additive Gaussian measurement error model, the standard deviation of which scales with the signal (constant signal to noise ratio). <img src="doc_AMIGO_pseudoData_eq14856613559814506136.png" alt="$\hat y_j(t_i) = y_j(t_i) + y_j(t_i)\epsilon_{j}$">, where:</p><div><ul><li><img src="doc_AMIGO_pseudoData_eq13363859532314412964.png" alt="$y_j(t_i)$"> is the simulated value at time <img src="doc_AMIGO_pseudoData_eq14450145758366837506.png" alt="$t_i$"> of observable <img src="doc_AMIGO_pseudoData_eq05755948769784079355.png" alt="$y_j$"></li><li><img src="doc_AMIGO_pseudoData_eq02363997544284038563.png" alt="$\epsilon_{j}$"> is a random variable: <img src="doc_AMIGO_pseudoData_eq05411184419675030896.png" alt="$\epsilon_{j} \sim N(0,\sigma_{j})$"></li><li><img src="doc_AMIGO_pseudoData_eq08272120713445245155.png" alt="$\sigma_{j}$"> vector is  given by the user through inputs.exps.std_dev  for each observable.</li></ul></div><p>Useful if we know that (1) the measurement error is proportional to the signal and (2) the proportionality factor.</p><p>
+<hr align="left" width="820">
+</p><pre class="codeinput">inputs.exps.data_type = <span class="string">'pseudo'</span>;
+inputs.exps.noise_type = <span class="string">'hetero_proportional'</span>;
+inputs.exps.std_dev{1} = [0.1 0.03 0.07];
+
+results = AMIGO_SData(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Heterocedastic noise. 
+		 Standard deviation proportional to the observable: a*y being a maximum:
+
+			*Experiment 1:
+ 
+			Observable 1, 10.000000 (percent) 
+			Observable 2, 3.000000 (percent) 
+			Observable 3, 7.000000 (percent)
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 100000
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		9.67973  0  0
+		9.16084  0.905603  0.602703
+		5.60117  1.06715  1.54355
+		6.48192  1.03547  2.5039
+		6.06338  0.944925  3.45625
+		4.6336  0.857375  4.37472
+		4.30075  0.661958  5.51303
+		3.29099  0.584944  5.81432
+		3.06397  0.551101  7.3779
+		2.44101  0.483244  6.78499
+		2.48679  0.391262  7.00538
+		];
+
+
+		Error data 1: 
+		Standard deviation: 10%
+		Standard deviation: 3%
+		Standard deviation: 7%
+		inputs.exps.error_data{1}=[
+		1  0  0
+		0.860708  0.0260911  0.0366253
+		0.740818  0.0320545  0.106633
+		0.637628  0.0311194  0.181046
+		0.548812  0.0280838  0.250298
+		0.472367  0.0246502  0.311821
+		0.40657  0.0213927  0.365479
+		0.349938  0.0184777  0.411923
+		0.301194  0.0159277  0.451993
+		0.25924  0.013718  0.486517
+		0.22313  0.0118104  0.516246
+		];
+
+
+
+--------------------------------------------------------------------------
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1\strreport_ABCreac_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_pseudoData_03.png" alt=""> <p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> REMARKS on Additive error scaling with the signal </dl>
+<dl> </dl>
+<ul>
+<li> Error bars scale with the signal value.</li>
+<li> Error bars are different for the different observables and sampling
+times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+<li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+</ul>
+</dl>
+</div>
+</p><p>
+<hr align="left" width="820">
+</p><h2>4: Additive error scaling with the signal with detection limit<a name="19"></a></h2><p>
+<a name="additive_scaling_plus_const"> </a>
+</p><p>additive Gaussian measurement error model, the standard deviation of which scales with the signal (constant signal to noise ratio). The model is extended to low signals, where the error levels off.</p><p><img src="doc_AMIGO_pseudoData_eq10394302892665489592.png" alt="$\hat y_j(t_i) = y_j(t_i) + y_j(t_i)\epsilon_{j}+ \eta_j$"> ,</p><p>where:</p><div><ul><li><img src="doc_AMIGO_pseudoData_eq13363859532314412964.png" alt="$y_j(t_i)$"> is the simulated value at time <img src="doc_AMIGO_pseudoData_eq14450145758366837506.png" alt="$t_i$"> of observable <img src="doc_AMIGO_pseudoData_eq05755948769784079355.png" alt="$y_j$"></li><li><img src="doc_AMIGO_pseudoData_eq02363997544284038563.png" alt="$\epsilon_{j}$"> is a random variable: <img src="doc_AMIGO_pseudoData_eq13241832234683112594.png" alt="$\epsilon_{j} \sim N(0,\sigma^{(b)}_{j})$"></li><li><img src="doc_AMIGO_pseudoData_eq17615028512695387165.png" alt="$\eta$"> is the background noise variable <img src="doc_AMIGO_pseudoData_eq10009581533761280925.png" alt="$\eta_{j} \sim N(0,\sigma^{(a)}_{j})$"></li><li><img src="doc_AMIGO_pseudoData_eq04519468299750595171.png" alt="$\sigma^{(a)}$"> and <img src="doc_AMIGO_pseudoData_eq13945930614502994741.png" alt="$\sigma^{(b)}$"> vectors are  given by the user through inputs.exps.std_deva and inputs.exps.std_devb  for each observable.</li></ul></div><p>The variance of the pseudo data is: <img src="doc_AMIGO_pseudoData_eq06026023810611301381.png" alt="$Var(\hat y_{ij}) = (y_j(t_i)\sigma_{j}^{(b)})^2 + (\sigma_j^{(a)})^2$"></p><p>Useful if we know that (1) the measurement error is proportional to the signal for large signals and constant for small signals. Equivalently, the signal to noise ratio is constant for large signals, but decreases as the signal reach a low limit.</p><p>
+<hr align="left" width="820">
+</p><pre class="codeinput">inputs.exps.data_type = <span class="string">'pseudo'</span>;
+inputs.exps.noise_type = <span class="string">'hetero_lin'</span>;
+inputs.exps.std_deva{1} = [0.2 0.2 0.5];
+inputs.exps.std_devb{1} = [0.05 0.03 0.07];
+<span class="comment">% extend the time horizon to see small values for obsA</span>
+inputs.exps.t_f{1}=20;
+inputs.exps.t_in{1} = 0;
+inputs.exps.n_s{1}=21;
+inputs.exps.t_s{1}=0:20;
+
+
+
+results = AMIGO_SData(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Heterocedastic noise a+b*y. 
+
+			*Experiment 1:
+ 
+			Observable 1, 0.200000 ,0.050000 
+			Observable 2, 0.200000 ,0.030000 
+			Observable 3, 0.500000 ,0.070000
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 100000
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		10.3325  -0.242142  -0.320615
+		8.32026  0.436018  1.23272
+		7.46908  0.827104  1.36852
+		6.07527  1.30976  1.82855
+		5.07773  0.862412  2.87376
+		4.15615  1.33476  4.50748
+		3.95043  0.787986  5.60677
+		3.51209  0.785304  6.80567
+		3.18171  0.495621  6.25322
+		2.84503  0.414918  6.94486
+		2.2715  0.216389  7.11405
+		2.14225  0.375021  6.58754
+		1.66976  -0.0167234  8.75244
+		1.42866  0.0827026  8.70806
+		1.48832  -0.000670103  9.0312
+		1.3842  0.218107  8.78438
+		0.879536  0.455563  6.98237
+		0.359489  0.565525  8.72743
+		0.230765  -0.233235  9.25459
+		0.217838  0.171642  9.20077
+		0.247775  -0.0434701  9.42599
+		];
+
+
+		Error data 1: 
+		Standard deviation: 10%
+		Standard deviation: 3%
+		Standard deviation: 7%
+		inputs.exps.error_data{1}=[
+		0.538516  0.2  0.5
+		0.474557  0.201695  0.50134
+		0.420955  0.202552  0.511244
+		0.376354  0.202407  0.531768
+		0.339556  0.201962  0.559151
+		0.309488  0.201513  0.589264
+		0.285175  0.201141  0.619334
+		0.265733  0.200852  0.647828
+		0.250359  0.200633  0.674016
+		0.23833  0.20047  0.697638
+		0.229013  0.200348  0.718686
+		0.221857  0.200258  0.737284
+		0.216404  0.200191  0.753622
+		0.212274  0.200142  0.767913
+		0.209162  0.200105  0.780372
+		0.206826  0.200078  0.791208
+		0.205079  0.200058  0.800615
+		0.203775  0.200043  0.808769
+		0.202803  0.200032  0.815828
+		0.20208  0.200023  0.821933
+		0.201543  0.200017  0.827209
+		];
+
+
+
+--------------------------------------------------------------------------
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1\strreport_ABCreac_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_pseudoData_04.png" alt=""> <p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> REMARKS on Additive error scaling with the signal with detection limit </dl>
+<dl> </dl>
+<ul>
+<li> Error bars scale with the signal value but they are constant for low signal values.</li>
+<li> Error bars are different for the different observables and sampling
+times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+<li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+</ul>
+</dl>
+</div>
+</p><p>
+<hr align="left" width="820">
+</p><h2>5: Multiplicative error<a name="23"></a></h2><p>
+<a name="multiplicative"> </a>
+</p><p>multiplicative log-normal measurement error model, the standard deviation of which scales with the signal (constant signal to noise ratio).</p><p><img src="doc_AMIGO_pseudoData_eq09375355074254969172.png" alt="$\hat y_j(t_i) =  y_j(t_i)e^{\epsilon_{j}}$"> ,</p><p>where:</p><div><ul><li><img src="doc_AMIGO_pseudoData_eq13363859532314412964.png" alt="$y_j(t_i)$"> is the simulated value at time <img src="doc_AMIGO_pseudoData_eq14450145758366837506.png" alt="$t_i$"> of observable <img src="doc_AMIGO_pseudoData_eq05755948769784079355.png" alt="$y_j$"></li><li><img src="doc_AMIGO_pseudoData_eq02363997544284038563.png" alt="$\epsilon_{j}$"> is a random variable: <img src="doc_AMIGO_pseudoData_eq13241832234683112594.png" alt="$\epsilon_{j} \sim N(0,\sigma^{(b)}_{j})$"></li><li><img src="doc_AMIGO_pseudoData_eq13945930614502994741.png" alt="$\sigma^{(b)}$"> vectors are  given by the user through inputs.exps.std_deva and inputs.exps.std_devb  for each observable.</li></ul></div><p>The variance of the pseudo data is: <img src="doc_AMIGO_pseudoData_eq00220410300791127271.png" alt="$Var(\hat y_{ij}) = y_j^2(t_i)e^{(\sigma_{j}^{(b)})^2}(e^{(\sigma_{j}^{(b)})^2}-1)$"></p><p>Useful if we know that (1) the multiplicative measurement error is dominated in the measurement, which is proportional to the signal for large signals.</p><p>
+<hr align="left" width="820">
+</p><pre class="codeinput">inputs.exps.data_type = <span class="string">'pseudo'</span>;
+inputs.exps.noise_type = <span class="string">'log_normal'</span>;
+inputs.exps.std_devb{1} = [0.05 0.03 0.07];
+<span class="comment">% extend the time horizon to see small values for obsA</span>
+inputs.exps.t_f{1}=20;
+inputs.exps.t_in{1} = 0;
+inputs.exps.n_s{1}=21;
+inputs.exps.t_s{1}=0:20;
+<span class="comment">% change the initial condition to see large changes</span>
+inputs.exps.exp_y0{1}   = [1e3 0 0];
+inputs.model.par=[k1*0.8 k2];
+
+results = AMIGO_SData(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 100000
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		996.694  0  0
+		862.97  73.5424  38.7249
+		789.309  87.1255  112.398
+		715.802  92.4289  218.147
+		655.18  79.5948  292.463
+		524.821  74.007  398.676
+		473.034  66.6448  445.437
+		416.432  60.6543  502.116
+		399.475  51.6629  500.801
+		367.376  45.0099  581.661
+		317.52  42.8484  662.562
+		285.661  36.823  675.874
+		239.899  30.5043  798.985
+		201.88  28.9307  669.616
+		192.817  24.1504  778.274
+		180.202  23.0819  818.697
+		150.364  20.8413  792.305
+		136.213  17.6344  858.945
+		106.76  15.3036  976.103
+		105.247  14.4712  821.114
+		90.0234  12.1829  875.145
+		];
+
+
+		Error data 1: 
+		Standard deviation: 10%
+		Standard deviation: 3%
+		Standard deviation: 7%
+		inputs.exps.error_data{1}=[
+		50.0938  0  0
+		44.4293  2.12479  2.97196
+		39.4052  2.66619  8.75126
+		34.9493  2.65217  15.0335
+		30.9972  2.45805  21.0305
+		27.4921  2.21899  26.506
+		24.3833  1.98235  31.4198
+		21.626  1.7635  35.7991
+		19.1806  1.56604  39.6911
+		17.0116  1.38968  43.1458
+		15.088  1.2328  46.2111
+		13.3818  1.09347  48.9301
+		11.8686  0.969859  51.3417
+		10.5265  0.860212  53.4807
+		9.3362  0.762948  55.3778
+		8.28047  0.676675  57.0604
+		7.34412  0.60016  58.5527
+		6.51365  0.532299  59.8762
+		5.7771  0.472111  61.0501
+		5.12384  0.418728  62.0913
+		4.54446  0.37138  63.0146
+		];
+
+
+
+--------------------------------------------------------------------------
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1\strreport_ABCreac_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_pseudoData_05.png" alt=""> <p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> REMARKS on Multiplicative error </dl>
+<dl> </dl>
+<ul>
+<li> Error bars scale with the signal value.</li>
+<li> Error bars are different for the different observables and sampling
+times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+<li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+</ul>
+</dl>
+</div>
+</p><p>
+<hr align="left" width="820">
+</p><h2>6: Multiplicative error with detection limit<a name="27"></a></h2><p>
+<a name="multiplicative_plus_constant"> </a>
+</p><p>multiplicative log-normal measurement error model, the standard deviation of which scales with the signal (constant signal to noise ratio). The model is extended to low signals, where the error levels off.</p><p><img src="doc_AMIGO_pseudoData_eq16202655770616245030.png" alt="$\hat y_j(t_i) =  y_j(t_i)e^{\epsilon_{j}}+ \eta_j$"> ,</p><p>where:</p><div><ul><li><img src="doc_AMIGO_pseudoData_eq13363859532314412964.png" alt="$y_j(t_i)$"> is the simulated value at time <img src="doc_AMIGO_pseudoData_eq14450145758366837506.png" alt="$t_i$"> of observable <img src="doc_AMIGO_pseudoData_eq05755948769784079355.png" alt="$y_j$"></li><li><img src="doc_AMIGO_pseudoData_eq02363997544284038563.png" alt="$\epsilon_{j}$"> is a random variable: <img src="doc_AMIGO_pseudoData_eq13241832234683112594.png" alt="$\epsilon_{j} \sim N(0,\sigma^{(b)}_{j})$"></li><li><img src="doc_AMIGO_pseudoData_eq17615028512695387165.png" alt="$\eta$"> is the background noise variable <img src="doc_AMIGO_pseudoData_eq10009581533761280925.png" alt="$\eta_{j} \sim N(0,\sigma^{(a)}_{j})$"></li><li><img src="doc_AMIGO_pseudoData_eq04519468299750595171.png" alt="$\sigma^{(a)}$"> and <img src="doc_AMIGO_pseudoData_eq13945930614502994741.png" alt="$\sigma^{(b)}$"> vectors are  given by the user through inputs.exps.std_deva and inputs.exps.std_devb  for each observable.</li></ul></div><p>The variance of the pseudo data is: <img src="doc_AMIGO_pseudoData_eq16605426366806026539.png" alt="$Var(\hat y_{ij}) = {y_j^2(t_i)e^{(\sigma_{j}^{(b)})^2}(e^{(\sigma_{j}^{(b)})^2}-1) + (\sigma_j^{(a)})^2}$"></p><p>Useful if we know that (1) the multiplicative measurement error is dominated in the measurement, which is proportional to the signal for large signals and constant for small signals. Equivalently, the signal to noise ratio is constant for large signals, but decreases as the signal reach a low limit.</p><p>
+<hr align="left" width="820">
+</p><pre class="codeinput">inputs.exps.data_type = <span class="string">'pseudo'</span>;
+inputs.exps.noise_type = <span class="string">'log_normal_background'</span>;
+inputs.exps.std_deva{1} = [10 5 5];
+inputs.exps.std_devb{1} = [0.05 0.03 0.07];
+<span class="comment">% extend the time horizon to see small values for obsA</span>
+inputs.exps.t_f{1}=20;
+inputs.exps.t_in{1} = 0;
+inputs.exps.n_s{1}=21;
+inputs.exps.t_s{1}=0:20;
+<span class="comment">% change the initial condition to see large changes</span>
+inputs.exps.exp_y0{1}   = [1e3 0 0];
+inputs.model.par=[k1*0.8 k2];
+
+results = AMIGO_SData(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 21-Dec-2015
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 100000
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		904.486  0.598342  -7.61224
+		914.87  75.0685  50.9097
+		756.271  96.8418  127.922
+		673.357  91.8334  199.235
+		672.328  80.829  279.465
+		570.949  71.1119  333.509
+		464.895  65.6208  474.137
+		461.18  54.6822  480.2
+		393.651  63.2131  568.623
+		338.717  39.6763  623.191
+		344.496  42.0075  663.267
+		293.658  34.6845  665.054
+		227.435  33.1717  728.019
+		216.329  36.5899  741.111
+		187.293  29.4313  869.467
+		179.82  18.5773  759.129
+		128.076  12.4787  819.405
+		104.467  21.4728  921.463
+		109.303  11.3629  896.536
+		94.5899  10.4853  817.202
+		102.765  14.8034  948.094
+		];
+
+
+		Error data 1: 
+		Standard deviation: 10%
+		Standard deviation: 3%
+		Standard deviation: 7%
+		inputs.exps.error_data{1}=[
+		51.0822  5  5
+		45.5407  5.43275  5.81657
+		40.6543  5.66644  10.0789
+		36.3518  5.65986  15.8432
+		32.5704  5.57153  21.6168
+		29.2543  5.47028  26.9735
+		26.3542  5.37864  31.8152
+		23.8262  5.30188  36.1466
+		21.6309  5.23951  40.0048
+		19.7331  5.18953  43.4346
+		18.101  5.14974  46.4808
+		16.7055  5.11817  49.1849
+		15.5198  5.09319  51.5846
+		14.5192  5.07346  53.7139
+		13.6808  5.05787  55.603
+		12.9833  5.04558  57.279
+		12.4071  5.03589  58.7658
+		11.9343  5.02825  60.0846
+		11.5488  5.02224  61.2545
+		11.2363  5.0175  62.2922
+		10.9842  5.01377  63.2127
+		];
+
+
+
+--------------------------------------------------------------------------
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\ABCreaction\SData_ABCreac_run1\strreport_ABCreac_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_pseudoData_06.png" alt=""> <p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> REMARKS on Multiplicative error with detection limit</dl>
+<dl> </dl>
+<ul>
+<li> Error bars scale with the signal value but they are constant for low signal values.</li>
+<li> Error bars are different for the different observables and sampling
+times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+<li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+</ul>
+</dl>
+</div>
+</p><h2>See also<a name="30"></a></h2><div><ul><li><a href="doc_AMIGO_ivpsol.html">IVP solvers</a></li><li><a href="doc_AMIGO_Input.html">How to input a problem in AMIGO2</a></li></ul></div><h2>References<a name="32"></a></h2><p>Model was taken from:</p><p>Locke J.C.W; A.J. Millar; M.S. Turner. Modelling genetic networks with noisy and varied experimental data: the circadian clock in Arabidopsis thaliana. J Theor Biol,2005, 234:383-393.</p><p>Error data descriptions are based on:</p><p>Walter E and Prozato L. Identification of parametric models from experimental data. Springer, 1997.</p><p class="footer"><br>
+      Published with MATLAB&reg; 8.6<br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+% <html>
+% <p style="color:#007946;font-size:18pt;text-align:right; margin-top: 1px; margin-bottom: 1px;"> <b>Pseudo-data generation with AMIGO_SData</b></p>
+% <hr align="left" width="820">
+% </html>
+
+%% Description of AMIGO_SData with pseudo-data options
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> AMIGO_SData can be used to generate pseudo- experimental data for the purpose of numerical tests.  </dl> 
+% <dl> </dl>
+% <dl> The following error models are admited:
+% <ul>
+% <li> Homocesdastic Gaussian additive error with constant standard deviation throughout time</li>
+% <li> Heteroscedastic Gaussian additive error (different standard deviation value for each data)</li>
+% <li> Heteroscedastic Gaussian additive error scaling with the signal </li>
+% <li> Gaussian additive error scaling with the signal with detection limit
+% </li>
+% <li> Multiplicative error </li>
+% <li> Multiplicative error with detection limit</li>
+% </ul>
+% </dl>
+% <dl> Remark that inputs.model.par and inputs.exps.exp_y0{iexp} are used
+% (by default) for simulation. Alternatively, inputs.PEsol.global_theta_guess, .global_theta_y0_guess, .local_theta_guess{iexp} and
+% .local_theta_y0_guess{iexp}, will be used, if supplied by the user. </dl>
+% </div>
+% </html>
+%
+
+
+
+%%
+
+
+%% Example
+
+
+% TITLE: Linear reaction A->B->C
+%
+% A is transformed into B, and B into C 
+% following 1st order reactions. 
+
+clear;    
+%============================
+% RESULTS PATHS RELATED DATA
+%============================
+inputs.pathd.results_folder='ABCreaction'; % Folder to keep results (in Results\)
+inputs.pathd.short_name='ABCreac';         % Label to identify figures and reports
+inputs.pathd.run_overwrite='on';
+
+%============================
+% MODEL DEFINITION
+%============================           
+inputs.model.input_model_type='charmodelC'; % Model type- C                           
+inputs.model.n_st=3;                        % Number of states    
+inputs.model.n_par=2;                       % Number of parameters                             
+inputs.model.n_stimulus=0;                  % Number of stimuli                                                            
+inputs.model.st_names=char('cA','cB','cC'); % Names of the states                                        
+inputs.model.par_names=char('k1','k2');     % Names of the parameters                    
+inputs.model.eqns=...                       % Model equations        
+            char('dcA = -k1*cA',...  
+                 'dcB =  k1*cA - k2*cB',...
+                 'dcC =  k2*cB');
+
+% Note that SData use the inputs.model.par for simulation and to generate data
+k1=0.15; k2=1;
+inputs.model.par=[k1 k2];                  % Nominal parameter values
+
+%============================
+% EXPERIMENTS RELATED INFO
+%============================  
+inputs.exps.n_exp       = 1;                % Number of experiments
+inputs.exps.exp_y0{1}   = [10 0 0];         % Initial conditions
+inputs.exps.n_obs{1}=3;                     % Number of observables
+inputs.exps.obs{1}= 'states';               % All states are measured                       
+inputs.exps.t_f{1}=10;                      % Experiment duration         
+inputs.exps.n_s{1}=11;                      % Number of sampling times          
+inputs.exps.t_s{1}=0:10;                    % Sampling times
+ 
+%==================================
+% NUMERICAL METHDOS RELATED DATA
+%==================================
+
+% SIMULATION                             % Default for charmodel C: CVODES
+
+ 
+
+    %%
+    % More information regarding the inputs used in this example can be
+    % found <sdataex2.html here>. 
+    AMIGO_htmldoc_inputs(inputs,fullfile(pwd,'html','sdataex2.html'));  
+%====================================================
+% CALL AMIGO2 from COMMAND LINE - LEAST SQUARES CASE
+%====================================================
+% It is recommended to keep all inputs in a 'problem_file'.m.
+% AMIGO2 PE task can be called as follows:
+% AMIGO_PE('problem_file','run_ident') or AMIGO_ContourP(inputs)
+
+
+AMIGO_Prep(inputs);  
+
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+%% 1: Homoscedastic error for each observable
+%
+% Additive Gaussian measurement error model with constant standard deviation
+% $\hat y_j(t_i) = y_j(t_i) + \epsilon_{ij}$, 
+% where:
+%
+% * $y_j(t_i)$ is the simulated value at time $t_i$ of observable $y_j$
+% * $\epsilon_{ij}$ is a random variable: $\epsilon_{:,j} \sim N(0,\sigma^{(r)}_j\max(y_j(:))I_{N_t})$
+% * $\sigma^{(r)}$ is the _relative_ standard deviation given by the user through
+% inputs.exps.std_dev  for each observable separately.
+%
+% Useful if we approximately know the relative error (in %100) in the measurements.
+% Note that the maximum value of each observable is used to scale the _relative_ standard deviation.
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+
+inputs.exps.data_type = 'pseudo';
+inputs.exps.noise_type = 'homo_var';
+inputs.exps.std_dev{1} = [0.1 0.03 0.07];
+results = AMIGO_SData(inputs);
+
+
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> REMARKS on Homocesdastic Gaussian additive error with constant standard deviation throughout time  </dl> 
+% <dl> </dl>
+% <ul>
+% <li> Maximum measurement value for each observable is being used to compute relative error. This may induce large errors for lower signal values.</li>
+% <li> It is possible to forze positive pseudo-data by means of 'pseudo_pos' option.</li>
+% <li> Error bars have the same magnitude throughout time </li>
+% <li> Different observables result in different error magnitudes, thus
+% taking into account the effect of different measurement scales.
+% </li>
+% <li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+% </ul>
+% </dl>
+% </div>
+% </html>
+%
+
+
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+%% 2: Known heteroscedastic error 
+%
+% Additive Gaussian measurement error model with unique standard deviation for each
+% point:
+% $\hat y_j(t_i) = y_j(t_i) + \epsilon_{ij}$, 
+% where:
+%
+% * $y_j(t_i)$ is the simulated value at time $t_i$ of observable $y_j$
+% * $\epsilon_{ij}$ is a random variable: $\epsilon_{ij} \sim N(0,\sigma_{ij})$
+% * $\sigma_{ij}$ is the _absolut_ standard deviation given by the user through
+% inputs.exps.error_data  for each measurement point.
+%
+% Useful if we know the measurement accuracy in each timepoint.
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+inputs.exps.data_type = 'pseudo';
+inputs.exps.noise_type = 'hetero';
+inputs.exps.error_data{1} = ...
+    [1.0      0.01      0.01
+    0.9000    0.0500    0.0500
+    0.8056    0.2000    0.1000
+    0.7111    0.3500    0.1500
+    0.6167    0.5000    0.2000
+    0.5222    0.5000    0.2500
+    0.4278    0.5000    0.3000
+    0.3333    0.3875    0.3500
+    0.2389    0.2750    0.4000
+    0.1444    0.1625    0.4500
+    0.0500    0.0500    0.5000];
+    
+results = AMIGO_SData(inputs);
+
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> REMARKS on Known heteroscedastic error   </dl> 
+% <dl> </dl>
+% <ul>
+% <li> Error bars represent the values introduced by users.</li>
+% <li> Different accuracies can be defined for each timepoint in each observable.</li>
+% <li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+% </ul>
+% </dl>
+% </div>
+% </html>
+%
+
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+%% 3: Additive error scaling with the signal
+%
+% <html>
+% <a name="additive_scaling"> </a>
+% </html>
+% 
+% additive Gaussian measurement error model, the standard deviation of
+% which scales with the signal (constant signal to noise ratio).
+% $\hat y_j(t_i) = y_j(t_i) + y_j(t_i)\epsilon_{j}$, 
+% where:
+%
+% * $y_j(t_i)$ is the simulated value at time $t_i$ of observable $y_j$
+% * $\epsilon_{j}$ is a random variable: $\epsilon_{j} \sim N(0,\sigma_{j})$
+% * $\sigma_{j}$ vector is  given by the user through
+% inputs.exps.std_dev  for each observable.
+%
+% Useful if we know that (1) the measurement error is proportional to the
+% signal and (2) the proportionality factor.
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+inputs.exps.data_type = 'pseudo';
+inputs.exps.noise_type = 'hetero_proportional';
+inputs.exps.std_dev{1} = [0.1 0.03 0.07];
+
+results = AMIGO_SData(inputs);
+
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> REMARKS on Additive error scaling with the signal </dl> 
+% <dl> </dl>
+% <ul>
+% <li> Error bars scale with the signal value.</li>
+% <li> Error bars are different for the different observables and sampling
+% times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+% <li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+% </ul>
+% </dl>
+% </div>
+% </html>
+%
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+%% 4: Additive error scaling with the signal with detection limit
+%
+% <html>
+% <a name="additive_scaling_plus_const"> </a>
+% </html>
+% 
+% additive Gaussian measurement error model, the standard deviation of
+% which scales with the signal (constant signal to noise ratio). The model is extended to
+% low signals, where the error levels off.
+%
+% $\hat y_j(t_i) = y_j(t_i) + y_j(t_i)\epsilon_{j}+ \eta_j$ , 
+%
+% where:
+%
+% * $y_j(t_i)$ is the simulated value at time $t_i$ of observable $y_j$
+% * $\epsilon_{j}$ is a random variable: $\epsilon_{j} \sim N(0,\sigma^{(b)}_{j})$
+% * $\eta$ is the background noise variable $\eta_{j} \sim N(0,\sigma^{(a)}_{j})$ 
+% * $\sigma^{(a)}$ and $\sigma^{(b)}$ vectors are  given by the user through
+% inputs.exps.std_deva and inputs.exps.std_devb  for each observable.
+%
+%
+% The variance of the pseudo data is: $Var(\hat y_{ij}) = (y_j(t_i)\sigma_{j}^{(b)})^2 + (\sigma_j^{(a)})^2$
+%
+% Useful if we know that (1) the measurement error is proportional to the
+% signal for large signals and constant for small signals. Equivalently,
+% the signal to noise ratio is constant for large signals, but decreases as
+% the signal reach a low limit. 
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+inputs.exps.data_type = 'pseudo';
+inputs.exps.noise_type = 'hetero_lin';
+inputs.exps.std_deva{1} = [0.2 0.2 0.5];
+inputs.exps.std_devb{1} = [0.05 0.03 0.07];
+% extend the time horizon to see small values for obsA
+inputs.exps.t_f{1}=20;                               
+inputs.exps.t_in{1} = 0;
+inputs.exps.n_s{1}=21;                                
+inputs.exps.t_s{1}=0:20;
+
+
+
+results = AMIGO_SData(inputs);
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> REMARKS on Additive error scaling with the signal with detection limit </dl> 
+% <dl> </dl>
+% <ul>
+% <li> Error bars scale with the signal value but they are constant for low signal values.</li>
+% <li> Error bars are different for the different observables and sampling
+% times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+% <li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+% </ul>
+% </dl>
+% </div>
+% </html>
+%
+
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+%% 5: Multiplicative error 
+%
+% <html>
+% <a name="multiplicative"> </a>
+% </html>
+% 
+% multiplicative log-normal measurement error model, the standard deviation of
+% which scales with the signal (constant signal to noise ratio). 
+%
+% $\hat y_j(t_i) =  y_j(t_i)e^{\epsilon_{j}}$ , 
+%
+% where:
+%
+% * $y_j(t_i)$ is the simulated value at time $t_i$ of observable $y_j$
+% * $\epsilon_{j}$ is a random variable: $\epsilon_{j} \sim N(0,\sigma^{(b)}_{j})$
+% * $\sigma^{(b)}$ vectors are  given by the user through
+% inputs.exps.std_deva and inputs.exps.std_devb  for each observable.
+%
+% The variance of the pseudo data is: 
+% $Var(\hat y_{ij}) = y_j^2(t_i)e^{(\sigma_{j}^{(b)})^2}(e^{(\sigma_{j}^{(b)})^2}-1)$
+%
+% Useful if we know that (1) the multiplicative measurement error is dominated in the measurement, which is proportional to the
+% signal for large signals.
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+inputs.exps.data_type = 'pseudo';
+inputs.exps.noise_type = 'log_normal';
+inputs.exps.std_devb{1} = [0.05 0.03 0.07];
+% extend the time horizon to see small values for obsA
+inputs.exps.t_f{1}=20;                               
+inputs.exps.t_in{1} = 0;
+inputs.exps.n_s{1}=21;                                
+inputs.exps.t_s{1}=0:20;
+% change the initial condition to see large changes
+inputs.exps.exp_y0{1}   = [1e3 0 0];
+inputs.model.par=[k1*0.8 k2]; 
+
+results = AMIGO_SData(inputs);
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> REMARKS on Multiplicative error </dl> 
+% <dl> </dl>
+% <ul>
+% <li> Error bars scale with the signal value.</li>
+% <li> Error bars are different for the different observables and sampling
+% times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+% <li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+% </ul>
+% </dl>
+% </div>
+% </html>
+%
+
+
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+%% 6: Multiplicative error with detection limit
+%
+% <html>
+% <a name="multiplicative_plus_constant"> </a>
+% </html>
+% 
+% multiplicative log-normal measurement error model, the standard deviation of
+% which scales with the signal (constant signal to noise ratio). The model is extended to
+% low signals, where the error levels off.
+%
+% $\hat y_j(t_i) =  y_j(t_i)e^{\epsilon_{j}}+ \eta_j$ , 
+%
+% where:
+%
+% * $y_j(t_i)$ is the simulated value at time $t_i$ of observable $y_j$
+% * $\epsilon_{j}$ is a random variable: $\epsilon_{j} \sim N(0,\sigma^{(b)}_{j})$
+% * $\eta$ is the background noise variable $\eta_{j} \sim N(0,\sigma^{(a)}_{j})$ 
+% * $\sigma^{(a)}$ and $\sigma^{(b)}$ vectors are  given by the user through
+% inputs.exps.std_deva and inputs.exps.std_devb  for each observable.
+%
+% The variance of the pseudo data is: $Var(\hat y_{ij}) = {y_j^2(t_i)e^{(\sigma_{j}^{(b)})^2}(e^{(\sigma_{j}^{(b)})^2}-1) + (\sigma_j^{(a)})^2}$
+%
+% Useful if we know that (1) the multiplicative measurement error is dominated in the measurement, which is proportional to the
+% signal for large signals and constant for small signals. Equivalently,
+% the signal to noise ratio is constant for large signals, but decreases as
+% the signal reach a low limit. 
+%%
+% <html>
+% <hr align="left" width="820">
+% </html>
+
+inputs.exps.data_type = 'pseudo';
+inputs.exps.noise_type = 'log_normal_background';
+inputs.exps.std_deva{1} = [10 5 5];
+inputs.exps.std_devb{1} = [0.05 0.03 0.07];
+% extend the time horizon to see small values for obsA
+inputs.exps.t_f{1}=20;                               
+inputs.exps.t_in{1} = 0;
+inputs.exps.n_s{1}=21;                                
+inputs.exps.t_s{1}=0:20;
+% change the initial condition to see large changes
+inputs.exps.exp_y0{1}   = [1e3 0 0];
+inputs.model.par=[k1*0.8 k2]; 
+
+results = AMIGO_SData(inputs);
+
+
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> REMARKS on Multiplicative error with detection limit</dl> 
+% <dl> </dl>
+% <ul>
+% <li> Error bars scale with the signal value but they are constant for low signal values.</li>
+% <li> Error bars are different for the different observables and sampling
+% times, thus the effect of different measurement units and different accuracy for different observables can be handled. </li>
+% <li> Experimental data may not be included in the error bar. Bars represent 1 standard deviation, which contains the true value with 0.68 probability.</li>
+% </ul>
+% </dl>
+% </div>
+% </html>
+%
+
+
+%% See also
+
+    %%
+    % * <doc_AMIGO_ivpsol.html IVP solvers>
+    % * <doc_AMIGO_Input.html How to input a problem in AMIGO2>
+
+
+%% References
+
+%%
+% Model was taken from:
+%
+% Locke J.C.W; A.J. Millar; M.S. Turner. Modelling genetic networks with noisy and varied 
+% experimental data: the circadian clock in Arabidopsis thaliana. J Theor Biol,2005, 234:383-393. 
+%
+% Error data descriptions are based on:
+%
+% Walter E and Prozato L. Identification of parametric models from
+% experimental data. Springer, 1997.
+
+
+
+##### SOURCE END #####
+--></body></html>

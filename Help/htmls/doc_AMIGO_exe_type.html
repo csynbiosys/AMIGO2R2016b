@@ -1,0 +1,1300 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Enhanced execution modes with C</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-12-07"><meta name="DC.source" content="doc_AMIGO_exe_type.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #007946; 
+  font-size: x-large;
+}
+
+h1b {
+  color: #255DA5; 
+  font-size: x-large;
+}
+
+li {
+  color: #255DA5; /* bullet color */
+}
+li {
+  color: #255DA5; /* bullet color */
+}
+li span {
+  color: black; /* text color */
+}
+
+h2 {
+  color: #255DA5;
+  font-size: large;
+}
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 820px;
+  /* Hack for IE6 */
+  width: auto !important; width: 820px;
+  text-align: justify;
+}
+
+pre.codeinput {
+  background: #E9F4F6;
+  padding: 10px;
+  width: 820px;
+  text-align: justify;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+   width: 820px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Enhanced execution modes with C</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#3">See also</a></li><li><a href="#5">Example</a></li><li><a href="#8">Standard</a></li><li><a href="#9">costMex</a></li><li><a href="#14">fullMex</a></li><li><a href="#15">fullC</a></li></ul></div><p>AMIGO2 allows for four different C based enhnaced modes. Model type will be set to 'charmodelC' while inputs.model.exe_type can be set to:</p><div><ul><li>'standard': to generate the model in C and the corresponding mex to solve it with CVODES. NOTE that this exe mode is applicable to all AMIGO2 tasks.</li><li>'costMex': evaluates the model plus the least squares (LSQ) function using C. Only for AMIGO_PE, with any of the available optimizers.</li><li>'fullMex': generates mex that solves the parameter estimation problem with dn2fb</li><li>'fullC': generates a gcc command to solve parameter estimation problems from Windows or Linux command-line</li></ul></div><h2>See also<a name="3"></a></h2><div><ul><li><a href="doc_AMIGO_Input.html">How to input a problem in AMIGO2</a></li><li><a href="doc_AMIGO_PE.html">How to solve parameter estimation problems</a></li></ul></div><h2>Example<a name="5"></a></h2><p>TITLE: The circadian clock in Arabidopsis thaliana</p><p><img vspace="5" hspace="5" src="circadian.png" alt=""> </p><pre class="codeinput"><span class="comment">%============================</span>
+<span class="comment">% RESULTS PATHS RELATED DATA</span>
+<span class="comment">%============================</span>
+inputs.pathd.results_folder=<span class="string">'arabidopsis'</span>;  <span class="comment">% Folder to keep results (in Results\)</span>
+inputs.pathd.short_name=<span class="string">'arabidopsis'</span>;      <span class="comment">% Label to identify figures and reports</span>
+
+
+<span class="comment">%============================</span>
+<span class="comment">% MODEL DEFINITION</span>
+<span class="comment">%============================</span>
+inputs.model.n_st=7;                        <span class="comment">% Number of states</span>
+inputs.model.n_par=27;                      <span class="comment">% Number of parameters</span>
+inputs.model.n_stimulus=1;                  <span class="comment">% Number of stimuli</span>
+inputs.model.st_names=char(<span class="string">'CL_m'</span>,<span class="string">'CL_c'</span>,<span class="keyword">...</span><span class="comment">% Names of the states</span>
+    <span class="string">'CL_n'</span>,<span class="string">'CT_m'</span>,<span class="string">'CT_c'</span>,<span class="string">'CT_n'</span>,<span class="string">'CP_n'</span>);
+
+inputs.model.par_names=char(<span class="string">'n1'</span>,<span class="string">'n2'</span>,<span class="string">'g1'</span>,<span class="string">'g2'</span>,<span class="string">'m1'</span>,<span class="string">'m2'</span>,<span class="string">'m3'</span>,<span class="string">'m4'</span>,<span class="string">'m5'</span>,<span class="string">'m6'</span>,<span class="keyword">...</span>
+    <span class="string">'m7'</span>,<span class="string">'k1'</span>,<span class="string">'k2'</span>,<span class="string">'k3'</span>,<span class="string">'k4'</span>,<span class="string">'k5'</span>,<span class="string">'k6'</span>,<span class="string">'k7'</span>,<span class="string">'p1'</span>,<span class="string">'p2'</span>,<span class="keyword">...</span>
+    <span class="string">'p3'</span>,<span class="string">'r1'</span>,<span class="string">'r2'</span>,<span class="string">'r3'</span>,<span class="string">'r4'</span>,<span class="string">'q1'</span>,<span class="string">'q2'</span>);    <span class="comment">% Names of the parameters</span>
+
+inputs.model.stimulus_names=char(<span class="string">'light'</span>);  <span class="comment">% Names of the stimuli</span>
+inputs.model.eqns=<span class="keyword">...</span><span class="comment">                       % Model equations</span>
+    char(<span class="string">'dCL_m=q1*CP_n*light+n1*CT_n/(g1+CT_n)-m1*CL_m/(k1+CL_m)'</span>,<span class="keyword">...</span>
+    <span class="string">'dCL_c=p1*CL_m-r1*CL_c+r2*CL_n-m2*CL_c/(k2+CL_c)'</span>,<span class="keyword">...</span>
+    <span class="string">'dCL_n=r1*CL_c-r2*CL_n-m3*CL_n/(k3+CL_n)'</span>,<span class="keyword">...</span>
+    <span class="string">'dCT_m=n2*g2^2/(g2^2+CL_n^2)-m4*CT_m/(k4+CT_m)'</span>,<span class="keyword">...</span>
+    <span class="string">'dCT_c=p2*CT_m-r3*CT_c+r4*CT_n-m5*CT_c/(k5+CT_c)'</span>,<span class="keyword">...</span>
+    <span class="string">'dCT_n=r3*CT_c-r4*CT_n-m6*CT_n/(k6+CT_n)'</span>,<span class="keyword">...</span>
+    <span class="string">'dCP_n=(1-light)*p3-m7*CP_n/(k7+CP_n)-q2*light*CP_n'</span>);
+</pre><p>IMPORTANT:</p><p>User may select any customised name but: n, t, u, y, ydot, par, tlast, told, pend and v which are reserved words</p><pre class="codeinput">inputs.model.par=[7.5038 0.6801 1.4992 3.0412 10.0982<span class="keyword">...</span><span class="comment"> % Nominal parameter</span>
+    1.9685 3.7511 2.3422 7.2482 1.8981 1.2 3.8045<span class="keyword">...</span><span class="comment">     % values</span>
+    5.3087 4.1946 2.5356 1.4420 4.8600 1.2 2.1994<span class="keyword">...</span>
+    9.4440 0.5 0.2817 0.7676 0.4364 7.3021 4.5703 1.0];
+
+<span class="comment">%============================================</span>
+<span class="comment">% EXPERIMENTAL SCHEME (SIMULATION CONDITIONS)</span>
+<span class="comment">%============================================</span>
+
+inputs.exps.n_exp=2;                          <span class="comment">% Number of experiments</span>
+
+<span class="comment">% EXPERIMENT 1</span>
+
+inputs.exps.exp_y0{1}=[0 0 0 0 0 0 0];        <span class="comment">% Initial conditions</span>
+inputs.exps.t_f{1}=120;                       <span class="comment">% Experiments duration</span>
+
+inputs.exps.n_obs{1}=2;                       <span class="comment">% Number of observables</span>
+inputs.exps.obs_names{1}=char(<span class="string">'Lum'</span>,<span class="string">'mRNAa'</span>); <span class="comment">% Names of the observables</span>
+inputs.exps.obs{1}=char(<span class="string">'Lum=CL_m'</span>,<span class="keyword">...</span><span class="comment">        % Observation function</span>
+                          <span class="string">'mRNAa=CT_m'</span>);
+
+inputs.exps.u_interp{1}=<span class="string">'sustained'</span>;          <span class="comment">% Stimuli definition for experiment 1</span>
+inputs.exps.t_con{1}=[0 120];                 <span class="comment">% Input swithching times including:</span>
+                                              <span class="comment">% Initial and final time</span>
+inputs.exps.u{1}=1;                           <span class="comment">% Values of the inputs for exp 1</span>
+inputs.exps.n_s{1}=15;                        <span class="comment">% Number of sampling times</span>
+
+
+<span class="comment">% EXPERIMENT 2</span>
+
+inputs.exps.exp_y0{2}=[0 0 0 0 0 0 0];        <span class="comment">% Initial conditions</span>
+inputs.exps.t_f{2}=120;                       <span class="comment">% Experiments duration</span>
+
+inputs.exps.n_obs{2}=2;                       <span class="comment">% Number of observables</span>
+inputs.exps.obs_names{2}=char(<span class="string">'Lum'</span>,<span class="string">'mRNAa'</span>); <span class="comment">% Names of the observables</span>
+inputs.exps.obs{2}=char(<span class="string">'Lum=CL_m'</span>,<span class="keyword">...</span><span class="comment">        % Observation function</span>
+                          <span class="string">'mRNAa=CT_m'</span>);
+
+inputs.exps.u_interp{2}=<span class="string">'pulse-down'</span>;         <span class="comment">% Stimuli definition for experiment 2</span>
+inputs.exps.n_pulses{2}=5;                    <span class="comment">% Number of pulses</span>
+inputs.exps.u_min{2}=0;                       <span class="comment">% Minimum and maximum of inputs</span>
+inputs.exps.u_max{2}=1;
+inputs.exps.t_con{2}=0:12:120;                <span class="comment">% Input switching times</span>
+inputs.exps.n_s{2}=25;                        <span class="comment">% Number of sampling times</span>
+
+
+<span class="comment">%==================================</span>
+<span class="comment">% EXPERIMENTAL DATA RELATED INFO</span>
+<span class="comment">%==================================</span>
+
+<span class="comment">% EXPERIMENT 1</span>
+inputs.exps.data_type=<span class="string">'real'</span>;                 <span class="comment">% Type of data</span>
+
+inputs.exps.exp_data{1}=[                     <span class="comment">% Matrix of ns{iexp} x n_obs{iexp}</span>
+    0.037642  0.059832                        <span class="comment">% with experimental data</span>
+    1.398618  0.983442
+    1.606762  0.433379
+    0.265345  0.628819
+    1.417288  0.858973
+    1.381613  0.496637
+    0.504584  0.717923
+    1.240249  0.862584
+    1.180193  0.634508
+    0.775945  0.679648
+    1.514514  0.735783
+    0.904653  0.593644
+    0.753736  0.759013
+    1.389312  0.678665
+    0.833228  0.574736
+    ];
+
+
+<span class="comment">% EXPERIMENT 2</span>
+
+inputs.exps.exp_data{2}=[
+    0.146016  0.018152
+    0.831813  1.002499
+    1.874870  0.816779
+    1.927580  0.544111
+    1.139536  0.354476
+    0.876938  0.520424
+    0.559600  0.802322
+    1.273548  0.939453
+    1.696482  0.687495
+    1.065496  0.577896
+    0.847460  0.524076
+    0.517520  0.738095
+    1.162232  0.826737
+    1.421504  0.779833
+    1.340639  0.550493
+    0.563822  0.515605
+    0.402755  0.714877
+    1.029856  0.871118
+    1.490741  0.840174
+    1.580873  0.692047
+    0.696610  0.459481
+    0.141546  0.646803
+    0.804194  0.925806
+    1.622378  0.824711
+    1.525194  0.537398
+    ];
+
+<span class="comment">%==================================</span>
+<span class="comment">% PARAMETER ESTIMATION RELATED INFO</span>
+<span class="comment">%==================================</span>
+
+inputs.PEsol.id_global_theta=<span class="keyword">...</span>
+   char(<span class="string">'n1'</span>,<span class="string">'n2'</span>,<span class="string">'m1'</span>,<span class="string">'m4'</span>,<span class="string">'m6'</span>,<span class="string">'m7'</span>,<span class="string">'k1'</span>,<span class="string">'k4'</span>,<span class="string">'p3'</span>);  <span class="comment">% List of parameters to be estimated</span>
+                                                        <span class="comment">% Option</span>
+inputs.PEsol.global_theta_guess=[<span class="keyword">...</span><span class="comment">                    % Initial guess for the parameter values</span>
+    6.09794                                             <span class="comment">% Options: mean(max,min) if not provided</span>
+    0.710144
+    8.92735
+    2.38504
+    2.11024
+    1.29912
+    4.32079
+    2.45277
+    0.493076]';
+inputs.PEsol.global_theta_max=[ 60.9794                 <span class="comment">% Upper bound for the parameter values</span>
+    7.1014
+   89.2735
+   23.8504
+   21.1024
+   12.9912
+   43.2079
+   24.5277
+    4.9308]';
+inputs.PEsol.global_theta_min=[ 0.0610                  <span class="comment">% Lower bound for the parameter values</span>
+    0.0071
+    0.0893
+    0.0239
+    0.0211
+    0.0130
+    0.0432
+    0.0245
+    0.0049]';
+
+inputs.PEsol.id_local_theta_y0{1}=char(<span class="string">'CL_c'</span>,<span class="string">'CP_n'</span>);    <span class="comment">% List of initial conditions to be locally</span>
+inputs.PEsol.local_theta_y0_max{1}=[1 1];                 <span class="comment">% estimated i.e. they get different values for</span>
+inputs.PEsol.local_theta_y0_min{1}=[0 0];                 <span class="comment">% experiments 1 and 2</span>
+inputs.PEsol.local_theta_y0_guess{1}=[0.5 0.5];           <span class="comment">% Default: 'none'</span>
+
+inputs.PEsol.id_local_theta_y0{2}=char(<span class="string">'CL_c'</span>,<span class="string">'CP_n'</span>);
+inputs.PEsol.local_theta_y0_max{2}=[1 1];
+inputs.PEsol.local_theta_y0_min{2}=[0 0];
+inputs.PEsol.local_theta_y0_guess{2}=[0.5 0.5];
+
+<span class="comment">%====================================</span>
+<span class="comment">% PARAMETER ESTIMATION COST FUNCTION</span>
+<span class="comment">%====================================</span>
+
+inputs.PEsol.PEcost_type=<span class="string">'lsq'</span>;                           <span class="comment">% Least squares is the only possibility for</span>
+                                                          <span class="comment">% 'costMex', 'fullMex', 'fullC'</span>
+inputs.PEsol.lsq_type=<span class="string">'Q_I'</span>;                              <span class="comment">% Identity matrix is used to weight least</span>
+                                                          <span class="comment">% squares</span>
+</pre><h2>Standard<a name="8"></a></h2><pre class="codeinput">inputs.model.input_model_type=<span class="string">'charmodelC'</span>;               <span class="comment">% Model type must be 'charmodelC' to use C</span>
+inputs.model.exe_type=<span class="string">'standard'</span>;                         <span class="comment">% To generate model in C and solve it with</span>
+                                                          <span class="comment">% CVODES</span>
+
+<span class="comment">%================================</span>
+<span class="comment">% CALL AMIGO2 from COMMAND LINE</span>
+<span class="comment">%================================</span>
+
+CInputs=AMIGO_Prep(inputs);                               <span class="comment">% Generates model equations and mex for</span>
+                                                          <span class="comment">% CVODES</span>
+
+disp(CInputs.model.odes_file);
+disp([CInputs.pathd.problem_folder_path <span class="string">'\'</span> CInputs.ivpsol.ivpmex <span class="string">'.mexw32'</span>]);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 07-Dec-2015
+
+------&gt;Pre processing....this may take a few seconds.
+
+
+------&gt;Checking inputs....
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+------&gt; Generating C code ...
+
+
+------&gt; Mexing files....
+
+Building with 'MinGW64 Compiler (C)'.
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c: In function 'simulate_amigo_model':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c:330:16: warning: passing argument 1 of 'mexPrintf' from incompatible pointer type
+      mexPrintf(stderr,"\nSolver failed at flag = CVode(cvode_mem, tout, y, &amp;t, CV_TSTOP_RETURN);. . .\n");
+                ^
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\include\include_amigo/simulate_amigo_model.h:4:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c:1:
+C:\MATLAB_R2015b_64/extern/include/mex.h:202:27: note: expected 'const char *' but argument is of type 'struct FILE *'
+ LIBMWMEX_API_EXTERN_C int mexPrintf(
+                           ^
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_interface\interface_with_matlab.c: In function 'mexFunction':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_interface\interface_with_matlab.c:200:17: warning: assignment from incompatible pointer type
+    stats_struct = mxGetPr(plhs[5]);
+                 ^
+
+MEX completed successfully.
+
+
+------&gt;Files generated....
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\cvodesg_arabidopsis.mexw32
+</pre><h2>costMex<a name="9"></a></h2><pre class="codeinput">inputs.model.input_model_type=<span class="string">'charmodelC'</span>;              <span class="comment">% Model type must be 'charmodelC' to use C</span>
+inputs.model.exe_type=<span class="string">'costMex'</span>;                         <span class="comment">% To generate Least squares function in C</span>
+
+<span class="comment">%================================</span>
+<span class="comment">% CALL AMIGO2 from COMMAND LINE</span>
+<span class="comment">%================================</span>
+
+[inputs privstruct]=AMIGO_Prep(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 07-Dec-2015
+
+------&gt;Pre processing....this may take a few seconds.
+
+
+------&gt;Checking inputs....
+
+
+------&gt; WARNING message
+
+		 You have not provided the sampling times.
+ 		 Equidistant sampling will be assumed for experiment 1
+		 Note however that you may modify your input file by adding
+		 inputs.exps.t_s{iexp}
+
+
+------&gt; WARNING message
+
+		 You have not provided the sampling times.
+ 		 Equidistant sampling will be assumed for experiment 2
+		 Note however that you may modify your input file by adding
+		 inputs.exps.t_s{iexp}
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+------&gt; Generating C code ...
+
+str =
+
+mex  -DIMPORT -output "D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\costMex_arabidopsis" ...
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_nl2sol"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_mxInterface"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_cvodes"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_f2c"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_de"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_SRES"... 
+-L"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\lib_win64"... 
+-L"C:\MATLAB_R2015b_64\bin\win64"... 
+-lsharedAMIGO... 
+"D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c"... 
+"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c"... 
+
+
+Building with 'MinGW64 Compiler (C)'.
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/amigoRHS.h:1:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:1:
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:28:0: warning: "EXPORTIT" redefined
+   #define EXPORTIT __declspec(dllimport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:24:0: note: this is the location of the previous definition
+   #define EXPORTIT __declspec(dllexport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:98:0: warning: "CL_m" redefined
+ #define  CL_m (amigo_model-&gt;sim_results[0][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:12:0: note: this is the location of the previous definition
+ #define CL_m Ith(y,0)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:99:0: warning: "CL_c" redefined
+ #define  CL_c (amigo_model-&gt;sim_results[1][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:13:0: note: this is the location of the previous definition
+ #define CL_c Ith(y,1)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:100:0: warning: "CL_n" redefined
+ #define  CL_n (amigo_model-&gt;sim_results[2][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:14:0: note: this is the location of the previous definition
+ #define CL_n Ith(y,2)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:101:0: warning: "CT_m" redefined
+ #define  CT_m (amigo_model-&gt;sim_results[3][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:15:0: note: this is the location of the previous definition
+ #define CT_m Ith(y,3)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:102:0: warning: "CT_c" redefined
+ #define  CT_c (amigo_model-&gt;sim_results[4][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:16:0: note: this is the location of the previous definition
+ #define CT_c Ith(y,4)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:103:0: warning: "CT_n" redefined
+ #define  CT_n (amigo_model-&gt;sim_results[5][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:17:0: note: this is the location of the previous definition
+ #define CT_n Ith(y,5)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:104:0: warning: "CP_n" redefined
+ #define  CP_n (amigo_model-&gt;sim_results[6][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:18:0: note: this is the location of the previous definition
+ #define CP_n Ith(y,6)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:150:0: warning: "CL_m" redefined
+ #define  CL_m (amigo_model-&gt;sens_results[0][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:98:0: note: this is the location of the previous definition
+ #define  CL_m (amigo_model-&gt;sim_results[0][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:151:0: warning: "CL_c" redefined
+ #define  CL_c (amigo_model-&gt;sens_results[1][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:99:0: note: this is the location of the previous definition
+ #define  CL_c (amigo_model-&gt;sim_results[1][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:152:0: warning: "CL_n" redefined
+ #define  CL_n (amigo_model-&gt;sens_results[2][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:100:0: note: this is the location of the previous definition
+ #define  CL_n (amigo_model-&gt;sim_results[2][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:153:0: warning: "CT_m" redefined
+ #define  CT_m (amigo_model-&gt;sens_results[3][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:101:0: note: this is the location of the previous definition
+ #define  CT_m (amigo_model-&gt;sim_results[3][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:154:0: warning: "CT_c" redefined
+ #define  CT_c (amigo_model-&gt;sens_results[4][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:102:0: note: this is the location of the previous definition
+ #define  CT_c (amigo_model-&gt;sim_results[4][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:155:0: warning: "CT_n" redefined
+ #define  CT_n (amigo_model-&gt;sens_results[5][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:103:0: note: this is the location of the previous definition
+ #define  CT_n (amigo_model-&gt;sim_results[5][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:156:0: warning: "CP_n" redefined
+ #define  CP_n (amigo_model-&gt;sens_results[6][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:104:0: note: this is the location of the previous definition
+ #define  CP_n (amigo_model-&gt;sim_results[6][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c: In function 'amigoRHS_get_sens_OBS':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:171:0: warning: "Lum" redefined
+   #define  Lum   amigo_model-&gt;sens_obs[0][j][k] 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:130:0: note: this is the location of the previous definition
+   #define  Lum   amigo_model-&gt;obs_results[0][j] 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:172:0: warning: "mRNAa" redefined
+   #define  mRNAa amigo_model-&gt;sens_obs[1][j][k] 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:131:0: note: this is the location of the previous definition
+   #define  mRNAa amigo_model-&gt;obs_results[1][j] 
+ ^
+
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/amigoRHS.h:1:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c:2:
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:28:0: warning: "EXPORTIT" redefined
+   #define EXPORTIT __declspec(dllimport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:24:0: note: this is the location of the previous definition
+   #define EXPORTIT __declspec(dllexport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c: In function 'mexFunction':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c:22:89: warning: passing argument 8 of 'run_mexFunction' from incompatible pointer type
+  run_mexFunction(nlhs, plhs, nrhs,prhs, amigoRHS,amigoRHS_get_OBS,amigoRHS_get_sens_OBS,amigo_Y_at_tcon);
+                                                                                         ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c:7:16: note: expected 'void (*)(struct AMIGO_model,  realtype,  struct _generic_N_Vector *)' but argument is of type 'void (*)(void *, realtype,  struct _generic_N_Vector *)'
+  EXPORTIT void run_mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],int(*rhs)(realtype,N_Vector, N_Vector, void*),void(obs_func)(void*),void(obs_sens_func)(void*),void(change_y_func)(AMIGO_model,realtype,N_Vector));
+                ^
+
+MEX completed successfully.
+
+
+------&gt;Files generated....
+</pre><p>You can use the mexfile to evaluate the objetive function value.</p><pre class="codeinput">feval(inputs.model.mexfunction,<span class="string">'cost_LSQ'</span>);
+fprintf(1,<span class="string">'Objective function value=%e\n'</span>,outputs.f);
+</pre><pre class="codeoutput">Objective function value=4.490406e-01
+</pre><p>The mexfile is located in:</p><pre class="codeinput">disp(inputs.model.mexfile);
+</pre><pre class="codeoutput">D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\costMex_arabidopsis
+</pre><p>We can also compute the trajectories</p><pre class="codeinput">feval(inputs.model.mexfunction,<span class="string">'sim_CVODES'</span>);
+</pre><p>We can also compute sensitivities</p><pre class="codeinput">feval(inputs.model.mexfunction,<span class="string">'sens_FSA_CVODES'</span>);
+</pre><h2>fullMex<a name="14"></a></h2><pre class="codeinput">inputs.model.input_model_type=<span class="string">'charmodelC'</span>;              <span class="comment">% Model type must be 'charmodelC' to use C</span>
+inputs.model.exe_type=<span class="string">'fullMex'</span>;                         <span class="comment">% Generates mex to solve the parameter</span>
+                                                         <span class="comment">% estimation problem in C</span>
+inputs.nlpsol.nlpsolver=<span class="string">'local_dn2fb'</span>;                   <span class="comment">% Optimization solver - least squares solver</span>
+inputs.nlpsol.cvodes_gradient=1;                         <span class="comment">% To activate gradient evaluation</span>
+inputs.nlpsol.iterprint=0;                               <span class="comment">% To dissable printing</span>
+
+<span class="comment">%================================</span>
+<span class="comment">% CALL AMIGO2 from COMMAND LINE</span>
+<span class="comment">%================================</span>
+
+AMIGO_Prep(inputs);                                      <span class="comment">% Generates fullMex</span>
+AMIGO_PE(inputs);                                        <span class="comment">% Solves the parameter estimation problem</span>
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 07-Dec-2015
+
+------&gt;Pre processing....this may take a few seconds.
+
+
+------&gt;Checking inputs....
+------&gt; Generating C code ...
+
+str =
+
+mex  -DIMPORT -output "D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\costMex_arabidopsis" ...
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_nl2sol"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_mxInterface"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_cvodes"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_f2c"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_de"... 
+-I"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_SRES"... 
+-L"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\lib_win64"... 
+-L"C:\MATLAB_R2015b_64\bin\win64"... 
+-lsharedAMIGO... 
+"D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c"... 
+"D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c"... 
+
+
+Building with 'MinGW64 Compiler (C)'.
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/amigoRHS.h:1:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:1:
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:28:0: warning: "EXPORTIT" redefined
+   #define EXPORTIT __declspec(dllimport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:24:0: note: this is the location of the previous definition
+   #define EXPORTIT __declspec(dllexport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:98:0: warning: "CL_m" redefined
+ #define  CL_m (amigo_model-&gt;sim_results[0][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:12:0: note: this is the location of the previous definition
+ #define CL_m Ith(y,0)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:99:0: warning: "CL_c" redefined
+ #define  CL_c (amigo_model-&gt;sim_results[1][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:13:0: note: this is the location of the previous definition
+ #define CL_c Ith(y,1)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:100:0: warning: "CL_n" redefined
+ #define  CL_n (amigo_model-&gt;sim_results[2][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:14:0: note: this is the location of the previous definition
+ #define CL_n Ith(y,2)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:101:0: warning: "CT_m" redefined
+ #define  CT_m (amigo_model-&gt;sim_results[3][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:15:0: note: this is the location of the previous definition
+ #define CT_m Ith(y,3)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:102:0: warning: "CT_c" redefined
+ #define  CT_c (amigo_model-&gt;sim_results[4][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:16:0: note: this is the location of the previous definition
+ #define CT_c Ith(y,4)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:103:0: warning: "CT_n" redefined
+ #define  CT_n (amigo_model-&gt;sim_results[5][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:17:0: note: this is the location of the previous definition
+ #define CT_n Ith(y,5)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:104:0: warning: "CP_n" redefined
+ #define  CP_n (amigo_model-&gt;sim_results[6][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:18:0: note: this is the location of the previous definition
+ #define CP_n Ith(y,6)
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:150:0: warning: "CL_m" redefined
+ #define  CL_m (amigo_model-&gt;sens_results[0][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:98:0: note: this is the location of the previous definition
+ #define  CL_m (amigo_model-&gt;sim_results[0][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:151:0: warning: "CL_c" redefined
+ #define  CL_c (amigo_model-&gt;sens_results[1][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:99:0: note: this is the location of the previous definition
+ #define  CL_c (amigo_model-&gt;sim_results[1][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:152:0: warning: "CL_n" redefined
+ #define  CL_n (amigo_model-&gt;sens_results[2][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:100:0: note: this is the location of the previous definition
+ #define  CL_n (amigo_model-&gt;sim_results[2][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:153:0: warning: "CT_m" redefined
+ #define  CT_m (amigo_model-&gt;sens_results[3][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:101:0: note: this is the location of the previous definition
+ #define  CT_m (amigo_model-&gt;sim_results[3][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:154:0: warning: "CT_c" redefined
+ #define  CT_c (amigo_model-&gt;sens_results[4][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:102:0: note: this is the location of the previous definition
+ #define  CT_c (amigo_model-&gt;sim_results[4][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:155:0: warning: "CT_n" redefined
+ #define  CT_n (amigo_model-&gt;sens_results[5][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:103:0: note: this is the location of the previous definition
+ #define  CT_n (amigo_model-&gt;sim_results[5][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:156:0: warning: "CP_n" redefined
+ #define  CP_n (amigo_model-&gt;sens_results[6][j][k]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:104:0: note: this is the location of the previous definition
+ #define  CP_n (amigo_model-&gt;sim_results[6][j]) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c: In function 'amigoRHS_get_sens_OBS':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:171:0: warning: "Lum" redefined
+   #define  Lum   amigo_model-&gt;sens_obs[0][j][k] 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:130:0: note: this is the location of the previous definition
+   #define  Lum   amigo_model-&gt;obs_results[0][j] 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:172:0: warning: "mRNAa" redefined
+   #define  mRNAa amigo_model-&gt;sens_obs[1][j][k] 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c:131:0: note: this is the location of the previous definition
+   #define  mRNAa amigo_model-&gt;obs_results[1][j] 
+ ^
+
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/amigoRHS.h:1:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c:2:
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:28:0: warning: "EXPORTIT" redefined
+   #define EXPORTIT __declspec(dllimport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo/AMIGO_model.h:24:0: note: this is the location of the previous definition
+   #define EXPORTIT __declspec(dllexport) 
+ ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c: In function 'mexFunction':
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c:22:89: warning: passing argument 8 of 'run_mexFunction' from incompatible pointer type
+  run_mexFunction(nlhs, plhs, nrhs,prhs, amigoRHS,amigoRHS_get_OBS,amigoRHS_get_sens_OBS,amigo_Y_at_tcon);
+                                                                                         ^
+D:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\src\src_mxInterface\amigo_mexFunction.c:7:16: note: expected 'void (*)(struct AMIGO_model,  realtype,  struct _generic_N_Vector *)' but argument is of type 'void (*)(void *, realtype,  struct _generic_N_Vector *)'
+  EXPORTIT void run_mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[],int(*rhs)(realtype,N_Vector, N_Vector, void*),void(obs_func)(void*),void(obs_sens_func)(void*),void(change_y_func)(AMIGO_model,realtype,N_Vector));
+                ^
+
+MEX completed successfully.
+
+
+------&gt;Files generated....
+
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 07-Dec-2015
+
+------&gt;Checking inputs....
+
+*************************************************************************
+
+
+------&gt;IMPORTANT!!: Most of the optimization solvers have their own
+                    tunning parameters (options).
+                    Defaults have been assigned in the *NLPsolver*_options
+                    files. You may need to modify those settings for your
+                    particular problem, specially:
+                      - maximum number of function evaluations /iterations,
+                      - maximum computational time
+
+
+******************************************************************
+
+  Solving the NLP problem with
+
+------&gt; Computing Correlation Matrix for unknowns...Warning: Relative sensitivities are currently not being computed in costMex mode 
+Warning: Relative sensitivities are currently not being computed in costMex mode 
+
+
+------&gt; Warning message
+
+		 The Fisher Information Matrix is singular 
+		 The reduced Fisher Information Matrix is computed. 
+&lt;strong&gt;
+----------------------------------------------------------&lt;/strong&gt;&lt;strong&gt;
+------&gt; WARNING message
+&lt;/strong&gt;&lt;strong&gt;		The Fisher Information Matrix is nearly singular.
+&lt;/strong&gt;&lt;strong&gt;----------------------------------------------------------
+
+&lt;/strong&gt;&lt;strong&gt;
+----------------------------------------------------------&lt;/strong&gt;&lt;strong&gt;
+------&gt; WARNING message
+&lt;/strong&gt;&lt;strong&gt;		The Fisher Information Matrix is nearly singular.
+&lt;/strong&gt;&lt;strong&gt;----------------------------------------------------------
+
+&lt;/strong&gt;
+
+--------------------------------------------------------------------------
+		
+Experiment 1: 
+		inputs.exp_data{1}=[
+		0.037642  0.059832
+		1.39862  0.983442
+		1.60676  0.433379
+		0.265345  0.628819
+		1.41729  0.858973
+		1.38161  0.496637
+		0.504584  0.717923
+		1.24025  0.862584
+		1.18019  0.634508
+		0.775945  0.679648
+		1.51451  0.735783
+		0.904653  0.593644
+		0.753736  0.759013
+		1.38931  0.678665
+		0.833228  0.574736
+		];
+
+		
+Experiment 2: 
+		inputs.exp_data{2}=[
+		0.146016  0.018152
+		0.831813  1.0025
+		1.87487  0.816779
+		1.92758  0.544111
+		1.13954  0.354476
+		0.876938  0.520424
+		0.5596  0.802322
+		1.27355  0.939453
+		1.69648  0.687495
+		1.0655  0.577896
+		0.84746  0.524076
+		0.51752  0.738095
+		1.16223  0.826737
+		1.4215  0.779833
+		1.34064  0.550493
+		0.563822  0.515605
+		0.402755  0.714877
+		1.02986  0.871118
+		1.49074  0.840174
+		1.58087  0.692047
+		0.69661  0.459481
+		0.141546  0.646803
+		0.804194  0.925806
+		1.62238  0.824711
+		1.52519  0.537398
+		];
+
+
+
+---------------------------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Mean / Maximum value of the residuals in percentage (100*(data-model)/data):
+
+		Experiment 1 : 
+		 Observable 1 --&gt;  mean error: 12.728285 %	 max error: 100.000000 %
+		 Observable 2 --&gt;  mean error: 12.562006 %	 max error: 100.000000 %
+
+		Experiment 2 : 
+		 Observable 1 --&gt;  mean error: 16.844514 %	 max error: 138.165283 %
+		 Observable 2 --&gt;  mean error: 9.172370 %	 max error: 100.000000 %
+
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Maximum absolute value of the residuals (data-model):
+
+		Experiment 1 : 
+		 Observable 1 --&gt;  max residual: 0.194437 max data: 1.606762
+		 Observable 2 --&gt;  max residual: 0.114965 max data: 0.983442
+
+		Experiment 2 : 
+		 Observable 1 --&gt;  max residual: 0.195567 max data: 1.927580
+		 Observable 2 --&gt;  max residual: 0.116977 max data: 1.002499
+
+--------------------------------------------------------------------------	   
+
+&gt;&gt;&gt;&gt; Best objective function: 0.436108 
+	   
+
+&gt;&gt;&gt;&gt; Computational cost: 2.714417 s
+Warning: AMIGO_post_report_PE: Statistics about the simulation are not currently
+shown in fullMex execution mode. 
+
+
+&gt;&gt;&gt; Best values found and the corresponding asymptotic confidence intervals
+
+
+
+&gt;&gt;&gt; Estimated global parameters: 
+
+	n1 : 6.1742e+00  +-  6.2800e+00 (     102%); 
+	n2 : 6.7062e-01  +-  1.5751e-01 (    23.5%); 
+	m1 : 8.6645e+00  +-  7.9710e+00 (      92%); 
+	m4 : 2.2105e+00  +-  1.1728e+00 (    53.1%); 
+	m6 : 2.4001e+00  +-  2.5242e+00 (     105%); 
+	m7 : 1.5346e+00  +-  4.9129e+00 (     320%); 
+	k1 : 4.1898e+00  +-  3.2458e+00 (    77.5%); 
+	k4 : 2.3991e+00  +-  1.5656e+00 (    65.3%); 
+	p3 : 6.2664e-01  +-  2.1960e+00 (     350%); 
+
+
+&gt;&gt;&gt; Estimated local initial conditions: 
+
+	Experiment 1, CL_c : 1.0000e+00  +-  3.0557e+01 (3.06e+03%); (active bound) 
+	Experiment 1, CP_n : 9.3871e-01  +-  5.5182e-01 (5.88e+01%); 
+	Experiment 2, CL_c : 0.0000e+00  +-  1.5167e+01 (     Inf%); (active bound) 
+	Experiment 2, CP_n : 5.7511e-02  +-  2.5288e-01 (4.40e+02%); 
+
+
+&gt;&gt;&gt; Correlation matrix for the global unknowns:
+
+	 1.000000e+00	 -6.259802e-01	 8.635355e-01	 -4.010087e-01	 -7.038698e-01	 -8.986454e-01	 -5.529034e-01	 -1.283893e-01	 -8.672802e-01
+	 -6.259802e-01	 1.000000e+00	 -6.396121e-01	 3.780676e-01	 1.416295e-01	 5.263841e-01	 8.364330e-02	 -7.763032e-02	 5.072425e-01
+	 8.635355e-01	 -6.396121e-01	 1.000000e+00	 -7.441028e-01	 -5.551169e-01	 -8.153787e-01	 -6.306094e-02	 -4.879946e-01	 -7.907154e-01
+	 -4.010087e-01	 3.780676e-01	 -7.441028e-01	 1.000000e+00	 1.493471e-01	 4.973270e-01	 -4.077525e-01	 8.919318e-01	 4.968059e-01
+	 -7.038698e-01	 1.416295e-01	 -5.551169e-01	 1.493471e-01	 1.000000e+00	 6.672221e-01	 5.214371e-01	 1.241682e-01	 6.480148e-01
+	 -8.986454e-01	 5.263841e-01	 -8.153787e-01	 4.973270e-01	 6.672221e-01	 1.000000e+00	 4.467969e-01	 2.813638e-01	 9.976031e-01
+	 -5.529034e-01	 8.364330e-02	 -6.306094e-02	 -4.077525e-01	 5.214371e-01	 4.467969e-01	 1.000000e+00	 -4.742500e-01	 4.262840e-01
+	 -1.283893e-01	 -7.763032e-02	 -4.879946e-01	 8.919318e-01	 1.241682e-01	 2.813638e-01	 -4.742500e-01	 1.000000e+00	 2.902612e-01
+	 -8.672802e-01	 5.072425e-01	 -7.907154e-01	 4.968059e-01	 6.480148e-01	 9.976031e-01	 4.262840e-01	 2.902612e-01	 1.000000e+00
+
+
+&gt;&gt;&gt; Correlation matrix for the experiment 1
+
+	 1.000000e+00	 1.102131e-02	 8.772580e-01	 -5.480780e-02	 5.112771e-01	 5.160829e-01	 -9.128251e-01	 -5.530716e-02	 0.000000e+00	 -5.128815e-01	 5.161399e-01
+	 1.102131e-02	 1.000000e+00	 -4.466127e-02	 3.121834e-01	 4.145244e-01	 4.274620e-01	 -1.363689e-01	 -3.419357e-01	 0.000000e+00	 -4.147144e-01	 4.217822e-01
+	 8.772580e-01	 -4.466127e-02	 1.000000e+00	 -4.834268e-01	 5.157731e-01	 5.205610e-01	 -6.088054e-01	 -4.416978e-01	 0.000000e+00	 -5.170248e-01	 5.203209e-01
+	 -5.480780e-02	 3.121834e-01	 -4.834268e-01	 1.000000e+00	 -1.406697e-01	 -1.367838e-01	 -3.260847e-01	 7.850226e-01	 0.000000e+00	 1.402751e-01	 -1.383110e-01
+	 5.112771e-01	 4.145244e-01	 5.157731e-01	 -1.406697e-01	 1.000000e+00	 9.998028e-01	 -4.462828e-01	 -3.987880e-01	 0.000000e+00	 -9.999979e-01	 9.999195e-01
+	 5.160829e-01	 4.274620e-01	 5.205610e-01	 -1.367838e-01	 9.998028e-01	 1.000000e+00	 -4.511800e-01	 -4.033971e-01	 0.000000e+00	 -9.998231e-01	 9.999698e-01
+	 -9.128251e-01	 -1.363689e-01	 -6.088054e-01	 -3.260847e-01	 -4.462828e-01	 -4.511800e-01	 1.000000e+00	 -2.375162e-01	 0.000000e+00	 4.478862e-01	 -4.510347e-01
+	 -5.530716e-02	 -3.419357e-01	 -4.416978e-01	 7.850226e-01	 -3.987880e-01	 -4.033971e-01	 -2.375162e-01	 1.000000e+00	 0.000000e+00	 3.985392e-01	 -4.011929e-01
+	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00	 0.000000e+00
+	 -5.128815e-01	 -4.147144e-01	 -5.170248e-01	 1.402751e-01	 -9.999979e-01	 -9.998231e-01	 4.478862e-01	 3.985392e-01	 0.000000e+00	 1.000000e+00	 -9.999353e-01
+	 5.161399e-01	 4.217822e-01	 5.203209e-01	 -1.383110e-01	 9.999195e-01	 9.999698e-01	 -4.510347e-01	 -4.011929e-01	 0.000000e+00	 -9.999353e-01	 1.000000e+00
+
+
+&gt;&gt;&gt; Correlation matrix for the experiment 2
+
+	 1.000000e+00	 -1.330966e-01	 9.608493e-01	 1.341607e-01	 -5.171777e-01	 4.619245e-01	 -8.622732e-01	 2.459368e-01	 -9.165412e-01	 5.092425e-01	 -5.167725e-01
+	 -1.330966e-01	 1.000000e+00	 -2.029158e-01	 5.127941e-01	 -5.922083e-01	 6.259853e-01	 -1.261784e-01	 2.332855e-02	 2.239197e-01	 5.952717e-01	 -5.945543e-01
+	 9.608493e-01	 -2.029158e-01	 1.000000e+00	 -7.883964e-02	 -4.451983e-01	 3.878097e-01	 -6.920639e-01	 4.110462e-02	 -9.102100e-01	 4.373829e-01	 -4.438171e-01
+	 1.341607e-01	 5.127941e-01	 -7.883964e-02	 1.000000e+00	 -5.503537e-01	 5.738150e-01	 -5.088643e-01	 8.686590e-01	 1.106000e-01	 5.512672e-01	 -5.533932e-01
+	 -5.171777e-01	 -5.922083e-01	 -4.451983e-01	 -5.503537e-01	 1.000000e+00	 -9.968825e-01	 5.988624e-01	 -3.127686e-01	 3.760545e-01	 -9.999450e-01	 9.993474e-01
+	 4.619245e-01	 6.259853e-01	 3.878097e-01	 5.738150e-01	 -9.968825e-01	 1.000000e+00	 -5.604674e-01	 3.200198e-01	 -3.098595e-01	 9.974416e-01	 -9.977524e-01
+	 -8.622732e-01	 -1.261784e-01	 -6.920639e-01	 -5.088643e-01	 5.988624e-01	 -5.604674e-01	 1.000000e+00	 -5.255634e-01	 7.352541e-01	 -5.924668e-01	 6.001002e-01
+	 2.459368e-01	 2.332855e-02	 4.110462e-02	 8.686590e-01	 -3.127686e-01	 3.200198e-01	 -5.255634e-01	 1.000000e+00	 -1.004131e-02	 3.122100e-01	 -3.147648e-01
+	 -9.165412e-01	 2.239197e-01	 -9.102100e-01	 1.106000e-01	 3.760545e-01	 -3.098595e-01	 7.352541e-01	 -1.004131e-02	 1.000000e+00	 -3.681140e-01	 3.727414e-01
+	 5.092425e-01	 5.952717e-01	 4.373829e-01	 5.512672e-01	 -9.999450e-01	 9.974416e-01	 -5.924668e-01	 3.122100e-01	 -3.681140e-01	 1.000000e+00	 -9.993196e-01
+	 -5.167725e-01	 -5.945543e-01	 -4.438171e-01	 -5.533932e-01	 9.993474e-01	 -9.977524e-01	 6.001002e-01	 -3.147648e-01	 3.727414e-01	 -9.993196e-01	 1.000000e+00
+
+
+------&gt;Plotting results....
+
+Sorry, convergence curve plot is not available for local solvers, at the moment
+
+Warning: File 'objf_dn2fb.m' not found. 
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\PE_arabidopsis_local_dn2fb_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\PE_arabidopsis_local_dn2fb_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\PE_arabidopsis_local_dn2fb_run1\strreport_arabidopsis_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_exe_type_01.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_02.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_03.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_04.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_05.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_06.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_07.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_08.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_exe_type_09.png" alt=""> <h2>fullC<a name="15"></a></h2><pre class="codeinput">inputs.model.input_model_type=<span class="string">'charmodelC'</span>;              <span class="comment">% Model type must be 'charmodelC' to use C</span>
+inputs.model.exe_type=<span class="string">'fullC'</span>;                           <span class="comment">% Generates gcc command</span>
+inputs.nlpsol.nlpsolver=<span class="string">'local_dn2fb'</span>;                   <span class="comment">% Optimization solver - least squares solver</span>
+inputs.nlpsol.cvodes_gradient=1;                         <span class="comment">% To activate gradient evaluation</span>
+[inputs privstruct]=AMIGO_Prep(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [Oct 2015]      
+*********************************** 
+
+*Date: 07-Dec-2015
+
+------&gt;Pre processing....this may take a few seconds.
+
+
+------&gt;Checking inputs....
+------&gt; Generating C code ...
+
+
+------&gt;Files generated....
+</pre><p>The data will be necessary.</p><pre class="codeinput">save(<span class="string">'fullC_data'</span>,<span class="string">'inputs'</span>,<span class="string">'privstruct'</span>)
+</pre><p>We return a gcc command you can use in the windows or linux command-line</p><pre class="codeinput">disp(inputs.model.comp_fullC);
+
+res=regexp(inputs.model.comp_fullC,<span class="string">'\n*\n'</span>,<span class="string">'split'</span>);
+system(res{3});
+
+
+<span class="keyword">switch</span> computer
+
+    <span class="keyword">case</span> {<span class="string">'PCWIN'</span>,<span class="string">'PCWIN64'</span>}
+
+        system(<span class="string">'main fullC_data.mat save_fullC_data.mat sim_CVODES'</span>);
+
+    <span class="keyword">otherwise</span>
+
+        system(<span class="string">'./main fullC_data.mat save_fullC_data.mat sim_CVODES'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">/*
+To compile, use the following command:
+gcc -w  D:\AMIGO2_REPO_2014\AMIGO2R2016\Results\arabidopsis\amigoRHS.c -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_amigo -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_nl2sol -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_mxInterface -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_cvodes -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_f2c -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_de -ID:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\include\include_SRES -IC:\MATLAB_R2015b_64\extern\include -LD:\AMIGO2_REPO_2014\AMIGO2R2016\Kernel\libAMIGO\lib_win64 -LC:\MATLAB_R2015b_64\bin\win64 -lsharedAMIGO -lm -lmx -lmat -lmex -m64 -o main.exe
+Make sure that gcc is installed.
+*/
+Input arguments: 
+arg 1: fullC_data.mat 
+arg 2: save_fullC_data.mat 
+arg 3: sim_CVODES 
+</pre><p>The results are stored in save_fullC_data,mat</p><pre class="codeinput">load <span class="string">save_fullC_data</span>;
+figure;
+plot(outputs.simulation{1});
+
+
+<span class="comment">%AMIGO_htmldoc_inputs(inputs,fullfile(pwd,'html','extypeex1.html'));</span>
+clear;
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_exe_type_10.png" alt=""> <p class="footer"><br>
+      Published with MATLAB&reg; 8.6<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Enhanced execution modes with C
+
+%% 
+% AMIGO2 allows for four different C based enhnaced modes. Model type will
+% be set to 'charmodelC' while inputs.model.exe_type can be set to:
+%%
+% * 'standard': to generate the model in C and the corresponding mex to
+% solve it with CVODES. NOTE that this exe mode is applicable to all AMIGO2
+% tasks.
+% * 'costMex': evaluates the model plus the least squares (LSQ) function
+% using C. Only for AMIGO_PE, with any of the available optimizers.
+% * 'fullMex': generates mex that solves the parameter estimation problem with dn2fb
+% * 'fullC': generates a gcc command to solve parameter estimation problems from Windows or Linux command-line
+%
+
+%% See also
+
+    %%
+    % * <doc_AMIGO_Input.html How to input a problem in AMIGO2>
+    % * <doc_AMIGO_PE.html How to solve parameter estimation problems>
+
+
+%% Example
+% TITLE: The circadian clock in Arabidopsis thaliana
+%%
+%
+% <<circadian.png>>
+%
+   
+%============================
+% RESULTS PATHS RELATED DATA
+%============================
+inputs.pathd.results_folder='arabidopsis';  % Folder to keep results (in Results\) 
+inputs.pathd.short_name='arabidopsis';      % Label to identify figures and reports 
+
+
+%============================
+% MODEL DEFINITION    
+%============================           
+inputs.model.n_st=7;                        % Number of states                      
+inputs.model.n_par=27;                      % Number of parameters            
+inputs.model.n_stimulus=1;                  % Number of stimuli              
+inputs.model.st_names=char('CL_m','CL_c',...% Names of the states 
+    'CL_n','CT_m','CT_c','CT_n','CP_n');    
+
+inputs.model.par_names=char('n1','n2','g1','g2','m1','m2','m3','m4','m5','m6',...
+    'm7','k1','k2','k3','k4','k5','k6','k7','p1','p2',...
+    'p3','r1','r2','r3','r4','q1','q2');    % Names of the parameters         
+
+inputs.model.stimulus_names=char('light');  % Names of the stimuli             
+inputs.model.eqns=...                       % Model equations          
+    char('dCL_m=q1*CP_n*light+n1*CT_n/(g1+CT_n)-m1*CL_m/(k1+CL_m)',...
+    'dCL_c=p1*CL_m-r1*CL_c+r2*CL_n-m2*CL_c/(k2+CL_c)',...
+    'dCL_n=r1*CL_c-r2*CL_n-m3*CL_n/(k3+CL_n)',...
+    'dCT_m=n2*g2^2/(g2^2+CL_n^2)-m4*CT_m/(k4+CT_m)',...
+    'dCT_c=p2*CT_m-r3*CT_c+r4*CT_n-m5*CT_c/(k5+CT_c)',...
+    'dCT_n=r3*CT_c-r4*CT_n-m6*CT_n/(k6+CT_n)',...
+    'dCP_n=(1-light)*p3-m7*CP_n/(k7+CP_n)-q2*light*CP_n');
+
+    %% 
+    % IMPORTANT:
+    %
+    % User may select any customised name but: n, t, u, y, ydot, par, tlast,
+    % told, pend and v which are reserved words
+
+inputs.model.par=[7.5038 0.6801 1.4992 3.0412 10.0982... % Nominal parameter
+    1.9685 3.7511 2.3422 7.2482 1.8981 1.2 3.8045...     % values 
+    5.3087 4.1946 2.5356 1.4420 4.8600 1.2 2.1994...
+    9.4440 0.5 0.2817 0.7676 0.4364 7.3021 4.5703 1.0]; 
+
+%============================================
+% EXPERIMENTAL SCHEME (SIMULATION CONDITIONS)    
+%============================================
+
+inputs.exps.n_exp=2;                          % Number of experiments               
+ 
+% EXPERIMENT 1
+   
+inputs.exps.exp_y0{1}=[0 0 0 0 0 0 0];        % Initial conditions
+inputs.exps.t_f{1}=120;                       % Experiments duration     
+   
+inputs.exps.n_obs{1}=2;                       % Number of observables            
+inputs.exps.obs_names{1}=char('Lum','mRNAa'); % Names of the observables    
+inputs.exps.obs{1}=char('Lum=CL_m',...        % Observation function
+                          'mRNAa=CT_m');         
+   
+inputs.exps.u_interp{1}='sustained';          % Stimuli definition for experiment 1
+inputs.exps.t_con{1}=[0 120];                 % Input swithching times including: 
+                                              % Initial and final time             
+inputs.exps.u{1}=1;                           % Values of the inputs for exp 1            
+inputs.exps.n_s{1}=15;                        % Number of sampling times
+
+
+% EXPERIMENT 2
+
+inputs.exps.exp_y0{2}=[0 0 0 0 0 0 0];        % Initial conditions
+inputs.exps.t_f{2}=120;                       % Experiments duration     
+   
+inputs.exps.n_obs{2}=2;                       % Number of observables            
+inputs.exps.obs_names{2}=char('Lum','mRNAa'); % Names of the observables    
+inputs.exps.obs{2}=char('Lum=CL_m',...        % Observation function
+                          'mRNAa=CT_m');  
+
+inputs.exps.u_interp{2}='pulse-down';         % Stimuli definition for experiment 2              
+inputs.exps.n_pulses{2}=5;                    % Number of pulses              
+inputs.exps.u_min{2}=0;                       % Minimum and maximum of inputs
+inputs.exps.u_max{2}=1;        
+inputs.exps.t_con{2}=0:12:120;                % Input switching times          
+inputs.exps.n_s{2}=25;                        % Number of sampling times
+
+  
+%==================================
+% EXPERIMENTAL DATA RELATED INFO
+%==================================
+                             
+% EXPERIMENT 1
+inputs.exps.data_type='real';                 % Type of data                                  
+
+inputs.exps.exp_data{1}=[                     % Matrix of ns{iexp} x n_obs{iexp}         
+    0.037642  0.059832                        % with experimental data         
+    1.398618  0.983442
+    1.606762  0.433379
+    0.265345  0.628819
+    1.417288  0.858973
+    1.381613  0.496637
+    0.504584  0.717923
+    1.240249  0.862584
+    1.180193  0.634508
+    0.775945  0.679648
+    1.514514  0.735783
+    0.904653  0.593644
+    0.753736  0.759013
+    1.389312  0.678665
+    0.833228  0.574736
+    ];
+
+
+% EXPERIMENT 2
+
+inputs.exps.exp_data{2}=[
+    0.146016  0.018152
+    0.831813  1.002499
+    1.874870  0.816779
+    1.927580  0.544111
+    1.139536  0.354476
+    0.876938  0.520424
+    0.559600  0.802322
+    1.273548  0.939453
+    1.696482  0.687495
+    1.065496  0.577896
+    0.847460  0.524076
+    0.517520  0.738095
+    1.162232  0.826737
+    1.421504  0.779833
+    1.340639  0.550493
+    0.563822  0.515605
+    0.402755  0.714877
+    1.029856  0.871118
+    1.490741  0.840174
+    1.580873  0.692047
+    0.696610  0.459481
+    0.141546  0.646803
+    0.804194  0.925806
+    1.622378  0.824711
+    1.525194  0.537398
+    ];
+
+%==================================
+% PARAMETER ESTIMATION RELATED INFO
+%==================================
+
+inputs.PEsol.id_global_theta=...
+   char('n1','n2','m1','m4','m6','m7','k1','k4','p3');  % List of parameters to be estimated
+                                                        % Option
+inputs.PEsol.global_theta_guess=[...                    % Initial guess for the parameter values
+    6.09794                                             % Options: mean(max,min) if not provided
+    0.710144
+    8.92735
+    2.38504
+    2.11024
+    1.29912
+    4.32079
+    2.45277
+    0.493076]';
+inputs.PEsol.global_theta_max=[ 60.9794                 % Upper bound for the parameter values
+    7.1014
+   89.2735
+   23.8504
+   21.1024
+   12.9912
+   43.2079
+   24.5277
+    4.9308]';
+inputs.PEsol.global_theta_min=[ 0.0610                  % Lower bound for the parameter values
+    0.0071
+    0.0893
+    0.0239
+    0.0211
+    0.0130
+    0.0432
+    0.0245
+    0.0049]';
+
+inputs.PEsol.id_local_theta_y0{1}=char('CL_c','CP_n');    % List of initial conditions to be locally 
+inputs.PEsol.local_theta_y0_max{1}=[1 1];                 % estimated i.e. they get different values for
+inputs.PEsol.local_theta_y0_min{1}=[0 0];                 % experiments 1 and 2
+inputs.PEsol.local_theta_y0_guess{1}=[0.5 0.5];           % Default: 'none'
+
+inputs.PEsol.id_local_theta_y0{2}=char('CL_c','CP_n');
+inputs.PEsol.local_theta_y0_max{2}=[1 1];
+inputs.PEsol.local_theta_y0_min{2}=[0 0];
+inputs.PEsol.local_theta_y0_guess{2}=[0.5 0.5];
+
+%====================================
+% PARAMETER ESTIMATION COST FUNCTION
+%====================================
+
+inputs.PEsol.PEcost_type='lsq';                           % Least squares is the only possibility for 
+                                                          % 'costMex', 'fullMex', 'fullC' 
+inputs.PEsol.lsq_type='Q_I';                              % Identity matrix is used to weight least 
+                                                          % squares
+
+
+%% Standard
+
+inputs.model.input_model_type='charmodelC';               % Model type must be 'charmodelC' to use C
+inputs.model.exe_type='standard';                         % To generate model in C and solve it with 
+                                                          % CVODES
+
+%================================
+% CALL AMIGO2 from COMMAND LINE    
+%================================
+
+CInputs=AMIGO_Prep(inputs);                               % Generates model equations and mex for 
+                                                          % CVODES
+
+disp(CInputs.model.odes_file);
+disp([CInputs.pathd.problem_folder_path '\' CInputs.ivpsol.ivpmex '.mexw32']);
+
+%% costMex
+
+inputs.model.input_model_type='charmodelC';              % Model type must be 'charmodelC' to use C      
+inputs.model.exe_type='costMex';                         % To generate Least squares function in C
+
+%================================
+% CALL AMIGO2 from COMMAND LINE    
+%================================
+
+[inputs privstruct]=AMIGO_Prep(inputs);
+
+    %%
+    % You can use the mexfile to evaluate the objetive function value.
+
+feval(inputs.model.mexfunction,'cost_LSQ');
+fprintf(1,'Objective function value=%e\n',outputs.f);
+
+    %%
+    % The mexfile is located in:
+
+disp(inputs.model.mexfile);
+
+    %%
+    % We can also compute the trajectories
+
+feval(inputs.model.mexfunction,'sim_CVODES');
+
+    %%
+    % We can also compute sensitivities
+
+feval(inputs.model.mexfunction,'sens_FSA_CVODES');
+
+
+    %% fullMex
+
+inputs.model.input_model_type='charmodelC';              % Model type must be 'charmodelC' to use C
+inputs.model.exe_type='fullMex';                         % Generates mex to solve the parameter 
+                                                         % estimation problem in C
+inputs.nlpsol.nlpsolver='local_dn2fb';                   % Optimization solver - least squares solver
+inputs.nlpsol.cvodes_gradient=1;                         % To activate gradient evaluation
+inputs.nlpsol.iterprint=0;                               % To dissable printing
+
+%================================
+% CALL AMIGO2 from COMMAND LINE    
+%================================
+
+AMIGO_Prep(inputs);                                      % Generates fullMex 
+AMIGO_PE(inputs);                                        % Solves the parameter estimation problem
+
+
+
+    %% fullC
+
+inputs.model.input_model_type='charmodelC';              % Model type must be 'charmodelC' to use C
+inputs.model.exe_type='fullC';                           % Generates gcc command
+inputs.nlpsol.nlpsolver='local_dn2fb';                   % Optimization solver - least squares solver
+inputs.nlpsol.cvodes_gradient=1;                         % To activate gradient evaluation
+[inputs privstruct]=AMIGO_Prep(inputs);
+
+      %%
+    % The data will be necessary.
+    
+save('fullC_data','inputs','privstruct')
+
+    %%
+    % We return a gcc command you can use in the windows or linux
+    % command-line
+   
+disp(inputs.model.comp_fullC);
+
+res=regexp(inputs.model.comp_fullC,'\n*\n','split');
+system(res{3});
+
+
+switch computer
+    
+    case {'PCWIN','PCWIN64'}
+        
+        system('main fullC_data.mat save_fullC_data.mat sim_CVODES');
+        
+    otherwise
+        
+        system('./main fullC_data.mat save_fullC_data.mat sim_CVODES');
+end
+
+    %%
+    % The results are stored in save_fullC_data,mat
+ 
+load save_fullC_data;
+figure;
+plot(outputs.simulation{1});
+
+   
+%AMIGO_htmldoc_inputs(inputs,fullfile(pwd,'html','extypeex1.html'));     
+clear;
+
+
+##### SOURCE END #####
+--></body></html>
