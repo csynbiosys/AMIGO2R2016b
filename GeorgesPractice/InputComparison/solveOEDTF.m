@@ -1,4 +1,4 @@
-function [cost,designs,curve_time,curve_cost,rngSeed]=solveOEDTF...
+function [cost,designs,curve_time,curve_cost,rngSeed,results]=solveOEDTF...
     (theta_min,theta_max,numSteps,numLoops,global_theta_guess,F)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % In silico experiment OID script
@@ -118,10 +118,10 @@ for i=1:numLoops
     
     % OPTIMIZATION
     inputs.nlpsol.global_solver='de';                                             % Differential evolution
-    %inputs.nlpsol.nlpsolver='de';
+    inputs.nlpsol.nlpsolver='de';
     inputs.nlpsol.local_solver='fminsearch';
     inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    inputs.nlpsol.DE.itermax = round((10e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
+    inputs.nlpsol.DE.itermax = round((50e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
     %inputs.nlpsol.DE.itermax = round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
     inputs.nlpsol.DE.cvarmax = 1e-5;                                        % cvarmax: maximum variance for a population at convergence
     inputs.nlpsol.DE.F = F;                                               % F: DE-stepsize [0,2]
@@ -139,7 +139,7 @@ for i=1:numLoops
     %                9 --> DE/best/2/bin
     %               else DE/rand/2/bin
     inputs.nlpsol.DE.refresh=2;  % intermediate output will be produced after "refresh" iterations. No intermediate output will be produced if refresh is < 1
-    inputs.plotd.plotlevel='noplot';
+    %inputs.plotd.plotlevel='noplot';
     
     inputs.pathd.results_folder = results_folder;
     inputs.pathd.short_name     = short_name;

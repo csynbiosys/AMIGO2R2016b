@@ -21,9 +21,13 @@ conv_curve_cost=cost;
 results=cost;
 
 rng shuffle;
-rngSeeds=num2cell(round(rand(numExperiments,1)*1e8));
+rngSeeds=num2cell(round(rand(numExperiments,1)*1e9));
+
+dbstop if error;
+
 % use parfor if the parallel pool has been created.
 if (isempty(gcp('nocreate')))
+    %pctRunOnAll warning('off', 'all');
     for epcc_exps=1:numExperiments
         [results{epcc_exps},cost{epcc_exps},designs{epcc_exps},...
             conv_curve_time{epcc_exps},conv_curve_cost{epcc_exps}]...

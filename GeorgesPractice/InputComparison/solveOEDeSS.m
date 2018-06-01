@@ -127,7 +127,7 @@ for i=1:numLoops
     inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
     inputs.nlpsol.eSS.local.nl2sol.maxfeval =     500;     % max number of function evaluation
     inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
-    inputs.plotd.plotlevel='noplot';
+    %inputs.plotd.plotlevel='noplot';
     
     inputs.pathd.results_folder = results_folder;                        
     inputs.pathd.short_name     = short_name;

@@ -19,15 +19,15 @@ designs=cost;
 conv_curve_time=cost;
 conv_curve_cost=cost;
 rngSeeds=cost;
+result=cost;
+
+warning('off');
 
 % use parfor if the parallel pool has been created.
-delete(gcp('nocreate'));
-parpool('local',4);
-pctRunOnAll warning('off', 'all');
-parfor epcc_exps=1:numExperiments
+for epcc_exps=1:numExperiments
     [cost{epcc_exps},designs{epcc_exps},...
         conv_curve_time{epcc_exps},conv_curve_cost{epcc_exps},...
-        rngSeeds{epcc_exps}]=solveOEDTF...
+        rngSeeds{epcc_exps},result{epcc_exps}]=solveOEDTF...
         (theta_min,theta_max,numSteps,numLoops,LHS_guess(epcc_exps,:),F);
 end
 
@@ -37,6 +37,7 @@ fullresult.conv_curve_time=conv_curve_time;
 fullresult.conv_curve_cost=conv_curve_cost;
 fullresult.rngSeeds=cell2mat(rngSeeds);
 fullresult.theta_guesses=LHS_guess;
+fullresult.result=result;
 
 % try
 %     plot(fullresult.conv_curve_time',fullresult.conv_curve_cost');

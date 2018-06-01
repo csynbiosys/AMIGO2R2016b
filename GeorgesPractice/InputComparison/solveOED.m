@@ -114,23 +114,27 @@ for i=1:numLoops
     inputs.ivpsol.atol=1.0D-8;
     
     % OPTIMIZATION
+    
+    inputs.nlpsol.nlpsolver='de';
     inputs.nlpsol.global_solver='de';                                             % Differential evolution
-    %inputs.nlpsol.nlpsolver='de';
     %inputs.nlpsol.local_solver='eSS';
-    inputs.nlpsol.local_solver='lsqnonlin';
+    inputs.nlpsol.local_solver='fminsearch';
     inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    inputs.nlpsol.DE.itermax = round((800e4)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    inputs.nlpsol.DE.timemax = round((800e4)/inputs.nlpsol.DE.NP); 
+    inputs.nlpsol.DE.itermax = round((50e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
+    inputs.nlpsol.DE.timemax = round((50e3)/inputs.nlpsol.DE.NP); 
     %inputs.nlpsol.DE.itermax = round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    inputs.nlpsol.DE.cvarmax = 1e-5;                                        % cvarmax: maximum variance for a population at convergence
-    inputs.nlpsol.DE.F = 0.5;                                               % F: DE-stepsize [0,2]
-    inputs.nlpsol.DE.CR = 0.25;                                              % CR: crossover probability constant [0,1]
+    inputs.nlpsol.DE.cvarmax = 1e-5;  % cvarmax: maximum variance for a population at convergence
+    inputs.nlpsol.DE.var=inputs.nlpsol.DE.cvarmax;
+    inputs.nlpsol.DE.F = 0.45;                                               % F: DE-stepsize [0,2]
+    inputs.nlpsol.DE.CR = 0.1;                                              % CR: crossover probability constant [0,1]
     inputs.nlpsol.DE.strategy =6;
+    inputs.nlpsol.local.maxeval = 600*100;
+    inputs.nlpsol.local.maxtime = 600;
 
 %    
-    inputs.nlpsol.eSS.local.nl2sol.maxiter  =    600*666;     % max number of iteration
-    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     600;     % max number of function evaluation
-    inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
+%     inputs.nlpsol.eSS.local.nl2sol.maxiter  =    600*666;     % max number of iteration
+%     inputs.nlpsol.eSS.local.nl2sol.maxfeval =     600;     % max number of function evaluation
+%     inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
     
     
     % strategy
@@ -145,7 +149,7 @@ for i=1:numLoops
     %                9 --> DE/best/2/bin
     %               else DE/rand/2/bin
     inputs.nlpsol.DE.refresh=2;  % intermediate output will be produced after "refresh" iterations. No intermediate output will be produced if refresh is < 1
-    inputs.plotd.plotlevel='noplot';
+    inputs.plotd.plotlevel='full';
     
     inputs.pathd.results_folder = results_folder;
     inputs.pathd.short_name     = short_name;
