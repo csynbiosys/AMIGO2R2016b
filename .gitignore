@@ -50,3 +50,5 @@ Results/
 *.asv
 GeorgesPractice/0*
 GeorgesPractice/Copy_of_*
+*.c
+*.mexw64

@@ -1,19 +1,14 @@
-load('lastresulteSS2.mat');
+load('allresultseSS.mat');
 
 
-solution=zeros(12,3);
-cost=zeros(12,1);
-dist=zeros(12,1);
-for ind=1:12
-    tempResult=result.results{ind};
-    solution(ind,:)=tempResult.nlpsol.vbest;
-        cost(ind)=tempResult.nlpsol.fbest;
-    dist(ind)=dist2Best(solution(ind,:));
-    %ne=[repelem(ne,2),2e4];
-    %ne=ne(2:end);
-    %cost=repelem(cost,2);
-   % plot(ne,log(cost));
-    
+solution=zeros(30,3);
+cost=zeros(30,1);
+dist=zeros(30,1);
+figure();
+for ind=1:30
+    this=allresults.results{ind}.nlpsol;
+    hold on;
+     plot(this.neval,this.f);
 end
 
 

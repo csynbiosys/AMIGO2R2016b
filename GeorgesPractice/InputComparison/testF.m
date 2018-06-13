@@ -1,8 +1,3 @@
-F=[0.1,0.4,0.5,0.7];
-results=cell(size(F));
+results = OEDlhseSS(15,30,1);
 
-for i=1:length(F)
-    results{i}=OEDlhsTF(3,5,1,F(i));
-end
-
-save('allresuls01.mat','results');
+save('allresulsess1530.mat','results');

@@ -19,6 +19,7 @@ rngSeeds=results;
 
 % use parfor if the parallel pool has been created.
 if (isempty(gcp('nocreate')))
+    warning('off')
     for epcc_exps=1:numExperiments
         [results{epcc_exps},rngSeeds{epcc_exps}]=solveOEDeSS...
             (theta_min,theta_max,numSteps,numLoops,LHS_guess(epcc_exps,:));

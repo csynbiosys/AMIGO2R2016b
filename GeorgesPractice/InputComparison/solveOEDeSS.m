@@ -119,8 +119,8 @@ for i=1:numLoops
     % OPTIMIZATION
     oidDuration=600;
     inputs.nlpsol.nlpsolver='eSS';
-    inputs.nlpsol.eSS.maxeval = 666*oidDuration;
-    inputs.nlpsol.eSS.maxtime = oidDuration;
+    inputs.nlpsol.eSS.maxeval = 5e4*5;
+    inputs.nlpsol.eSS.maxtime = 6e3*5;
     inputs.nlpsol.eSS.local.solver = 'fminsearch'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used). 
     inputs.nlpsol.eSS.local.finish = 'fmincon';%fmincon';
                                                        
