@@ -93,7 +93,7 @@ for i=1:numLoops
     % OED of the input
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment: 'stepf' steps of constant duration
-    inputs.exps.n_steps{iexp}=numSteps;         % Number of steps in the input
+    inputs.exps.n_steps{iexp}=numSteps/numLoops;         % Number of steps in the input
     inputs.exps.t_con{iexp}=linspace(0,duration,inputs.exps.n_steps{iexp}+1);            % Switching times
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});    % Lower boundary for the input value
     inputs.exps.u_max{iexp}=1000*ones(1,inputs.exps.n_steps{iexp}); % Upper boundary for the input value
@@ -123,9 +123,9 @@ for i=1:numLoops
     % OPTIMIZATION
     %oidDuration=600;
     inputs.nlpsol.nlpsolver='eSS';
-    inputs.nlpsol.eSS.maxeval = 5e4;
+    inputs.nlpsol.eSS.maxeval = 5e4*5;
     inputs.nlpsol.eSS.maxtime = 6e3*5;
-    inputs.nlpsol.eSS.local.solver = 'fminsearch'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
+    inputs.nlpsol.eSS.local.solver = 'fmincon'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
     inputs.nlpsol.eSS.local.finish = 'fmincon';%fmincon';
     
     inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
