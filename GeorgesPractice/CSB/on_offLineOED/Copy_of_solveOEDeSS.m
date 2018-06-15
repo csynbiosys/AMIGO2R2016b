@@ -1,5 +1,5 @@
-function [results,cost,designs,curve_time,curve_cost]=solveOED...
-    (theta_min,theta_max,numSteps,numLoops,global_theta_guess,rngSeed)
+function [results,rngSeed]=solveOEDeSS...
+    (theta_min,theta_max,numSteps,numLoops,global_theta_guess)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % In silico experiment OID script
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -14,7 +14,9 @@ totalDuration = 50*60;
 % In our case, all parameters are identifiable.
 param_including_vector = [true,true,true,true,true,true,true,true];
 
-rng(rngSeed);
+rng shuffle;
+rngSeed = rng;
+rngSeed = rngSeed.Seed;
 results_folder = strcat('InduciblePromoter',datestr(now,'yyyy-mm-dd-HHMMSS'));
 short_name     = strcat('IndProm');
 
@@ -31,35 +33,40 @@ AMIGO_Prep(inputs);
 
 % Fixed parts of the experiment
 duration = totalDuration/numLoops;   % Duration of each loop (in our case the number is 1)
-stepDuration = duration/numSteps;% Duration of each step (minutes). Note that the value passed to the function exceeds the response time, quantified in 80 mins for MPLac,r
+%stepDuration = duration/numSteps;% Duration of each step (minutes). Note that the value passed to the function exceeds the response time, quantified in 80 mins for MPLac,r
+
+if (numLoops~=1)
+    results=cell(numLoops,1);
+end
+
+oid_y0 = [InduciblePromoter_steady_state(global_theta_guess,0),0];                        % Add the state variable required for the constraint
 
 for i=1:numLoops
-    %Compute the steady state considering the initial theta guess and 0 IPTG
-    y0 = InduciblePromoter_steady_state(global_theta_guess,0);
     
     % Need to determine the starting state of the next part of the
     % experiment we wish to design the input for. If there are multiple loops,
     % We get this state by simulating the model using the current best theta
     % for the duration for which we have designed input.
-    if exps.n_exp == 0
-        oid_y0 = [y0 0];                        % Add the state variable required for the constraint
-        best_global_theta = global_theta_guess;
-    else
-        % Simulate the experiment without noise to find end state
-        clear inputs;
-        inputs.model = model;
-        inputs.model.par = best_global_theta;
-        inputs.exps = exps;
-        
-        inputs.plotd.plotlevel='noplot';
-        inputs.pathd.results_folder = results_folder;
-        inputs.pathd.short_name     = short_name;
-        inputs.pathd.runident       = strcat('sim-',int2str(i));
-        
-        sim = AMIGO_SData(inputs);
-        
-        oid_y0 = [sim.sim.states{1}(end,:)];
-    end
+%     if (exps.n_exp == 0)
+%         %Compute the steady state considering the initial theta guess and 0 IPTG
+%         oid_y0 = [InduciblePromoter_steady_state(global_theta_guess,0),0];                        % Add the state variable required for the constraint
+%         best_global_theta = global_theta_guess;
+%     else
+%         % Simulate the experiment without noise to find end state
+%         clear inputs;
+%         inputs.model = model;
+%         inputs.model.par = best_global_theta;
+%         inputs.exps = exps;
+%         
+%         inputs.plotd.plotlevel='noplot';
+%         inputs.pathd.results_folder = results_folder;
+%         inputs.pathd.short_name     = short_name;
+%         inputs.pathd.runident       = strcat('sim-',int2str(i));
+%         
+%         sim = AMIGO_SData(inputs);
+%         
+%         oid_y0 = [sim.sim.states{1}(end,:) 0];
+%     end
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Optimal experiment design
@@ -86,8 +93,8 @@ for i=1:numLoops
     % OED of the input
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment: 'stepf' steps of constant duration
-    inputs.exps.n_steps{iexp}=round(duration/stepDuration);         % Number of steps in the input
-    inputs.exps.t_con{iexp}=0:stepDuration:(i*duration);            % Switching times
+    inputs.exps.n_steps{iexp}=numSteps/numLoops;         % Number of steps in the input
+    inputs.exps.t_con{iexp}=linspace(0,duration,inputs.exps.n_steps{iexp}+1);            % Switching times
     inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});    % Lower boundary for the input value
     inputs.exps.u_max{iexp}=1000*ones(1,inputs.exps.n_steps{iexp}); % Upper boundary for the input value
     
@@ -97,7 +104,7 @@ for i=1:numLoops
     inputs.PEsol.global_theta_min=theta_min(param_including_vector);  % Minimum allowed values for the parameters
     
     inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default)
-    inputs.exps.std_dev{iexp}=[0.05];
+    inputs.exps.std_dev{iexp}=0.05;
     inputs.OEDsol.OEDcost_type='Dopt';
     
     % final time constraint
@@ -114,56 +121,28 @@ for i=1:numLoops
     inputs.ivpsol.atol=1.0D-8;
     
     % OPTIMIZATION
+    %oidDuration=600;
+    inputs.nlpsol.nlpsolver='eSS';
+    inputs.nlpsol.eSS.maxeval = 5e4*5;
+    inputs.nlpsol.eSS.maxtime = 6e3*5;
+    inputs.nlpsol.eSS.local.solver = 'fmincon'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
+    inputs.nlpsol.eSS.local.finish = 'fmincon';%fmincon';
     
-    inputs.nlpsol.nlpsolver='de';
-    inputs.nlpsol.global_solver='de';                                             % Differential evolution
-    %inputs.nlpsol.local_solver='eSS';
-    inputs.nlpsol.local_solver='fminsearch';
-    inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    inputs.nlpsol.DE.itermax = round((50e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    %inputs.nlpsol.DE.timemax = round((50e3)/inputs.nlpsol.DE.NP); 
-    %inputs.nlpsol.DE.itermax = round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    inputs.nlpsol.DE.cvarmax = 1e-5;  % cvarmax: maximum variance for a population at convergence
-    inputs.nlpsol.DE.var=inputs.nlpsol.DE.cvarmax;
-    inputs.nlpsol.DE.F = 0.7;                                               % F: DE-stepsize [0,2]
-    inputs.nlpsol.DE.CR = 0.5;                                              % CR: crossover probability constant [0,1]
-    inputs.nlpsol.DE.strategy =6;
-    inputs.nlpsol.local.maxeval = 600*100;
-    inputs.nlpsol.local.maxtime = 600;
-
-%    
-%     inputs.nlpsol.eSS.local.nl2sol.maxiter  =    600*666;     % max number of iteration
-%     inputs.nlpsol.eSS.local.nl2sol.maxfeval =     600;     % max number of function evaluation
-%     inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
-    
-    
-    % strategy
-    %                1 --> DE/best/1/exp
-    %                2 --> DE/rand/1/exp
-    %                3 --> DE/rand-to-best/1/exp
-    %                4 --> DE/best/2/exp
-    %                5 --> DE/rand/2/exp
-    %                6 --> DE/best/1/bin
-    %                7 --> DE/rand/1/bin
-    %                8 --> DE/rand-to-best/1/bin
-    %                9 --> DE/best/2/bin
-    %               else DE/rand/2/bin
-    inputs.nlpsol.DE.refresh=2;  % intermediate output will be produced after "refresh" iterations. No intermediate output will be produced if refresh is < 1
-    inputs.plotd.plotlevel='full';
+    inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
+    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     500;     % max number of function evaluation
+    inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
+    inputs.plotd.plotlevel='noplot';
     
     inputs.pathd.results_folder = results_folder;
     inputs.pathd.short_name     = short_name;
     inputs.pathd.runident       = strcat('oed-',int2str(i));
     
-    results = AMIGO_OED(inputs);
-    cost=results.nlpsol.fbest;
-    designs=results.nlpsol.vbest;
-    try
-        curve_time=cell2mat(results.nlpsol.conv_curve(:,1))';
-        curve_cost=cell2mat(results.nlpsol.conv_curve(:,2))';
-    catch
-        curve_time=results.nlpsol.conv_curve(1)';
-        curve_cost=results.nlpsol.conv_curve(2)';
+    if (numLoops~=1)
+        results{i}=AMIGO_OED(inputs);
+        oid_y0 = [results{i}.sim.states{1}(end,1:(end-1)),0];
+    else
+        results = AMIGO_OED(inputs);
     end
+    
 end
 end

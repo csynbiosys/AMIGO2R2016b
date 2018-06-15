@@ -1,4 +1,4 @@
-function [out]=fit_to_InduciblePromoter_Optimised(epccOutputResultFileNameBase,epccNumLoops,stepd,epcc_exps,global_theta_guess)
+function [out]=fit_to_InduciblePromoter_OptimisedeSS(epccOutputResultFileNameBase,epccNumLoops,stepd,epcc_exps,global_theta_guess)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % In silico experiment OID script - runs PE, OED, mock experiment
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,14 +31,14 @@ InduciblePromoter_load_model_optimised;
 % We start with no experiments
 exps.n_exp=0;
 
+
+% Defining boundaries for the parameters (taken from scientific literature)
+global_theta_max = [0.4950,0.4950,4.9,10,0.23,6.8067,0.2449,0.0217];       % Maximum allowed values for the parameters
+global_theta_min = [3.88e-5,3.88e-2,0.5,2,7.7e-3,0.2433,5.98e-5,0.012];    % Minimum allowed values for the parameters
 %giving the theta guess here...
 global_theta_guess = [0.0164186333380725 0.291556643109224 1.71763487775568 5.14394334860864 0.229999999999978 6.63776658557266 0.00575139649497780 0.0216999999961899];
 
-% Defining boundaries for the parameters (taken from scientific literature)
-global_theta_min = [3.88e-05,0.388,1,4,0.0277,0.1,0.0023,0.0077,1e-03];
-global_theta_max = [0.3,0.495,3,7,0.23,1,0.03,0.0231,0.1];
-
-%global_theta_guess = global_theta_guess';
+global_theta_guess = global_theta_guess';
 
 % Specify the parameters to be calibrated.
 % The selection depends on the identifiability analysis preceding the
@@ -61,130 +61,95 @@ numLoops = epccNumLoops;             % Number of OID loops
 duration = totalDuration/numLoops;   % Duration of each loop (in our case the number is 1)
 stepDuration = stepd;                % Duration of each step (minutes). Note that the value passed to the function exceeds the response time, quantified in 80 mins for MPLac,r
 
+% strucure containing the default setting of the sub-experiment to opitmise
 %Compute the steady state considering the initial theta guess and 0 IPTG
-y0 = InduciblePromoter_steady_state(global_theta_guess,0);
+inputsOED.model = model;
+
+% Add new experiment that is to be designed
+inputsOED.exps.n_exp = 1;                      % Number of experiments                                     % Index of the experiment
+inputsOED.exps.exp_type{1}='od';                                % Specify the type of experiment: 'od' optimally designed
+inputsOED.exps.n_obs{1}=1;                                      % Number of observables in the experiment
+inputsOED.exps.obs_names{1}=char('Fluorescence');               % Name of the observables in the experiment
+inputsOED.exps.obs{1}=char('Fluorescence = Cit_fluo');          % Observation function
+
+y0=InduciblePromoter_steady_state(global_theta_guess,0);
+% Fixed parts of the experiment
+inputsOED.exps.exp_y0{1}=[y0,0];                                % Initial conditions
+inputsOED.exps.t_f{1}=duration;                                 % Duration of the experiment (minutes)
+inputsOED.exps.n_s{1}=duration/5+1;                             % Number of sampling times - sample every 5 min
+
+% OED of the input
+inputsOED.exps.u_type{1}='od';
+inputsOED.exps.u_interp{1}='stepf';                             % Stimuli definition for experiment: 'stepf' steps of constant duration
+inputsOED.exps.n_steps{1}=round(duration/stepDuration);         % Number of steps in the input
+inputsOED.exps.t_con{1}=0:stepDuration:(duration);            % Switching times
+inputsOED.exps.u_min{1}=0*ones(1,inputsOED.exps.n_steps{1});    % Lower boundary for the input value
+inputsOED.exps.u_max{1}=1000*ones(1,inputsOED.exps.n_steps{1}); % Upper boundary for the input value
+
+inputsOED.PEsol.id_global_theta=model.par_names(param_including_vector,:);
+inputsOED.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector));
+inputsOED.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the parameters
+inputsOED.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
+
+
+inputsOED.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default)
+inputsOED.exps.std_dev{1}=[0.05];
+inputsOED.OEDsol.OEDcost_type='Dopt';
+
+
+% final time constraint
+inputsOED.exps.n_const_ineq_tf{1}=1;
+inputsOED.exps.const_ineq_tf{1}=char('cviol');     % c<=0
+inputsOED.exps.ineq_const_max_viol=1.0e-5;
+
+
+% SIMULATION
+inputsOED.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
+inputsOED.ivpsol.senssolver='cvodes';                    % [] Sensitivities solver: 'cvodes'(default, C)| 'sensmat'(matlab)|'fdsens2'|'fdsens5'
+inputsOED.ivpsol.rtol=1.0D-8;                            % [] IVP solver integration tolerances
+inputsOED.ivpsol.atol=1.0D-8;
+
+% OPTIMIZATION
+%oidDuration=600;
+inputsOED.nlpsol.nlpsolver='eSS';
+inputsOED.nlpsol.eSS.maxeval = 2;%5e4;
+inputsOED.nlpsol.eSS.maxtime = 6e3;
+inputsOED.nlpsol.eSS.local.solver = 'fmincon'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
+inputsOED.nlpsol.eSS.local.finish = 'fmincon';%fmincon';
+
+inputsOED.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
+inputsOED.nlpsol.eSS.local.nl2sol.maxfeval =     500;     % max number of function evaluation
+inputsOED.nlpsol.eSS.log_var=1:inputsOED.exps.n_steps{1};
+inputsOED.plotd.plotlevel='noplot';
+
+inputsOED.pathd.results_folder = results_folder;
+inputsOED.pathd.short_name     = short_name;
+inputsOED.pathd.runident       = strcat('oed-1');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:numLoops
     % Need to determine the starting state of the next part of the
     % experiment we wish to design the input for. If there are multiple loops,
-    % We get this state by simulating the model using the current best theta
-    % for the duration for which we have designed input.
-    if exps.n_exp == 0
-        oid_y0 = [y0 0];                        % Add the state variable required for the constraint
-        best_global_theta = global_theta_guess;
-    else
-        % use the last state in the previous sub-experiment as the inital
-        % state
-        oid_y0 = oed_results{i-1}.sim.states{1}(end,:);
-    end
-    
-    
+    % We get this state by importing the last state in the previous experiment
+   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Optimal experiment design
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    clear inputs;
-    inputs.model = model;
-    inputs.exps  = exps;
-    format long g
-    
-    
-    % Add new experiment that is to be designed
-    inputs.exps.n_exp = inputs.exps.n_exp + 1;                      % Number of experiments
-    iexp = inputs.exps.n_exp;                                       % Index of the experiment
-    inputs.exps.exp_type{iexp}='od';                                % Specify the type of experiment: 'od' optimally designed
-    inputs.exps.n_obs{iexp}=1;                                      % Number of observables in the experiment
-    inputs.exps.obs_names{iexp}=char('Fluorescence');               % Name of the observables in the experiment
-    inputs.exps.obs{iexp}=char('Fluorescence = Cit_fluo');          % Observation function
-    
-    
-    % Fixed parts of the experiment
-    inputs.exps.exp_y0{iexp}=oid_y0;                                % Initial conditions
-    inputs.exps.t_f{iexp}=duration;                                 % Duration of the experiment (minutes)
-    inputs.exps.n_s{iexp}=duration/5+1;                             % Number of sampling times - sample every 5 min
-    
-    % OED of the input
-    
-    inputs.exps.u_type{iexp}='od';
-    inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment: 'stepf' steps of constant duration
-    inputs.exps.n_steps{iexp}=round(duration/stepDuration);         % Number of steps in the input
-    inputs.exps.t_con{iexp}=linspace(0,duration,inputs.exps.n_steps{iexp}+1);            % Switching times
-    inputs.exps.u_min{iexp}=0*ones(1,inputs.exps.n_steps{iexp});    % Lower boundary for the input value
-    inputs.exps.u_max{iexp}=1000*ones(1,inputs.exps.n_steps{iexp}); % Upper boundary for the input value
-    
-    inputs.PEsol.id_global_theta=model.par_names(param_including_vector,:);
-    inputs.PEsol.global_theta_guess=transpose(global_theta_guess(param_including_vector));
-    inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the parameters
-    inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
-    
-    
-    inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default)
-    inputs.exps.std_dev{iexp}=0.05;
-    inputs.OEDsol.OEDcost_type='Dopt';
-    
-    
-    % final time constraint
-    for iexp=1:inputs.exps.n_exp
-        inputs.exps.n_const_ineq_tf{iexp}=1;
-        inputs.exps.const_ineq_tf{iexp}=char('cviol');     % c<=0
-    end
-    inputs.exps.ineq_const_max_viol=1.0e-5;
-    
-    
-    % SIMULATION
-    inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
-    inputs.ivpsol.senssolver='cvodes';                    % [] Sensitivities solver: 'cvodes'(default, C)| 'sensmat'(matlab)|'fdsens2'|'fdsens5'
-    inputs.ivpsol.rtol=1.0D-8;                            % [] IVP solver integration tolerances
-    inputs.ivpsol.atol=1.0D-8;
-    
-    % OPTIMIZATION
-    inputs.nlpsol.nlpsolver='eSS';
-    inputs.nlpsol.eSS.maxeval = 2;%5e4;
-    inputs.nlpsol.eSS.maxtime = 6e3;
-    inputs.nlpsol.eSS.local.solver = 'fminsearch'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
-    inputs.nlpsol.eSS.local.finish = 'fmincon';%fmincon';
-    
-    inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
-    inputs.nlpsol.eSS.local.nl2sol.maxfeval =     500;     % max number of function evaluation
-    inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
-    
-    % stop using DE
-    %     inputs.nlpsol.nlpsolver='de';                                           % Differential evolution
-    %     inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    %     inputs.nlpsol.DE.itermax = 2;%round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    %     inputs.nlpsol.DE.cvarmax = 1e-5;                                        % cvarmax: maximum variance for a population at convergence
-    %     inputs.nlpsol.DE.F = 0.5;                                               % F: DE-stepsize [0,2]
-    %     inputs.nlpsol.DE.CR = 0.3;                                              % CR: crossover probability constant [0,1]
-    %     inputs.nlpsol.DE.strategy =3;
-    %     % strategy
-    %     %                1 --> DE/best/1/exp
-    %     %                2 --> DE/rand/1/exp
-    %     %                3 --> DE/rand-to-best/1/exp
-    %     %                4 --> DE/best/2/exp
-    %     %                5 --> DE/rand/2/exp
-    %     %                6 --> DE/best/1/bin
-    %     %                7 --> DE/rand/1/bin
-    %     %                8 --> DE/rand-to-best/1/bin
-    %     %                9 --> DE/best/2/bin
-    %
-    %     %               else DE/rand/2/bin
-    %     inputs.nlpsol.DE.refresh=2;  % intermediate output will be produced after "refresh" iterations. No intermediate output will be produced if refresh is < 1
-    inputs.plotd.plotlevel='noplot';
-    
-    inputs.pathd.results_folder = results_folder;
-    inputs.pathd.short_name     = short_name;
-    inputs.pathd.runident       = strcat('oed-',int2str(i));
-    
-    
-    currentcd=cd;
-    cd('C:\Users\s1458246\Documents\Github\AMIGO2R2016b');
-    save('temp.mat');
-    AMIGO_Startup;
-    load('temp.mat');
-    AMIGO_Prep(inputs);
-    cd(currentcd);
+    if exps.n_exp == 0
+        inputs=inputsOED;
+    else
+        inputs.exps = exps;
+        inputs=appendOED(inputs,inputsOED);
+        %inputs=inputsOED;
+        inputs.model.par = best_global_theta;
+        inputs.exps.exp_y0{end+1}=results.sim.states{1}(end,:);
+        inputs.plotd.plotlevel='noplot';
+        inputs.pathd.results_folder = results_folder;
+        inputs.pathd.short_name     = short_name;
+        inputs.pathd.runident       = strcat('OED-',int2str(i));      
+    end  
     oed_start = now;
-    results=AMIGO_OED(inputs);
-    
+    results = AMIGO_OED(inputs);
     oed_results{i} = results;
     oed_end = now;
     
@@ -336,4 +301,51 @@ true_param_values = model.par(param_including_vector);
 save([strcat(epccOutputResultFileNameBase),'.mat'], 'pe_inputs','pe_results','oed_results','exps','inputs','true_param_values','best_global_theta_log');
 
 out= 1;
+end
+
+function inputs =appendOED(inputs,inputsOED)
+
+% Add new experiment that is to be designed
+inputs.exps.n_exp = inputs.exps.n_exp+1;
+inputs.exps.exp_type=[inputs.exps.exp_type,inputsOED.exps.exp_type];
+inputs.exps.n_obs=[inputs.exps.n_obs,inputsOED.exps.n_obs];
+inputs.exps.obs_names=[inputs.exps.obs_names,inputsOED.exps.obs_names];
+inputs.exps.obs=[inputs.exps.obs,inputsOED.exps.obs];
+
+
+% Fixed parts of the experiment
+inputs.exps.t_f=[inputs.exps.t_f,inputsOED.exps.t_f];
+inputs.exps.n_s=[inputs.exps.n_s,inputsOED.exps.n_s];
+
+% OED of the input
+inputs.exps.u_type=repmat(inputsOED.exps.u_type,inputs.exps.n_exp,1);
+inputs.exps.u_interp=[inputs.exps.u_interp,inputsOED.exps.u_interp];
+inputs.exps.n_steps=[inputs.exps.n_steps,inputsOED.exps.n_steps];
+inputs.exps.t_con=[inputs.exps.t_con,inputsOED.exps.t_con];
+inputs.exps.u_min=repmat(inputsOED.exps.u_min,inputs.exps.n_exp,1);
+inputs.exps.u_max=repmat(inputsOED.exps.u_max,inputs.exps.n_exp,1);
+
+inputs.PEsol.id_global_theta=inputsOED.PEsol.id_global_theta;
+inputs.PEsol.global_theta_guess=inputsOED.PEsol.global_theta_guess;
+inputs.PEsol.global_theta_max=inputsOED.PEsol.global_theta_max;
+inputs.PEsol.global_theta_min=inputsOED.PEsol.global_theta_min;
+
+inputs.exps.noise_type=inputsOED.exps.noise_type;
+inputs.exps.std_dev=repmat(inputsOED.exps.std_dev,inputs.exps.n_exp);;
+inputs.OEDsol.OEDcost_type=inputsOED.OEDsol.OEDcost_type;
+
+inputs.exps.n_const_ineq_tf=inputsOED.exps.n_const_ineq_tf;
+inputs.exps.const_ineq_tf=inputsOED.exps.const_ineq_tf;
+inputs.exps.ineq_const_max_viol=inputsOED.exps.ineq_const_max_viol;
+
+
+% SIMULATION
+inputs.ivpsol=inputsOED.ivpsol;
+
+% OPTIMIZATION
+%oidDuration=600;
+inputs.nlpsol=inputsOED.nlpsol;
+
+inputs.pathd.results_folder = inputsOED.pathd.results_folder;
+inputs.pathd.short_name     = inputsOED.pathd.results_folder;
 end

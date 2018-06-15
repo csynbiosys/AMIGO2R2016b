@@ -38,7 +38,7 @@ global_theta_guess = [0.0164186333380725 0.291556643109224 1.71763487775568 5.14
 global_theta_min = [3.88e-05,0.388,1,4,0.0277,0.1,0.0023,0.0077,1e-03];
 global_theta_max = [0.3,0.495,3,7,0.23,1,0.03,0.0231,0.1];
 
-%global_theta_guess = global_theta_guess';
+global_theta_guess = global_theta_guess';
 
 % Specify the parameters to be calibrated.
 % The selection depends on the identifiability analysis preceding the
@@ -78,15 +78,12 @@ for i=1:numLoops
     end
     
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Optimal experiment design
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%
     clear inputs;
     inputs.model = model;
     inputs.exps  = exps;
     format long g
-    
     
     % Add new experiment that is to be designed
     inputs.exps.n_exp = inputs.exps.n_exp + 1;                      % Number of experiments
@@ -96,14 +93,12 @@ for i=1:numLoops
     inputs.exps.obs_names{iexp}=char('Fluorescence');               % Name of the observables in the experiment
     inputs.exps.obs{iexp}=char('Fluorescence = Cit_fluo');          % Observation function
     
-    
     % Fixed parts of the experiment
     inputs.exps.exp_y0{iexp}=oid_y0;                                % Initial conditions
     inputs.exps.t_f{iexp}=duration;                                 % Duration of the experiment (minutes)
     inputs.exps.n_s{iexp}=duration/5+1;                             % Number of sampling times - sample every 5 min
     
     % OED of the input
-    
     inputs.exps.u_type{iexp}='od';
     inputs.exps.u_interp{iexp}='stepf';                             % Stimuli definition for experiment: 'stepf' steps of constant duration
     inputs.exps.n_steps{iexp}=round(duration/stepDuration);         % Number of steps in the input
@@ -116,11 +111,9 @@ for i=1:numLoops
     inputs.PEsol.global_theta_max=global_theta_max(param_including_vector);  % Maximum allowed values for the parameters
     inputs.PEsol.global_theta_min=global_theta_min(param_including_vector);  % Minimum allowed values for the parameters
     
-    
     inputs.exps.noise_type='homo_var';           % Experimental noise type: Homoscedastic: 'homo'|'homo_var'(default)
     inputs.exps.std_dev{iexp}=0.05;
     inputs.OEDsol.OEDcost_type='Dopt';
-    
     
     % final time constraint
     for iexp=1:inputs.exps.n_exp
@@ -129,7 +122,6 @@ for i=1:numLoops
     end
     inputs.exps.ineq_const_max_viol=1.0e-5;
     
-    
     % SIMULATION
     inputs.ivpsol.ivpsolver='cvodes';                     % [] IVP solver: 'cvodes'(default, C)|'ode15s' (default, MATLAB, sbml)|'ode113'|'ode45'
     inputs.ivpsol.senssolver='cvodes';                    % [] Sensitivities solver: 'cvodes'(default, C)| 'sensmat'(matlab)|'fdsens2'|'fdsens5'
@@ -137,54 +129,26 @@ for i=1:numLoops
     inputs.ivpsol.atol=1.0D-8;
     
     % OPTIMIZATION
+    %oidDuration=600;
     inputs.nlpsol.nlpsolver='eSS';
     inputs.nlpsol.eSS.maxeval = 2;%5e4;
     inputs.nlpsol.eSS.maxtime = 6e3;
-    inputs.nlpsol.eSS.local.solver = 'fminsearch'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
+    inputs.nlpsol.eSS.local.solver = 'fmincon'; % note that, in order to handle constraints, an SQP approach is required (e.g. fminsearch cannot be used).
     inputs.nlpsol.eSS.local.finish = 'fmincon';%fmincon';
     
     inputs.nlpsol.eSS.local.nl2sol.maxiter  =     300;     % max number of iteration
     inputs.nlpsol.eSS.local.nl2sol.maxfeval =     500;     % max number of function evaluation
     inputs.nlpsol.eSS.log_var=1:inputs.exps.n_steps{iexp};
-    
-    % stop using DE
-    %     inputs.nlpsol.nlpsolver='de';                                           % Differential evolution
-    %     inputs.nlpsol.DE.NP = max([100, 10*(2*inputs.exps.n_steps{iexp}-1)]);       % NP is the number of population members, usually greater than 10*number of decision variables
-    %     inputs.nlpsol.DE.itermax = 2;%round((300*1e3)/inputs.nlpsol.DE.NP);        % maximum number of iterations ('generations')
-    %     inputs.nlpsol.DE.cvarmax = 1e-5;                                        % cvarmax: maximum variance for a population at convergence
-    %     inputs.nlpsol.DE.F = 0.5;                                               % F: DE-stepsize [0,2]
-    %     inputs.nlpsol.DE.CR = 0.3;                                              % CR: crossover probability constant [0,1]
-    %     inputs.nlpsol.DE.strategy =3;
-    %     % strategy
-    %     %                1 --> DE/best/1/exp
-    %     %                2 --> DE/rand/1/exp
-    %     %                3 --> DE/rand-to-best/1/exp
-    %     %                4 --> DE/best/2/exp
-    %     %                5 --> DE/rand/2/exp
-    %     %                6 --> DE/best/1/bin
-    %     %                7 --> DE/rand/1/bin
-    %     %                8 --> DE/rand-to-best/1/bin
-    %     %                9 --> DE/best/2/bin
-    %
-    %     %               else DE/rand/2/bin
-    %     inputs.nlpsol.DE.refresh=2;  % intermediate output will be produced after "refresh" iterations. No intermediate output will be produced if refresh is < 1
     inputs.plotd.plotlevel='noplot';
     
     inputs.pathd.results_folder = results_folder;
     inputs.pathd.short_name     = short_name;
     inputs.pathd.runident       = strcat('oed-',int2str(i));
-    
-    
-    currentcd=cd;
-    cd('C:\Users\s1458246\Documents\Github\AMIGO2R2016b');
-    save('temp.mat');
-    AMIGO_Startup;
-    load('temp.mat');
-    AMIGO_Prep(inputs);
-    cd(currentcd);
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     oed_start = now;
-    results=AMIGO_OED(inputs);
-    
+    inputOED=inputs;
+    results = AMIGO_OED(inputs);
     oed_results{i} = results;
     oed_end = now;
     
