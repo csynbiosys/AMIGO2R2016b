@@ -142,6 +142,9 @@ for i=1:numLoops
         inputs.exps.n_const_ineq_tf{iexp}=1;
         inputs.exps.const_ineq_tf{iexp}=char('cviol');     % c<=0
     end
+    inputs.exps.n_const_ineq_tf={1};
+    inputs.exps.const_ineq_tf={char('cviol')};     % c<=0
+   
     inputs.exps.ineq_const_max_viol=1.0e-5;
     
     
