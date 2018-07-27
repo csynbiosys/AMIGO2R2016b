@@ -9,7 +9,7 @@ function [duration,step,values] = exportExperiments(inputs,timeScale,fileName,va
 % fileName   -- if the name is XXX, the name of the .txt file is XXX.txt if
 %               there is only one experiment, and XXX-1.txt, XXX-2.txt,...
 %               if there are multiple experiments.
-% foldername -- if not given, the .txt files would be generated in the 
+% foldername -- if not given, the .txt files would be generated in the
 %               current folder.
 %
 % output     -- the output are duration(array), step(array), and
