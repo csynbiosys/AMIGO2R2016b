@@ -1,7 +1,7 @@
 function [] = run_in_silico_experiment_parfor_Optimised(resultBase, numLoops, numExperiments)
 
 cd ('../../');
-AMIGO_Startup();
+%AMIGO_Startup();
 
 cd ('Examples/PLacCDC2018/InputComparison/Scripts');
 
