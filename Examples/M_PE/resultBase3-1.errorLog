@@ -1,0 +1,54 @@
+Error: <a href="matlab: opentoline('C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m',15,55)">File: M_load_model.m Line: 15 Column: 55
+</a>Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in Run_M_fit2 (line 47)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error: File: C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m Line: 15 Column: 55
+Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in parallel_function>make_general_channel/channel_general (line 929)
+                    F(C{:});
+
+Error in remoteParallelFunction (line 38)
+        out = parallel.internal.pool.serialize(feval(channel, channelArgs{:}));
+Error: File: C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m Line: 15 Column: 55
+Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in parallel_function>make_general_channel/channel_general (line 929)
+                    F(C{:});
+
+Error in remoteParallelFunction (line 38)
+        out = parallel.internal.pool.serialize(feval(channel, channelArgs{:}));
+Error: <a href="matlab: opentoline('C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m',15,55)">File: M_load_model.m Line: 15 Column: 55
+</a>Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error: <a href="matlab: opentoline('C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m',15,55)">File: M_load_model.m Line: 15 Column: 55
+</a>Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);
+Error: <a href="matlab: opentoline('C:\Users\s1458246\Documents\Github\AMIGO2R2016b\Examples\M_PE\M_load_model.m',15,55)">File: M_load_model.m Line: 15 Column: 55
+</a>Expression or statement is incorrect--possibly unbalanced (, {, or [.
+
+Error in fit_M (line 42)
+    M_load_model; 
+
+Error in Run_M_fit2 (line 46)
+            [out] = fit_M(epccOutputResultFileNameBase,epcc_exps,global_theta_guess);

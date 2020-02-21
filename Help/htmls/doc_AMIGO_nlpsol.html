@@ -1,0 +1,315 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>doc_AMIGO_nlpsol</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-03-01"><meta name="DC.source" content="doc_AMIGO_nlpsol.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #007946; 
+  font-size: x-large;
+}
+
+h1b {
+  color: #255DA5; 
+  font-size: x-large;
+}
+
+li {
+  color: #255DA5; /* bullet color */
+}
+li {
+  color: #255DA5; /* bullet color */
+}
+li span {
+  color: black; /* text color */
+}
+
+h2 {
+  color: #255DA5;
+  font-size: large;
+}
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 820px;
+  /* Hack for IE6 */
+  width: auto !important; width: 820px;
+  text-align: justify;
+}
+
+pre.codeinput {
+  background: #E9F4F6;
+  padding: 10px;
+  width: 820px;
+  text-align: justify;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+   width: 820px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1></h1><!--introduction--><p><img vspace="5" hspace="5" src="logo_AMIGO2_small.png" alt=""> </p><p>
+<p style="color:#007946;font-size:18pt;text-align:right; margin-top: 1px; margin-bottom: 1px;"> <b>Nonlinear programming solvers</b></p>
+<hr align="left" width="820">
+</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Numerical solvers for nonlinear optimization problems</a></li><li><a href="#3">How to chose a solver for single objective problems</a></li><li><a href="#4">How to chose a solver for multi-objective problems</a></li><li><a href="#5">NLP solver settings</a></li><li><a href="#10">Add new optimizers</a></li></ul></div><h2>Numerical solvers for nonlinear optimization problems<a name="1"></a></h2><p>AMIGO2 offers a suite of NLP solvers so as to handle different problems: convex and non-convex, and multi-objective. Direct and indirect local methods, global stochastic methods, sequential hybrids and metaheuristics are available.</p><p>In addition the user may add new solvers to AMIGO2.</p><p>The following table summarizes available methods:</p><p><img vspace="5" hspace="5" src="AMIGO2_NLP_solvers.png" alt=""> </p><h2>How to chose a solver for single objective problems<a name="3"></a></h2><p>The algorithms can be chosen by modifying the field</p><pre class="codeinput">inputs.nlpsol.nlpsolver = <span class="string">'local_fmincon'</span>; <span class="comment">% local_'nameofthelocalsolver' to run any of the local</span>
+                                           <span class="comment">% solvers</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'multi_fmincon'</span>; <span class="comment">% multi_'nameofthelocalsolver' to run a multi-start of</span>
+                                           <span class="comment">% any of the local solvers</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'de'</span>;            <span class="comment">% to use differential evolution</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'sres'</span>;          <span class="comment">% to use stochastic ranking evolutionary search</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'hyb_de_fmincon'</span>;<span class="comment">% hyb_de_'nameofthelocalsolver' to run a sequential hybrid</span>
+                                           <span class="comment">% with de and any local method</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'hyb_sres_fmincon'</span>;<span class="comment">% hyb_sres_'nameofthelocalsolver' to run a sequential</span>
+                                           <span class="comment">% hybrid with sres and any local method</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'ess'</span>;           <span class="comment">% to use Enhanced Scatter search</span>
+</pre><h2>How to chose a solver for multi-objective problems<a name="4"></a></h2><p>The algorithms can be chosen by modifying the field</p><pre class="codeinput">inputs.nlpsol.nlpsolver = <span class="string">'wsm_ess'</span>;       <span class="comment">% wsm_'nameofNLPsolver' to use the weighting sum method</span>
+                                           <span class="comment">% with any of the NLP solvers</span>
+
+inputs.nlpsol.nlpsolver = <span class="string">'nsga2'</span>;         <span class="comment">% to use the multi-objective genetic algorithm</span>
+</pre><h2>NLP solver settings<a name="5"></a></h2><p>All NLP solvers have options. These options can be modified in the solver specific structures:</p><p><b>Differential evolution</b></p><pre class="codeinput">inputs.nlpsol.nlpsolver=<span class="string">'de'</span>;              <span class="comment">% In this case the problem will be solved with DE</span>
+inputs.nlpsol.DE.NP=100;                   <span class="comment">% Size of population - recommended 10*N variables</span>
+inputs.nlpsol.DE.strategy=7;               <span class="comment">% Strategy to define population operations in DE:</span>
+                                           <span class="comment">%  1 --&gt; DE/best/1/exp           6 --&gt; DE/best/1/bin</span>
+                                           <span class="comment">%  2 --&gt; DE/rand/1/exp           7 --&gt; DE/rand/1/bin</span>
+                                           <span class="comment">%  3 --&gt; DE/rand-to-best/1/exp   8 --&gt; DE/rand-to-best/1/bin</span>
+                                           <span class="comment">%  4 --&gt; DE/best/2/exp           9 --&gt; DE/best/2/bin</span>
+                                           <span class="comment">%  5 --&gt; DE/rand/2/exp           else  DE/rand/2/bin</span>
+inputs.nlpsol.DE.cvarmax=1e-8;             <span class="comment">% Stopping criterion: Maximum variance for the population</span>
+inputs.nlpsol.DE.itermax=500;              <span class="comment">% Stopping criterion: Maximum number of iterations</span>
+                                           <span class="comment">% Corresponds to NP*itermax function evaluations</span>
+inputs.nlpsol.DE.refresh =2;               <span class="comment">% Interval of iterations for displaying results</span>
+</pre><p><b>Stochastic ranking evolutionary search</b></p><pre class="codeinput">inputs.nlpsol.nlpsolver=<span class="string">'sres'</span>;            <span class="comment">% In this case the problem will be solved with</span>
+                                           <span class="comment">% a global evolutionary approach SRES</span>
+inputs.nlpsol.SRES.NP=200;                 <span class="comment">% Size of population (200, default)</span>
+inputs.nlpsol.SRES.itermax= 1000;          <span class="comment">% Maximum number of iterations (1000, default)</span>
+                                           <span class="comment">% Each iteration 200 funtion evaluations</span>
+inputs.nlpsol.SRES.pf=0.45;                <span class="comment">% Pressure on fitness in [0 0.5] try around 0.45</span>
+                                           <span class="comment">%       for unconstrained cases try &gt;0.5</span>
+inputs.nlpsol.SRES.varphi=1;               <span class="comment">% Expected rate of convergence</span>
+inputs.nlpsol.SRES.cvarmax=1.0e-12;        <span class="comment">% Stopping criterium: population variance</span>
+</pre><p><b>Enhanced Scatter Search</b></p><pre class="codeinput">inputs.nlpsol.nlpsolver=<span class="string">'ess'</span>;             <span class="comment">% In this case the problem will be solved with eSS</span>
+inputs.nlpsol.eSS.maxeval=20000;           <span class="comment">% Maximum number of function evaluations</span>
+inputs.nlpsol.eSS.maxtime=600;             <span class="comment">% Maximum allowed time in s for eSS</span>
+inputs.nlpsol.eSS.iterprint=1;             <span class="comment">% Print each iteration on screen: 0-Deactivated</span>
+                                           <span class="comment">% 1-Activated (1, default)</span>
+inputs.nlpsol.eSS.log_var= [];             <span class="comment">% Indexes of the variables which will be used</span>
+                                           <span class="comment">% to generate diverse solutions in different</span>
+                                           <span class="comment">% orders of magnitude</span>
+inputs.nlpsol.eSS.local.solver=<span class="string">'nl2sol'</span>;   <span class="comment">% Choose local solver</span>
+                                           <span class="comment">% 0: Local search deactivated</span>
+                                           <span class="comment">% 'fminsearch','nomad', 'dhc'</span>
+                                           <span class="comment">% 'fmincon','solnp','ipopt'</span>
+                                           <span class="comment">% for PE:'n2fb','dn2fb','lsqnonlin','nl2sol'</span>
+inputs.nlpsol.eSS.local.iterprint=0;       <span class="comment">% Print each iteration on screen: 0-Deactivated</span>
+                                           <span class="comment">% 1-Activated</span>
+</pre><p>For <b>more eSS options</b>, please check <b>ess_options_defaults.m</b></p><h2>Add new optimizers<a name="10"></a></h2><p>AMIGO2 enables the possibility of using user's own optimizers. Introducing a new optimizer requires three steps:</p><p>
+<ol>
+ <li>To define inputs and outputs so as to make the solver compatible with AMIGO2.</li>
+<ul>
+   <li>Add the following input arguments: <b>inputs</b>, <b>results</b>,<b> privstruct</b></li>
+   <li>Provide (at least) the following outputs: best cost function, best
+   decision variable vector, computational cost </br> and convergence curve.
+   <li>OPTIONAL: Define solver options somewhere in the inputs structure, otherwise define them within the solver code.</li>
+   <li>OPTIONAL: Define bounds and guess for the decision variables somewhere in the inputs structure, othewise add</br> additional input arguments.</li>
+</ul>
+<li>To implement a script that calls the new optimizer as follows: </br> <b>[outputs]= NEWSOLVER(cost_function,inputs,results,privstruct)</b></li>
+<ul>
+   <li>NEWSOLVER: regards the name of the NLP solver.</li>
+   <li>cost_function: should be 'AMIGO_PEcost'; 'AMIGO_OEDcost' or inputs.pathd.DO_function for PE and RIdent;</br> OED and DO, respectively.</li>
+   <li>Assign results.nlpsol.vbest; results.nlpsol.fbest; results.nlpsol.cpu_time; results.nlpsol.conv_curve </br>
+       to proceed with AMIGO2 postprocessing.
+</ul>
+<li> Call the AMIGO2 task selecting the solver as: <b> 'my_NEWSOLVER' <b> </li>
+</ol>
+</p><p>For a practical example, please follow the scripts included in the <b>Examples\use_your_own_optimizer</b> folder.</p><p class="footer"><br>
+      Published with MATLAB&reg; 8.6<br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+% <<logo_AMIGO2_small.png>>
+%
+% <html>
+% <p style="color:#007946;font-size:18pt;text-align:right; margin-top: 1px; margin-bottom: 1px;"> <b>Nonlinear programming solvers</b></p>
+% <hr align="left" width="820">
+% </html>
+
+%% Numerical solvers for nonlinear optimization problems  
+%
+%
+% AMIGO2 offers a suite of NLP solvers so as to handle different problems:
+% convex and non-convex, and multi-objective. Direct and indirect local
+% methods, global stochastic methods, sequential hybrids and metaheuristics
+% are available.
+% 
+% In addition the user may add new solvers to AMIGO2. 
+% 
+% The following table summarizes available methods:
+%
+%%
+%
+% <<AMIGO2_NLP_solvers.png>>
+%
+
+
+%% How to chose a solver for single objective problems
+% The algorithms can be chosen by modifying the field
+%
+inputs.nlpsol.nlpsolver = 'local_fmincon'; % local_'nameofthelocalsolver' to run any of the local
+                                           % solvers
+                                            
+inputs.nlpsol.nlpsolver = 'multi_fmincon'; % multi_'nameofthelocalsolver' to run a multi-start of 
+                                           % any of the local solvers
+                                            
+inputs.nlpsol.nlpsolver = 'de';            % to use differential evolution
+
+inputs.nlpsol.nlpsolver = 'sres';          % to use stochastic ranking evolutionary search
+
+inputs.nlpsol.nlpsolver = 'hyb_de_fmincon';% hyb_de_'nameofthelocalsolver' to run a sequential hybrid 
+                                           % with de and any local method
+                                            
+inputs.nlpsol.nlpsolver = 'hyb_sres_fmincon';% hyb_sres_'nameofthelocalsolver' to run a sequential  
+                                           % hybrid with sres and any local method
+                                            
+inputs.nlpsol.nlpsolver = 'ess';           % to use Enhanced Scatter search
+
+%% How to chose a solver for multi-objective problems
+% The algorithms can be chosen by modifying the field
+%
+
+inputs.nlpsol.nlpsolver = 'wsm_ess';       % wsm_'nameofNLPsolver' to use the weighting sum method 
+                                           % with any of the NLP solvers
+                                           
+inputs.nlpsol.nlpsolver = 'nsga2';         % to use the multi-objective genetic algorithm
+
+%% NLP solver settings
+%
+%%
+% All NLP solvers have options. These options can be modified in the solver
+% specific structures:
+%
+% *Differential evolution*
+inputs.nlpsol.nlpsolver='de';              % In this case the problem will be solved with DE
+inputs.nlpsol.DE.NP=100;                   % Size of population - recommended 10*N variables
+inputs.nlpsol.DE.strategy=7;               % Strategy to define population operations in DE: 
+                                           %  1 REPLACE_WITH_DASH_DASH> DE/best/1/exp           6 REPLACE_WITH_DASH_DASH> DE/best/1/bin
+                                           %  2 REPLACE_WITH_DASH_DASH> DE/rand/1/exp           7 REPLACE_WITH_DASH_DASH> DE/rand/1/bin
+                                           %  3 REPLACE_WITH_DASH_DASH> DE/rand-to-best/1/exp   8 REPLACE_WITH_DASH_DASH> DE/rand-to-best/1/bin
+                                           %  4 REPLACE_WITH_DASH_DASH> DE/best/2/exp           9 REPLACE_WITH_DASH_DASH> DE/best/2/bin
+                                           %  5 REPLACE_WITH_DASH_DASH> DE/rand/2/exp           else  DE/rand/2/bin
+inputs.nlpsol.DE.cvarmax=1e-8;             % Stopping criterion: Maximum variance for the population 
+inputs.nlpsol.DE.itermax=500;              % Stopping criterion: Maximum number of iterations 
+                                           % Corresponds to NP*itermax function evaluations 
+inputs.nlpsol.DE.refresh =2;               % Interval of iterations for displaying results                           
+
+
+%%
+% *Stochastic ranking evolutionary search*
+%
+inputs.nlpsol.nlpsolver='sres';            % In this case the problem will be solved with 
+                                           % a global evolutionary approach SRES
+inputs.nlpsol.SRES.NP=200;                 % Size of population (200, default)
+inputs.nlpsol.SRES.itermax= 1000;          % Maximum number of iterations (1000, default)
+                                           % Each iteration 200 funtion evaluations
+inputs.nlpsol.SRES.pf=0.45;                % Pressure on fitness in [0 0.5] try around 0.45
+                                           %       for unconstrained cases try >0.5
+inputs.nlpsol.SRES.varphi=1;               % Expected rate of convergence
+inputs.nlpsol.SRES.cvarmax=1.0e-12;        % Stopping criterium: population variance
+
+
+%%
+% *Enhanced Scatter Search*
+%
+inputs.nlpsol.nlpsolver='ess';             % In this case the problem will be solved with eSS 
+inputs.nlpsol.eSS.maxeval=20000;           % Maximum number of function evaluations
+inputs.nlpsol.eSS.maxtime=600;             % Maximum allowed time in s for eSS   
+inputs.nlpsol.eSS.iterprint=1;             % Print each iteration on screen: 0-Deactivated
+                                           % 1-Activated (1, default)
+inputs.nlpsol.eSS.log_var= [];             % Indexes of the variables which will be used
+                                           % to generate diverse solutions in different 
+                                           % orders of magnitude
+inputs.nlpsol.eSS.local.solver='nl2sol';   % Choose local solver
+                                           % 0: Local search deactivated
+                                           % 'fminsearch','nomad', 'dhc'
+                                           % 'fmincon','solnp','ipopt'
+                                           % for PE:'n2fb','dn2fb','lsqnonlin','nl2sol'
+inputs.nlpsol.eSS.local.iterprint=0;       % Print each iteration on screen: 0-Deactivated
+                                           % 1-Activated 
+%%
+% For *more eSS options*, please check *ess_options_defaults.m*
+
+
+%% Add new optimizers
+%
+%%
+% AMIGO2 enables the possibility of using user's own optimizers. 
+% Introducing a new optimizer requires three steps:
+%
+%%
+% 
+% <html>
+% <ol>
+%  <li>To define inputs and outputs so as to make the solver compatible with AMIGO2.</li>
+% <ul>
+%    <li>Add the following input arguments: <b>inputs</b>, <b>results</b>,<b> privstruct</b></li>
+%    <li>Provide (at least) the following outputs: best cost function, best
+%    decision variable vector, computational cost </br> and convergence curve.   
+%    <li>OPTIONAL: Define solver options somewhere in the inputs structure, otherwise define them within the solver code.</li>
+%    <li>OPTIONAL: Define bounds and guess for the decision variables somewhere in the inputs structure, othewise add</br> additional input arguments.</li>
+% </ul>
+% <li>To implement a script that calls the new optimizer as follows: </br> <b>[outputs]= NEWSOLVER(cost_function,inputs,results,privstruct)</b></li> 
+% <ul>
+%    <li>NEWSOLVER: regards the name of the NLP solver.</li>
+%    <li>cost_function: should be 'AMIGO_PEcost'; 'AMIGO_OEDcost' or inputs.pathd.DO_function for PE and RIdent;</br> OED and DO, respectively.</li>
+%    <li>Assign results.nlpsol.vbest; results.nlpsol.fbest; results.nlpsol.cpu_time; results.nlpsol.conv_curve </br>
+%        to proceed with AMIGO2 postprocessing.
+% </ul>
+% <li> Call the AMIGO2 task selecting the solver as: <b> 'my_NEWSOLVER' <b> </li> 
+% </ol>
+% </html>
+%
+
+%%
+% For a practical example, please follow the scripts included in the *Examples\use_your_own_optimizer* folder.
+
+
+
+
+##### SOURCE END #####
+--></body></html>

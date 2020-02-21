@@ -1,0 +1,1793 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>doc_AMIGO_Reg</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-04-13"><meta name="DC.source" content="doc_AMIGO_Reg.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #007946; 
+  font-size: x-large;
+}
+
+h1b {
+  color: #255DA5; 
+  font-size: x-large;
+}
+
+li {
+  color: #255DA5; /* bullet color */
+}
+li {
+  color: #255DA5; /* bullet color */
+}
+li span {
+  color: black; /* text color */
+}
+
+h2 {
+  color: #255DA5;
+  font-size: large;
+}
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 820px;
+  /* Hack for IE6 */
+  width: auto !important; width: 820px;
+  text-align: justify;
+}
+
+pre.codeinput {
+  background: #E9F4F6;
+  padding: 10px;
+  width: 820px;
+  text-align: justify;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+   width: 820px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1></h1><!--introduction--><p><img vspace="5" hspace="5" src="logo_AMIGO2_small.png" alt=""> </p><p>
+<p style="color:#007946;font-size:18pt;text-align:right; margin-top: 1px; margin-bottom: 1px;"> <b>AMIGO_REG_PE</b></p>
+<hr align="left" width="820">
+</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Task description</a></li><li><a href="#3">Call AMIGO_REG_PE from command line</a></li><li><a href="#5">Example</a></li><li><a href="#7">RUN Goodwin model parameter estimation example with regularization</a></li><li><a href="#9">Generalized cross validation</a></li><li><a href="#10">RUN Goodwin model parameter estimation example without regularization</a></li><li><a href="#11">Crossvalidation of regularized and non-regularized estimations</a></li><li><a href="#17">See also</a></li><li><a href="#19">References</a></li></ul></div><h2>Task description<a name="1"></a></h2><p>
+<div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+<dl> Performs model unknowns estimation using Tikhonov regularization
+techniques.</dl>
+<dl> Provide reference
+parameter values for the unknown parameter and weighting matrix if
+the reference parameters have very different magnitudes.
+AMIGO_REG_PE efficiently solves a sequence of parameter estimation
+problems for a range of regularization parameters. Then Generalized Cross
+Validation is applied to choose the best regularization parameter among
+the given candidates.
+</dl>
+<dl> </dl>
+<dl> It may handle:</dl>
+<ul>
+<li> Different meassures of distance: weighted least squares or the log-likelihood function (llk) for
+     Gaussian experimental noise. </li>
+<li> Several types of Gaussian experimental noise </li>
+<li> Different types of unknowns: global parameters and initial conditions and local (experiment
+     dependent) parameters and initial conditions.</li>
+<li> Linear and non-lineas constraints on state variables and parameters </li>
+</ul>
+<dl> </dl>
+<dl> It may call several optimizers:</dl>
+<ul>
+<li> LOCAL optimization methods: indirect and direct methods
+<li> MULTISTART of local methods</li>
+<li> GLOBAL optimization methods: DE, SRES</li>
+<li> HYBRID optimization methods: eSS (as included in MEIGO), sequential hybrids</li>
+</ul>
+<dl> </dl>
+<dl> Regularization options:</dl>
+<ul>
+<li> provide prior knowledge for local/global unknowns and estimated initial conditions</li>
+<li> provide weighting matrix for reference parmeters</li>
+<li> set up the set of regularization parameters</li>
+</ul>
+<dl> </dl>
+<dl> Options:</dl>
+<ul>
+<li> 'run_identifier' to keep different folders for different runs, this avoids overwriting
+<li> 'nlp_solver' to rapidly change the optimization method </li>
+</ul>
+</div>
+</p><h2>Call AMIGO_REG_PE from command line<a name="3"></a></h2><p>It is recommended to keep all inputs in a <b>'problem_file'.m</b>. DO task can then be called in two different ways:</p><p>1. Using the <b>inputs structure</b>:</p><pre>  &gt; problem_file</pre><pre>  &gt; [reg_summary results inputs]=AMIGO_REG_PE(inputs)</pre><p>2. Using the <b>input file</b>:</p><pre>  &gt; [reg_summary results inputs]=AMIGO_REG_PE('problem_file')</pre><pre>  &gt; [reg_summary results inputs]=AMIGO_REG_PE('problem_file','run_ident')</pre><pre>  &gt; [reg_summary results inputs]=AMIGO_REG_PE('problem_file','run_ident','nlp_solver')</pre><h2>Example<a name="5"></a></h2><pre class="codeinput"><span class="comment">% TITLE: Goodwin's oscillator model</span>
+
+
+<span class="comment">%======================</span>
+<span class="comment">% PATHS RELATED DATA</span>
+<span class="comment">%======================</span>
+inputs.pathd.results_folder=<span class="string">'Regularization_Goodwin'</span>; <span class="comment">% Folder to keep results</span>
+inputs.pathd.short_name=<span class="string">'GoodwinOsc'</span>;                 <span class="comment">% To identify figures and reports</span>
+
+<span class="comment">%======================</span>
+<span class="comment">% MODEL RELATED DATA</span>
+<span class="comment">%======================</span>
+
+inputs.model.input_model_type=<span class="string">'charmodelC'</span>;           <span class="comment">% Model type- C</span>
+
+inputs.model.n_st=3;                                  <span class="comment">% Number of states</span>
+inputs.model.n_par=8;                                 <span class="comment">% Number of model parameters</span>
+inputs.model.n_stimulus=0;                            <span class="comment">% Number of inputs, stimuli or control variables</span>
+inputs.model.st_names=char(<span class="string">'x1'</span>,<span class="string">'x2'</span>,<span class="string">'x3'</span>);           <span class="comment">% Names of the states</span>
+inputs.model.par_names=char(<span class="string">'k1'</span>,<span class="string">'k2'</span>,<span class="string">'k3'</span>,<span class="string">'k4'</span>,<span class="keyword">...</span>
+                     <span class="string">'k5'</span>,<span class="string">'k6'</span>,<span class="string">'Ki'</span>,<span class="string">'n'</span>);             <span class="comment">% Names of the parameters</span>
+inputs.model.eqns=<span class="keyword">...</span><span class="comment">                                 % Equations describing system dynamics.</span>
+  char(<span class="string">'dx1 = k1*Ki^n/(Ki^n + x3^n) - k2*x1;'</span>,<span class="keyword">...</span>
+    <span class="string">'dx2 = k3*x1-k4*x2;'</span>,<span class="keyword">...</span>
+    <span class="string">'dx3 = k5*x2 - k6*x3;'</span>);                          <span class="comment">%Time derivatives are regarded 'd'st_name''</span>
+
+
+inputs.model.par = [1 0.1 1 0.1 1 0.1 1 10];         <span class="comment">% Nominal value for the parameters</span>
+
+inputs.model.AMIGOsensrhs = 1;                       <span class="comment">% Generate the sensitivity equations for exact</span>
+                                                     <span class="comment">% Jacobian computation</span>
+<span class="comment">%==================================</span>
+<span class="comment">% EXPERIMENTAL SCHEME RELATED DATA</span>
+<span class="comment">%==================================</span>
+ inputs.exps.n_exp=1;                                <span class="comment">% Number of experiments</span>
+ <span class="keyword">for</span> iexp=1:inputs.exps.n_exp
+ inputs.exps.exp_y0{iexp}=[0.1 0.2 2.5];             <span class="comment">% Initial conditions for each experiment</span>
+ inputs.exps.t_f{iexp}=240;                          <span class="comment">% Experiments duration</span>
+ inputs.exps.t_con{iexp}=[0 240];                    <span class="comment">% Input swithching times: Initial and final time</span>
+ inputs.exps.ts_0{iexp}=1;                           <span class="comment">% First sampling time</span>
+ inputs.exps.n_s{iexp}=10;                           <span class="comment">% Number of sampling times by default</span>
+ inputs.exps.t_s{iexp}=linspace(1,240,10);           <span class="comment">% Sampling times</span>
+
+<span class="comment">% OBSEVABLES DEFINITION</span>
+ inputs.exps.n_obs{iexp}=2;                          <span class="comment">% Number of observed quantities per experiment</span>
+ inputs.exps.obs_names{iexp}=char(<span class="string">'Xobs'</span>,<span class="string">'Zobs'</span>);    <span class="comment">% Name of the observed quantities per experiment</span>
+ inputs.exps.obs{iexp}=char(<span class="string">'Xobs=x1'</span> ,<span class="string">'Zobs=x3'</span>);   <span class="comment">% Observation function</span>
+ <span class="keyword">end</span>
+
+
+
+<span class="comment">%==================================</span>
+<span class="comment">% EXPERIMENTAL DATA RELATED INFO</span>
+<span class="comment">%==================================</span>
+
+ inputs.exps.data_type=<span class="string">'pseudo'</span>;                     <span class="comment">% Type of experimental data:</span>
+                                                     <span class="comment">% 'real'|'pseudo'|'pseudo_pos'(&gt;=0)</span>
+inputs.exps.noise_type = <span class="string">'hetero_lin'</span>;
+inputs.exps.std_deva{1} = [0.003 0.1 ];
+inputs.exps.std_devb{1} = [0.1 0.1];                  <span class="comment">% Type of experimental noise:</span>
+                                                     <span class="comment">% noise scales with the signal, with a low threshold</span>
+
+<span class="comment">%==================================</span>
+<span class="comment">% UNKNOWNS RELATED DATA</span>
+<span class="comment">%==================================</span>
+
+<span class="comment">% GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)</span>
+inputs.PEsol.id_global_theta=<span class="string">'all'</span>;                 <span class="comment">%  'all'|User selected</span>
+inputs.PEsol.global_theta_max=1e3*ones(1,7);        <span class="comment">% Maximum allowed values for the paramters</span>
+inputs.PEsol.global_theta_max(8) = 12;              <span class="comment">% 8th parameter is an exponent</span>
+inputs.PEsol.global_theta_min=[1e-3*ones(1,7) 1];   <span class="comment">% Minimum allowed values for the paramters</span>
+inputs.PEsol.global_theta_guess= <span class="keyword">...</span><span class="comment">                % Initial guess</span>
+AMIGO_logUniformIntialGuess(inputs.PEsol.global_theta_min,inputs.PEsol.global_theta_max);
+
+
+
+<span class="comment">%==================================</span>
+<span class="comment">% COST FUNCTION RELATED DATA</span>
+<span class="comment">%==================================</span>
+inputs.PEsol.PEcost_type=<span class="string">'llk'</span>;                     <span class="comment">%  'llk' (log likelihood)</span>
+inputs.PEsol.llk_type=<span class="string">'hetero'</span>;
+inputs.PEsol.PEcostJac_type = <span class="string">'llk'</span>;                <span class="comment">% AMIGO2 computes high quality Jacobian based on</span>
+                                                    <span class="comment">% exact sensitivities</span>
+
+
+
+<span class="comment">%==================================</span>
+<span class="comment">% NUMERICAL METHODS</span>
+<span class="comment">%==================================</span>
+
+
+<span class="comment">%</span>
+<span class="comment">% OPTIMIZATION</span>
+<span class="comment">%</span>
+inputs.nlpsol.nlpsolver=<span class="string">'eSS'</span>;                      <span class="comment">% Solver used for optimization</span>
+inputs.nlpsol.eSS.log_var = 1:7;                    <span class="comment">% Index of parameters to be considered in log scale</span>
+inputs.nlpsol.eSS.maxeval = 20000;                  <span class="comment">% Maximum number of cost function evaluations</span>
+inputs.nlpsol.eSS.maxtime = 600;                    <span class="comment">% Maximum time spent for optimization</span>
+inputs.nlpsol.eSS.local.solver = <span class="string">'nl2sol'</span>;
+inputs.nlpsol.eSS.local.finish = <span class="string">'nl2sol'</span>;
+inputs.nlpsol.eSS.local.nl2sol.maxiter = 150;       <span class="comment">% Parameters for local solver</span>
+inputs.nlpsol.eSS.local.nl2sol.maxfeval = 200;
+inputs.nlpsol.eSS.local.nl2sol.display = 2;
+inputs.nlpsol.eSS.local.nl2sol.objrtol = 1e-6;
+inputs.nlpsol.eSS.local.nl2sol.tolrfun = 1e-5;
+
+<span class="comment">%======================</span>
+<span class="comment">% DISPLAY OF RESULTS</span>
+<span class="comment">%======================</span>
+
+inputs.plotd.plotlevel=<span class="string">'noplot'</span>; <span class="comment">% supress plots, since Regularization will call AMIGO_PE several times</span>
+
+
+
+
+<span class="comment">%======================</span>
+<span class="comment">% REGULARIZATION</span>
+<span class="comment">%======================</span>
+inputs.nlpsol.regularization.ison = 1;
+inputs.nlpsol.regularization.method = <span class="string">'tikhonov'</span>;     <span class="comment">% Regularization approach</span>
+inputs.nlpsol.regularization.tikhonov.gW = eye(8);    <span class="comment">% Weighting matrix for global parameters,</span>
+                                                      <span class="comment">% use lW{iexp} for</span>
+                                                      <span class="comment">% experiment-wise local parameters if defined</span>
+inputs.nlpsol.regularization.tikhonov.gx0 = <span class="keyword">...</span>
+                     inputs.PEsol.global_theta_min;   <span class="comment">% Reference parameters for global unknowns</span>
+                                                      <span class="comment">% (prior knowledge). Default: lowest bound</span>
+                                                      <span class="comment">% lx0{iexp} for experiment-wise local parameters</span>
+alpha1 = 5e-3;
+inputs.nlpsol.regularization.alphaSet = <span class="keyword">...</span>
+    logspace(log10(alpha1*100), log10(alpha1/20),7);  <span class="comment">% Set of regularization parameters to be evaluated</span>
+                                                      <span class="comment">% by generalized cross validation</span>
+
+
+<span class="comment">% Save a copy of inputs for later, for crossvalidation and for regularization-free</span>
+<span class="comment">% estimation</span>
+copy_inputs = inputs;
+</pre><p>More information regarding the inputs used in this example can be found <a href="parestreg.html">here</a>.</p><h2>RUN Goodwin model parameter estimation example with regularization<a name="7"></a></h2><pre class="codeinput"><span class="comment">%===================================</span>
+<span class="comment">% CALL AMIGO2 from COMMAND LINE</span>
+<span class="comment">%===================================</span>
+<span class="comment">% It is recommended to keep all inputs in a 'problem_file'.m.</span>
+<span class="comment">% AMIGO2 REG_PE task can be called as follows:</span>
+<span class="comment">% AMIGO_REG_PE('problem_file','run_ident') or AMIGO_REG_PE(inputs)</span>
+
+
+AMIGO_Prep(inputs)      <span class="comment">% Calls the task for pre-processing</span>
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Pre processing....this may take a few seconds.
+
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+--&gt;Jacobian or sensitivity calculation detected. Checking the Symbolic Toolbox.
+
+
+
+------&gt; Constructing the Forward Sensitivity Equations....
+0 algebraic and 3 differential equations are found.
+Warning: SUBS(S,OLD,NEW,0) will not accept 0 in a future release. Use
+SUBS(S,OLD,NEW) instead. 
+Warning: SUBS(S,OLD,NEW,0) will not accept 0 in a future release. Use
+SUBS(S,OLD,NEW) instead. 
+Constructing symbolic Jacobians...Warning: SUBS(S,OLD,NEW,0) will not accept 0 in a future release. Use
+SUBS(S,OLD,NEW) instead. 
+Done
+Symbolic Jacobian of the dynamic equations to text:  Done.
+Symbolic Sensitivities of the dynamic equations to text:
+First part(df/dx*s):   Done
+Second part(df/dp):   Done
+Elapsed time is 0.101229 seconds.
+------&gt; Generating C code ...
+
+
+------&gt; Mexing files....
+
+Building with 'MinGW64 Compiler (C)'.
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c: In function 'simulate_amigo_model':
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c:331:16: warning: passing argument 1 of 'mexPrintf' from incompatible pointer type
+      mexPrintf(stderr,"\nSolver failed at flag = CVode(cvode_mem, tout, y, &amp;t, CV_TSTOP_RETURN);. . .\n");
+                ^
+In file included from D:\AMIGO2_REPO_2014\AMIGO2R2016a\Kernel\IVP_solvers\cvodes\C_src4Amigo\include\include_amigo/simulate_amigo_model.h:4:0,
+                 from D:\AMIGO2_REPO_2014\AMIGO2R2016a\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_amigo\simulate_amigo_model.c:1:
+C:\MATLAB_R2015b_64/extern/include/mex.h:202:27: note: expected 'const char *' but argument is of type 'struct FILE *'
+ LIBMWMEX_API_EXTERN_C int mexPrintf(
+                           ^
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_interface\interface_with_matlab.c: In function 'mexFunction':
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Kernel\IVP_solvers\cvodes\C_src4Amigo\src\src_interface\interface_with_matlab.c:200:17: warning: assignment from incompatible pointer type
+    stats_struct = mxGetPr(plhs[5]);
+                 ^
+
+MEX completed successfully.
+
+
+------&gt;Files generated....
+
+ans = 
+
+           model: [1x1 struct]
+            exps: [1x1 struct]
+          ivpsol: [1x1 struct]
+           PEsol: [1x1 struct]
+          nlpsol: [1x1 struct]
+            rank: [1x1 struct]
+             rid: [1x1 struct]
+          OEDsol: [1x1 struct]
+           DOsol: [1x1 struct]
+           pathd: [1x1 struct]
+           plotd: [1x1 struct]
+      input_file: []
+    save_results: 1
+       randstate: []
+          symver: 'new'
+
+</pre><p>Solves the Parameter Estimation with regularization for the selected regularization parameters. Find the optimal regularization parameter based on the Generalized Crossvalidation formula (default).</p><pre class="codeinput">[reg_summary, results, inputs]= AMIGO_REG_PE(inputs);
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+WARNING:
+		regularization.alpha is empty. The regularization parameter is taken from the regularization.alphaSet.
+
+ 
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Heterocedastic noise a+b*y. 
+
+			*Experiment 1:
+ 
+			Observable 1, 0.003000 ,0.100000 
+			Observable 2, 0.100000 ,0.100000
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+regularization weighting matrix for global unknowns:
+     1     0     0     0     0     0     0     0
+     0     1     0     0     0     0     0     0
+     0     0     1     0     0     0     0     0
+     0     0     0     1     0     0     0     0
+     0     0     0     0     1     0     0     0
+     0     0     0     0     0     1     0     0
+     0     0     0     0     0     0     1     0
+     0     0     0     0     0     0     0     1
+
+REGULARIZATION Report:
+      Forward computation for the 1 regularization parameter
+.....
+intermediate outputs deleted
+.....
+
+REGULARIZATION Report:
+      Forward computation for the 2 regularization parameter
+.....
+intermediate outputs deleted
+.....
+
+REGULARIZATION Report:
+      Forward computation for the 3 regularization parameter
+.....
+intermediate outputs deleted
+.....
+
+REGULARIZATION Report:
+      Forward computation for the 4 regularization parameter
+.....
+intermediate outputs deleted
+.....
+
+REGULARIZATION Report:
+      Forward computation for the 5 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Forward computation for the 6 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Forward computation for the 7 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Backward computation for the 7 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Backward computation for the 6 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Backward computation for the 5 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Backward computation for the 4 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Backward computation for the 3 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+      Backward computation for the 2 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+REGULARIZATION Report:
+       Backward computation for the 1 regularization parameter
+.....
+intermediate outputs deleted
+..... 
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+
+
+------&gt; WARNING message
+
+		 You have selected to use pseudo experimental data,
+		 however you are providing inputs.exps.exp_data{iexp}. 
+		 The inputs.exps.data_type is being changed to real.
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+*************************************************************************
+
+
+------&gt;IMPORTANT!!: Most of the optimization solvers have their own
+                    tunning parameters (options).
+                    Defaults have been assigned in the *NLPsolver*_options
+                    files. You may need to modify those settings for your
+                    particular problem, specially:
+                      - maximum number of function evaluations /iterations,
+                      - maximum computational time
+
+
+******************************************************************
+
+  Solving the NLP problem with
+		&gt;Bounds on the unknowns:
+
+		v_guess(1)=0.699541;  v_min(1)=0.001000;  v_max(1)=1000.000000;
+		v_guess(2)=0.782819;  v_min(2)=0.001000;  v_max(2)=1000.000000;
+		v_guess(3)=0.783393;  v_min(3)=0.001000;  v_max(3)=1000.000000;
+		v_guess(4)=0.109727;  v_min(4)=0.001000;  v_max(4)=1000.000000;
+		v_guess(5)=0.103650;  v_min(5)=0.001000;  v_max(5)=1000.000000;
+		v_guess(6)=0.103626;  v_min(6)=0.001000;  v_max(6)=1000.000000;
+		v_guess(7)=0.485128;  v_min(7)=0.001000;  v_max(7)=1000.000000;
+		v_guess(8)=0.479683;  v_min(8)=1.000000;  v_max(8)=12.000000;
+
+
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+------------------------------------------------------------------
+ This is DN2GB (NL2SOL v2.3)
+ Authors: John Dennis, David Gay, Roy Welsch
+ MEX Interface J. Currie 2012
+
+ Problem Properties:
+ # Decision Variables:        8
+ # Data Points:              28
+------------------------------------------------------------------
+ feval            sse
+    1            54.37
+
+
+---------------------------------------------------
+Local sensitivity problem related active settings
+---------------------------------------------------
+senssolver: cvodes
+ivp_RelTol: 1e-05
+ivp_AbsTol: 1e-07
+sens_RelTol: ~1e-05
+sensmex: cvodesg_GoodwinOsc
+Forward Sensitivity Equations: symbolically given
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+sens_RelTol: ~1e-05
+    2           54.393
+
+ *** SUCCESSFUL TERMINATION ***
+ *** relative function convergence ***
+------------------------------------------------------------------
+
+NL2SOL ended after 1 iteration and 3 function evaluation:
+       Results: Optimal
+
+------------------------------------------------------------------
+ This is DN2GB (NL2SOL v2.3)
+ Authors: John Dennis, David Gay, Roy Welsch
+ MEX Interface J. Currie 2012
+
+ Problem Properties:
+ # Decision Variables:        8
+ # Data Points:              28
+------------------------------------------------------------------
+ feval            sse
+    1           58.667
+    2           57.129
+    3           55.725
+    4             54.6
+    5           55.054
+    6           54.488
+    7           54.377
+    8           54.418
+    9           54.371
+ feval            sse
+   10            54.37
+   11            54.37
+
+ *** SUCCESSFUL TERMINATION ***
+ *** relative function convergence ***
+------------------------------------------------------------------
+
+NL2SOL ended after 7 iteration and 12 function evaluation:
+       Results: Optimal
+
+------------------------------------------------------------------
+ This is DN2GB (NL2SOL v2.3)
+ Authors: John Dennis, David Gay, Roy Welsch
+ MEX Interface J. Currie 2012
+
+ Problem Properties:
+ # Decision Variables:        8
+ # Data Points:              28
+------------------------------------------------------------------
+ feval            sse
+    1           58.698
+    2           57.192
+    3           54.951
+    4           54.602
+    5           54.756
+    6           54.931
+    7           54.457
+    8           54.405
+    9           54.377
+ feval            sse
+   10            54.37
+   11            54.37
+
+ *** SUCCESSFUL TERMINATION ***
+ *** relative function convergence ***
+------------------------------------------------------------------
+
+NL2SOL ended after 7 iteration and 12 function evaluation:
+       Results: Optimal
+
+
+------&gt; Computing Correlation Matrix for unknowns...
+
+--------------------------------------------------------------------------
+		
+Experiment 1: 
+		inputs.exp_data{1}=[
+		0.103368  2.93011
+		0.00563157  3.2856
+		0.0474774  2.75062
+		0.00312373  1.50981
+		0.0109888  2.9967
+		0.0467206  2.01449
+		0.0107902  2.07108
+		0.0142609  2.59511
+		0.042316  1.63785
+		0.00225267  1.76415
+		];
+
+
+
+---------------------------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Mean / Maximum value of the residuals in percentage (100*(data-model)/data):
+
+		Experiment 1 : 
+		 Observable 1 --&gt;  mean error: 50.779502 %	 max error: 304.513640 %
+		 Observable 2 --&gt;  mean error: 10.362343 %	 max error: 31.393620 %
+
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Maximum absolute value of the residuals (data-model):
+
+		Experiment 1 : 
+		 Observable 1 --&gt;  max residual: 0.013590 max data: 0.103368
+		 Observable 2 --&gt;  max residual: 0.473984 max data: 3.285605
+
+--------------------------------------------------------------------------	   
+
+&gt;&gt;&gt;&gt; Best objective function: 54.369596 
+	   
+
+&gt;&gt;&gt;&gt; Computational cost: 0.998406 s
+&gt; 100.00% of successful simulationn
+&gt; 100.00% of successful sensitivity calculations
+
+
+&gt;&gt;&gt; Best values found and the corresponding asymptotic confidence intervals
+
+
+
+&gt;&gt;&gt; Estimated global parameters: 
+
+	k1 : 6.9954e-01  +-  9.6776e+01 (1.38e+04%); 
+	k2 : 1.0973e-01  +-  3.3771e-02 (    30.8%); 
+	k3 : 4.8513e-01  +-  6.9906e+00 (1.44e+03%); 
+	k4 : 9.4366e-02  +-  2.0204e+00 (2.14e+03%); (bound active) 
+	k5 : 1.7811e+00  +-  2.5660e+01 (1.44e+03%); 
+	k6 : 9.1973e-02  +-  1.9739e+00 (2.15e+03%); (bound active) 
+	Ki : 9.8606e-01  +-  1.6141e+01 (1.64e+03%); 
+	n  : 8.6404e+00  +-  4.7041e+00 (    54.4%); 
+
+
+&gt;&gt;&gt; Correlation matrix for the global unknowns:
+
+	 1.000000e+00	 -5.883242e-02	 6.964437e-01	 7.005876e-01	 -6.901776e-01	 -6.963957e-01	 -9.998370e-01	 -7.043906e-01
+	 -5.883242e-02	 1.000000e+00	 -1.533868e-01	 -1.179875e-01	 1.269907e-01	 1.001117e-01	 5.954448e-02	 -1.253875e-01
+	 6.964437e-01	 -1.533868e-01	 1.000000e+00	 9.983655e-01	 -9.994931e-01	 -9.976545e-01	 -6.841409e-01	 -4.497571e-04
+	 7.005876e-01	 -1.179875e-01	 9.983655e-01	 1.000000e+00	 -9.989262e-01	 -9.998061e-01	 -6.882506e-01	 -8.259169e-03
+	 -6.901776e-01	 1.269907e-01	 -9.994931e-01	 -9.989262e-01	 1.000000e+00	 9.988022e-01	 6.776978e-01	 -4.993546e-03
+	 -6.963957e-01	 1.001117e-01	 -9.976545e-01	 -9.998061e-01	 9.988022e-01	 1.000000e+00	 6.839430e-01	 4.929065e-03
+	 -9.998370e-01	 5.954448e-02	 -6.841409e-01	 -6.882506e-01	 6.776978e-01	 6.839430e-01	 1.000000e+00	 7.158807e-01
+	 -7.043906e-01	 -1.253875e-01	 -4.497571e-04	 -8.259169e-03	 -4.993546e-03	 4.929065e-03	 7.158807e-01	 1.000000e+00
+
+------&gt;No plots are being generated, since results.plotd.plotlevel='noplot'.
+         Change results.plotd.plotlevel to 'full','medium' or 'min' to obtain authomatic plots.
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_multi_nl2sol_run1_regstep2_alpha1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_multi_nl2sol_run1_regstep2_alpha1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_multi_nl2sol_run1_regstep2_alpha1\strreport_GoodwinOsc_run1_regstep2_alpha1.mat')"&gt;here&lt;/a&gt; to load the results.
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_eSS_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_eSS_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_eSS_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_Reg_01.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_02.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_03.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_04.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_05.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_06.png" alt=""> <h2>Generalized cross validation<a name="9"></a></h2><p>Check the GCV curve for the minimum. The corresponding regularized solution is taking and cross-validated against a non-regularized estimation.</p><pre class="codeinput"> <span class="comment">% update inputs with the GCV optimal estimated parameters:</span>
+inputs.PEsol.global_theta_guess = reg_summary.GCV.opt_PEresults.fit.global_theta_estimated;
+</pre><h2>RUN Goodwin model parameter estimation example without regularization<a name="10"></a></h2><p>Use the saved input, but turn regularization off.</p><pre class="codeinput">inputs_noreg = copy_inputs;
+inputs_noreg.nlpsol.regularization.ison = false;
+
+
+results_noreg = AMIGO_PE(inputs_noreg);                <span class="comment">% Estimates model parameters without regularization</span>
+
+
+inputs_noreg.PEsol.global_theta_guess = <span class="keyword">...</span>
+            results_noreg.fit.global_theta_estimated;  <span class="comment">% updates inputs with estimated parameters</span>
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Heterocedastic noise a+b*y. 
+
+			*Experiment 1:
+ 
+			Observable 1, 0.003000 ,0.100000 
+			Observable 2, 0.100000 ,0.100000
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+*************************************************************************
+
+
+------&gt;IMPORTANT!!: Most of the optimization solvers have their own
+                    tunning parameters (options).
+                    Defaults have been assigned in the *NLPsolver*_options
+                    files. You may need to modify those settings for your
+                    particular problem, specially:
+                      - maximum number of function evaluations /iterations,
+                      - maximum computational time
+
+
+******************************************************************
+
+  Solving the NLP problem with
+		&gt;Summary of selected eSS options: 
+ess_options.
+	combination:	1
+	delete:	'standard'
+	dim_refset:	'auto'
+	diverse_criteria:	1
+	initiate:	1
+	intens:	10
+	inter_save:	0
+	iterprint:	1
+	local:	(1x1 struct)
+	log_var:	(1x7 double)
+	maxeval:	20000
+	maxtime:	600
+	n_stuck:	0
+	ndiverse:	'auto'
+	plot:	0
+	prob_bound:	0.5
+	regenerate:	3
+	strategy:	0
+	tolc:	1e-05
+	tolf:	0.0001
+	tolx:	0.001
+	weight:	1000000
+nl2sol_settings.
+	display:	2
+	grad:	'internalFD'
+	iterfun:	[]
+	maxfeval:	200
+	maxiter:	150
+	objrtol:	1e-06
+	tolafun:	1e-06
+	tolrfun:	1e-05
+
+		&gt;Bounds on the unknowns:
+
+		v_guess(1)=12.869483;  v_min(1)=0.001000;  v_max(1)=1000.000000;
+		v_guess(2)=2.272013;  v_min(2)=0.001000;  v_max(2)=1000.000000;
+		v_guess(3)=0.151017;  v_min(3)=0.001000;  v_max(3)=1000.000000;
+		v_guess(4)=4.191917;  v_min(4)=0.001000;  v_max(4)=1000.000000;
+		v_guess(5)=0.005543;  v_min(5)=0.001000;  v_max(5)=1000.000000;
+		v_guess(6)=0.024338;  v_min(6)=0.001000;  v_max(6)=1000.000000;
+		v_guess(7)=0.002356;  v_min(7)=0.001000;  v_max(7)=1000.000000;
+		v_guess(8)=10.543734;  v_min(8)=1.000000;  v_max(8)=12.000000;
+
+
+------------------------------------------------------------------------------ 
+ eSS R2010B - Enhanced Scatter Search    
+&lt;c&gt; IIM-CSIC, Vigo, Spain -  email: gingproc@iim.csic.es 
+------------------------------------------------------------------------------ 
+
+Refset size automatically calculated: 10
+Number of diverse solutions automatically calculated: 80
+Initial Pop: NFunEvals: 88  Bestf: 281.126      CPUTime: 0.249602    Var: 4.01289e+11 
+Iteration: 1 NFunEvals: 188  Bestf: 211.32      CPUTime: 0.483603    Var: 75964.7 
+Call local solver: NL2SOL 
+Initial point function value: 211.319973 
+.....
+intermediate outputs deleted
+..... 
+
+Iteration: 172 NFunEvals: 17371  Bestf: 8.75967      CPUTime: 76.502890    Var: 153985 
+Iteration: 173 NFunEvals: 17463  Bestf: 8.75967      CPUTime: 77.423296    Var: 64426.6 
+Iteration: 174 NFunEvals: 17562  Bestf: 8.75967      CPUTime: 78.234502    Var: 58342.2 
+Iteration: 175 NFunEvals: 17658  Bestf: 8.75967      CPUTime: 79.108107    Var: 4296.18 
+Iteration: 176 NFunEvals: 17751  Bestf: 8.75967      CPUTime: 80.137714    Var: 3989.2 
+Iteration: 177 NFunEvals: 17842  Bestf: 8.75967      CPUTime: 81.245321    Var: 3600.86 
+Iteration: 178 NFunEvals: 17937  Bestf: 8.75967      CPUTime: 82.274927    Var: 3035.32 
+Iteration: 179 NFunEvals: 18029  Bestf: 8.75967      CPUTime: 83.242134    Var: 3035.13 
+Iteration: 180 NFunEvals: 18120  Bestf: 8.75967      CPUTime: 84.256140    Var: 3034.32 
+Iteration: 181 NFunEvals: 18211  Bestf: 8.75967      CPUTime: 85.348147    Var: 2796.39 
+
+.....
+intermediate outputs deleted
+..... 
+
+Iteration: 200 NFunEvals: 20042  Bestf: 8.75967      CPUTime: 115.893143    Var: 20951.4 
+
+Final local refinement with: NL2SOL 
+Initial point function value: 8.759674 
+
+------------------------------------------------------------------
+ This is DN2GB (NL2SOL v2.3)
+ Authors: John Dennis, David Gay, Roy Welsch
+ MEX Interface J. Currie 2012
+
+ Problem Properties:
+ # Decision Variables:        8
+ # Data Points:              20
+------------------------------------------------------------------
+ feval            sse
+    1           8.7597
+    2           8.7992
+    3           8.7597
+    4           8.7597
+    5           8.7597
+
+ *** TERMINATION: EARLY EXIT ***
+ *** CAUSE: singular convergence. the hessian near the current iterate appears to be singular or nearly so. ***
+------------------------------------------------------------------
+
+NL2SOL ended after 2 iteration and 6 function evaluation:
+       Results: Singular convergence
+Local solution function value: 8.759673 
+Number of function evaluations in the local search: 8 
+CPU Time of the local search: 0.073356  seconds 
+
+Maximum number of function evaluations achieved
+Best solution value		8.75967
+Decision vector
+	363.302
+	0.0967953
+	0.431653
+	0.0655313
+	2.1387
+	0.155203
+	0.676324
+	12
+CPU time		115.971
+Number of function evaluations		20051
+
+
+------&gt; Computing Correlation Matrix for unknowns...&lt;strong&gt;
+----------------------------------------------------------&lt;/strong&gt;&lt;strong&gt;
+------&gt; WARNING message
+&lt;/strong&gt;&lt;strong&gt;		The Fisher Information Matrix is nearly singular.
+&lt;/strong&gt;&lt;strong&gt;----------------------------------------------------------
+
+&lt;/strong&gt;Warning: Matrix is close to singular or badly scaled. Results may be inaccurate.
+RCOND =  1.993131e-21. 
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		0.0981311  2.28432
+		0.00745853  2.82016
+		0.043806  2.47883
+		0.00653057  1.76231
+		0.0127868  3.14772
+		0.056259  1.71017
+		0.00712653  2.31336
+		0.0162602  2.72972
+		0.0589458  1.97595
+		0.00474119  1.82156
+		];
+
+
+		Error data 1: 
+		Standard deviation: %
+		inputs.exps.error_data{1}=[
+		0.00954265  0.268167
+		0.00306851  0.310017
+		0.00479077  0.280859
+		0.00307373  0.210545
+		0.00324977  0.303104
+		0.00576406  0.217445
+		0.00305468  0.224772
+		0.00334827  0.293677
+		0.00587353  0.20538
+		0.00305726  0.22781
+		];
+
+
+
+--------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Mean / Maximum value of the residuals in percentage (100*(data-model)/data):
+
+		Experiment 1 : 
+		 Observable 1 --&gt;  mean error: 9.711764 %	 max error: 29.032165 %
+		 Observable 2 --&gt;  mean error: 8.334960 %	 max error: 12.299949 %
+
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Maximum absolute value of the residuals (data-model):
+
+		Experiment 1 : 
+		 Observable 1 --&gt;  max residual: 0.007310 max data: 0.098131
+		 Observable 2 --&gt;  max residual: 0.344951 max data: 3.147716
+
+--------------------------------------------------------------------------	   
+
+&gt;&gt;&gt;&gt; Best objective function: 8.759673 
+	   
+
+&gt;&gt;&gt;&gt; Computational cost: 115.971143 s
+&gt; 99.88% of successful simulationn
+&gt; 100.00% of successful sensitivity calculations
+
+
+&gt;&gt;&gt; Best values found and the corresponding asymptotic confidence intervals
+
+
+
+&gt;&gt;&gt; Estimated global parameters: 
+
+	k1 : 3.6330e+02  +-  2.4884e+07 (6.85e+06%); 
+	k2 : 9.6795e-02  +-  2.1730e-02 (    22.4%); (bound active) 
+	k3 : 4.3165e-01  +-  3.6186e-01 (    83.8%); 
+	k4 : 6.5531e-02  +-  5.3653e-02 (    81.9%); (bound active) 
+	k5 : 2.1387e+00  +-  1.4598e+00 (    68.3%); 
+	k6 : 1.5520e-01  +-  1.3565e-01 (    87.4%); 
+	Ki : 6.7632e-01  +-  3.8608e+03 (5.71e+05%); 
+	n  : 1.2000e+01  +-  9.1031e+00 (    75.9%); (bound active) 
+
+
+&gt;&gt;&gt; Correlation matrix for the global unknowns:
+
+	 1.000000e+00	 6.744610e-03	 -1.379163e-02	 -5.461965e-01	 2.852252e-01	 6.672699e-01	 -1.000000e+00	 -6.504841e-01
+	 6.744610e-03	 1.000000e+00	 -5.703889e-01	 -1.047177e-01	 1.550162e-01	 -3.317606e-01	 -6.770746e-03	 -3.203471e-01
+	 -1.379163e-02	 -5.703889e-01	 1.000000e+00	 3.355107e-01	 -7.919933e-01	 -7.541181e-02	 1.377378e-02	 -4.794666e-02
+	 -5.461965e-01	 -1.047177e-01	 3.355107e-01	 1.000000e+00	 -3.545437e-01	 -8.509211e-01	 5.461244e-01	 -1.178750e-01
+	 2.852252e-01	 1.550162e-01	 -7.919933e-01	 -3.545437e-01	 1.000000e+00	 4.125388e-01	 -2.851959e-01	 5.118700e-02
+	 6.672699e-01	 -3.317606e-01	 -7.541181e-02	 -8.509211e-01	 4.125388e-01	 1.000000e+00	 -6.671992e-01	 1.233274e-01
+	 -1.000000e+00	 -6.770746e-03	 1.377378e-02	 5.461244e-01	 -2.851959e-01	 -6.671992e-01	 1.000000e+00	 6.505556e-01
+	 -6.504841e-01	 -3.203471e-01	 -4.794666e-02	 -1.178750e-01	 5.118700e-02	 1.233274e-01	 6.505556e-01	 1.000000e+00
+
+------&gt;No plots are being generated, since results.plotd.plotlevel='noplot'.
+         Change results.plotd.plotlevel to 'full','medium' or 'min' to obtain authomatic plots.
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_eSS_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_eSS_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\PE_GoodwinOsc_eSS_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><h2>Crossvalidation of regularized and non-regularized estimations<a name="11"></a></h2><p>Generate an independent dataset with perturbed conditions to measure the out-of-sample prediction capabilities of the calibrated models.</p><pre class="codeinput"><span class="comment">% get basic inputs again</span>
+cv_inputs = copy_inputs;
+<span class="comment">% tweek the cross-validation condition</span>
+cv_inputs.exps.exp_y0{1}=[0.2 0.89 1.5];
+cv_inputs.exps.t_f{1}=300;
+cv_inputs.exps.t_s{1}=linspace(1,300,10);
+cv_inputs.PEsol.global_theta_guess=[]; <span class="comment">% remove guess parameters</span>
+</pre><p>Use AMIGO_SData() to generate in-silico dataset</p><pre class="codeinput">cv_data = AMIGO_SData(cv_inputs);
+cv_inputs.exps.exp_data =  cv_data.sim.exp_data;
+cv_inputs.exps.error_data =  cv_data.sim.error_data;
+</pre><pre class="codeoutput">
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+Warning: Directory already exists. 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+
+
+------&gt; Calculating simulated experimental data for synthetic problems.
+
+         Experimental noise being used:
+		 Heterocedastic noise a+b*y. 
+
+			*Experiment 1:
+ 
+			Observable 1, 0.003000 ,0.100000 
+			Observable 2, 0.100000 ,0.100000
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+
+--------------------------------------------------------------------------
+&gt;&gt;&gt;&gt;    Generated experimental data for each experiment:
+
+		
+Experimental data 1: 
+		inputs.exps.exp_data{1}=[
+		0.179934  2.01601
+		0.00447314  5.07859
+		0.041741  2.95363
+		0.012914  1.51758
+		0.00271874  2.3829
+		0.00451668  3.00892
+		0.0242592  1.96742
+		0.0456234  2.11435
+		0.0230021  1.50237
+		0.005896  2.17741
+		];
+
+
+		Error data 1: 
+		Standard deviation: %
+		inputs.exps.error_data{1}=[
+		0.0186864  0.246602
+		0.0030731  0.504182
+		0.00534874  0.325347
+		0.00345051  0.189547
+		0.00304714  0.260501
+		0.00323731  0.302819
+		0.00398131  0.283187
+		0.00579768  0.211697
+		0.0038358  0.188536
+		0.00305854  0.225756
+		];
+
+
+
+--------------------------------------------------------------------------
+------&gt;No plots are being generated, since inputs.plotd.plotlevel='noplot'.
+         Change inputs.plotd.plotlevel to 'full','medium' or 'min' to obtain authomatic plots.
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><p>Cross-validate the regularized and the non-regularized models</p><pre class="codeinput">cv_nonreg = AMIGO_CompareModels(inputs_noreg,cv_inputs,<span class="string">'min'</span>);
+cv_reg = AMIGO_CompareModels(inputs,cv_inputs,<span class="string">'min'</span>);
+</pre><pre class="codeoutput">------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+------&gt; WARNING message
+
+		 You have selected to use pseudo experimental data,
+		 however you are providing inputs.exps.exp_data{iexp}. 
+		 The inputs.exps.data_type is being changed to real.
+Warning: Directory already exists. 
+
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+Warning: Directory already exists. 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+
+
+------&gt;Plotting experimental data vs observables and computing residuals.
+
+------&gt;Performing simulation for the given set of parameters
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+
+--------------------------------------------------------------------------
+		
+Experiment 1: 
+		inputs.exp_data{1}=[
+		0.179934  2.01601
+		0.00447314  5.07859
+		0.041741  2.95363
+		0.012914  1.51758
+		0.00271874  2.3829
+		0.00451668  3.00892
+		0.0242592  1.96742
+		0.0456234  2.11435
+		0.0230021  1.50237
+		0.005896  2.17741
+		];
+
+
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+Warning: Directory already exists. 
+
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+Warning: Directory already exists. 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+
+
+------&gt;Plotting experimental data vs observables and computing residuals.
+
+------&gt;Performing simulation for the given set of parameters
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+
+--------------------------------------------------------------------------
+		
+Experiment 1: 
+		inputs.exp_data{1}=[
+		0.179934  2.01601
+		0.00447314  5.07859
+		0.041741  2.95363
+		0.012914  1.51758
+		0.00271874  2.3829
+		0.00451668  3.00892
+		0.0242592  1.96742
+		0.0456234  2.11435
+		0.0230021  1.50237
+		0.005896  2.17741
+		];
+
+
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+------&gt; WARNING message
+
+		 AMIGO_check_model: You did not specify inputs.model.exe_type, standard will be assumed
+
+Warning: AMIGO_check_IVPsolver: Changing ivp solver to the only option
+compatible with charmodelC, cvodes 
+Warning: AMIGO_check_IVPsolver: Changing sensitivities solver to, cvodes 
+
+
+------&gt; WARNING message
+
+		 You have selected to use pseudo experimental data,
+		 however you are providing inputs.exps.exp_data{iexp}. 
+		 The inputs.exps.data_type is being changed to real.
+Warning: Directory already exists. 
+
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+Warning: Directory already exists. 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+
+
+------&gt;Plotting experimental data vs observables and computing residuals.
+
+------&gt;Performing simulation for the given set of parameters
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+
+--------------------------------------------------------------------------
+		
+Experiment 1: 
+		inputs.exp_data{1}=[
+		0.179934  2.01601
+		0.00447314  5.07859
+		0.041741  2.95363
+		0.012914  1.51758
+		0.00271874  2.3829
+		0.00451668  3.00892
+		0.0242592  1.96742
+		0.0456234  2.11435
+		0.0230021  1.50237
+		0.005896  2.17741
+		];
+
+
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+Warning: Directory already exists. 
+
+
+*********************************** 
+     AMIGO2, Copyright @CSIC      
+     AMIGO2_R2016a [April 2016]      
+*********************************** 
+
+*Date: 13-Apr-2016
+
+------&gt;Checking inputs....
+Warning: Directory already exists. 
+Warning: Directory access failure:
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m 
+
+ans =
+
+D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\AMIGO_gen_obs_GoodwinOsc.m
+
+
+
+
+------&gt;Plotting experimental data vs observables and computing residuals.
+
+------&gt;Performing simulation for the given set of parameters
+
+-----------------------------------------------
+ Initial value problem related active settings
+-----------------------------------------------
+ivpsolver: cvodes
+RelTol: 1e-05
+AbsTol: 1e-07
+MaxStepSize: Inf
+MaxNumberOfSteps: 1e+06
+
+
+--------------------------------------------------------------------------
+		
+Experiment 1: 
+		inputs.exp_data{1}=[
+		0.179934  2.01601
+		0.00447314  5.07859
+		0.041741  2.95363
+		0.012914  1.51758
+		0.00271874  2.3829
+		0.00451668  3.00892
+		0.0242592  1.96742
+		0.0456234  2.11435
+		0.0230021  1.50237
+		0.005896  2.17741
+		];
+
+
+
+------&gt;Plotting results....
+
+&lt;strong&gt;
+
+------&gt;Results (report and struct_results.mat) and plots were kept in the directory:
+
+		&lt;/strong&gt;&lt;strong&gt;D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1&lt;/strong&gt;
+
+		Click &lt;a href="matlab: cd('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1')"&gt;here&lt;/a&gt; to go to the results folder or &lt;a href="matlab: load('D:\AMIGO2_REPO_2014\AMIGO2R2016a\Results\Regularization_Goodwin\SData_GoodwinOsc_run1\strreport_GoodwinOsc_run1.mat')"&gt;here&lt;/a&gt; to load the results.
+</pre><img vspace="5" hspace="5" src="doc_AMIGO_Reg_07.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_08.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_09.png" alt=""> <img vspace="5" hspace="5" src="doc_AMIGO_Reg_10.png" alt=""> <p>Compare results</p><pre class="codeinput">    disp(<span class="string">'Non-regularized Chi2 error:'</span>)
+    disp(cv_nonreg.Chi2)
+    disp(<span class="string">'Regularized Chi2 error:'</span>)
+    disp(cv_reg.Chi2)
+</pre><pre class="codeoutput">Non-regularized Chi2 error:
+  132.9387
+
+Regularized Chi2 error:
+  190.3718
+
+</pre><p>note that results may change due to (1) the stochastic global optimizer, (2) random numbers used to generate calibration and cross-validation data.</p><h2>See also<a name="17"></a></h2><div><ul><li><a href="doc_AMIGO_ivpsol.html">IVP solvers</a></li><li><a href="doc_AMIGO_nlpsol.html">NLP solvers</a></li><li><a href="doc_AMIGO_pecost.html">Cost functions in PE</a></li><li><a href="doc_AMIGO_PE.html">How to solve the parameter estimation problem with constraints</a></li><li><a href="doc_AMIGO_Input.html">How to input a problem in AMIGO2</a></li><li><a href="doc_AMIGO_pseudoData.html">How to generate pseudo-experimental data</a></li></ul></div><h2>References<a name="19"></a></h2><p>Regularization technique is described in</p><p>HW Engl, M Hanke, and A Neubauer. Regularization of Inverse Problems. Dordrecht: Kluwer Academic Publisher., 1996.</p><p>A G&aacute;bor and JR Banga. Robust and efficient parameter estimation in dynamic models of biological systems. BMC Systems Biology, 9(1):1&#8211;25, 2015.</p><pre class="codeinput">    AMIGO_htmldoc_inputs(inputs,fullfile(pwd,<span class="string">'html'</span>,<span class="string">'parestreg.html'</span>));
+</pre><pre class="codeoutput">Error using fprintf
+Invalid file identifier. Use fopen to generate a valid file identifier.
+
+Error in AMIGO_htmldoc_inputs (line 22)
+fprintf(fid,'&lt;!DOCTYPE html&gt;\n');
+
+Error in doc_AMIGO_Reg (line 327)
+    AMIGO_htmldoc_inputs(inputs,fullfile(pwd,'html','parestreg.html'));   
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 8.6<br></p></div><!--
+##### SOURCE BEGIN #####
+%%
+% <<logo_AMIGO2_small.png>>
+%
+% <html>
+% <p style="color:#007946;font-size:18pt;text-align:right; margin-top: 1px; margin-bottom: 1px;"> <b>AMIGO_REG_PE</b></p>
+% <hr align="left" width="820">
+% </html>
+%% Task description
+
+%%
+% <html>
+% <div style="background-color: #E6FAE6; margin-left: 1px; margin-right: 5px; padding-bottom: 1px; padding-left: 8px; padding-right: 8px; padding-top: 2px; line-height: 1.25">
+% <dl> Performs model unknowns estimation using Tikhonov regularization
+% techniques.</dl> 
+% <dl> Provide reference
+% parameter values for the unknown parameter and weighting matrix if
+% the reference parameters have very different magnitudes.
+% AMIGO_REG_PE efficiently solves a sequence of parameter estimation
+% problems for a range of regularization parameters. Then Generalized Cross
+% Validation is applied to choose the best regularization parameter among
+% the given candidates. 
+% </dl>
+% <dl> </dl>
+% <dl> It may handle:</dl>
+% <ul>
+% <li> Different meassures of distance: weighted least squares or the log-likelihood function (llk) for 
+%      Gaussian experimental noise. </li>
+% <li> Several types of Gaussian experimental noise </li>
+% <li> Different types of unknowns: global parameters and initial conditions and local (experiment 
+%      dependent) parameters and initial conditions.</li>
+% <li> Linear and non-lineas constraints on state variables and parameters </li>
+% </ul>
+% <dl> </dl>
+% <dl> It may call several optimizers:</dl>
+% <ul>
+% <li> LOCAL optimization methods: indirect and direct methods
+% <li> MULTISTART of local methods</li>
+% <li> GLOBAL optimization methods: DE, SRES</li>
+% <li> HYBRID optimization methods: eSS (as included in MEIGO), sequential hybrids</li>
+% </ul>
+% <dl> </dl>
+% <dl> Regularization options:</dl>
+% <ul>
+% <li> provide prior knowledge for local/global unknowns and estimated initial conditions</li>
+% <li> provide weighting matrix for reference parmeters</li>
+% <li> set up the set of regularization parameters</li>
+% </ul>
+% <dl> </dl>
+% <dl> Options:</dl>
+% <ul>
+% <li> 'run_identifier' to keep different folders for different runs, this avoids overwriting
+% <li> 'nlp_solver' to rapidly change the optimization method </li>
+% </ul>
+% </div>
+% </html>
+% 
+
+%% Call AMIGO_REG_PE from command line
+
+%%
+% It is recommended to keep all inputs in a *'problem_file'.m*. DO task can then be called in two different ways:
+%
+% 1. Using the *inputs structure*:
+%
+%    > problem_file   
+%
+%    > [reg_summary results inputs]=AMIGO_REG_PE(inputs)     
+%
+% 2. Using the *input file*:
+%
+%    > [reg_summary results inputs]=AMIGO_REG_PE('problem_file') 
+%
+%    > [reg_summary results inputs]=AMIGO_REG_PE('problem_file','run_ident')  
+%
+%    > [reg_summary results inputs]=AMIGO_REG_PE('problem_file','run_ident','nlp_solver')
+%
+ 
+%% Example 
+    
+% TITLE: Goodwin's oscillator model 
+
+
+%======================
+% PATHS RELATED DATA
+%======================
+inputs.pathd.results_folder='Regularization_Goodwin'; % Folder to keep results      
+inputs.pathd.short_name='GoodwinOsc';                 % To identify figures and reports    
+
+%======================
+% MODEL RELATED DATA
+%======================
+
+inputs.model.input_model_type='charmodelC';           % Model type- C      
+
+inputs.model.n_st=3;                                  % Number of states      
+inputs.model.n_par=8;                                 % Number of model parameters 
+inputs.model.n_stimulus=0;                            % Number of inputs, stimuli or control variables   
+inputs.model.st_names=char('x1','x2','x3');           % Names of the states                                              
+inputs.model.par_names=char('k1','k2','k3','k4',...
+                     'k5','k6','Ki','n');             % Names of the parameters                     
+inputs.model.eqns=...                                 % Equations describing system dynamics. 
+  char('dx1 = k1*Ki^n/(Ki^n + x3^n) - k2*x1;',...
+    'dx2 = k3*x1-k4*x2;',...
+    'dx3 = k5*x2 - k6*x3;');                          %Time derivatives are regarded 'd'st_name''
+                     
+                
+inputs.model.par = [1 0.1 1 0.1 1 0.1 1 10];         % Nominal value for the parameters
+                 
+inputs.model.AMIGOsensrhs = 1;                       % Generate the sensitivity equations for exact 
+                                                     % Jacobian computation
+%==================================
+% EXPERIMENTAL SCHEME RELATED DATA
+%==================================
+ inputs.exps.n_exp=1;                                % Number of experiments                                                                            
+ for iexp=1:inputs.exps.n_exp   
+ inputs.exps.exp_y0{iexp}=[0.1 0.2 2.5];             % Initial conditions for each experiment          
+ inputs.exps.t_f{iexp}=240;                          % Experiments duration
+ inputs.exps.t_con{iexp}=[0 240];                    % Input swithching times: Initial and final time
+ inputs.exps.ts_0{iexp}=1;                           % First sampling time
+ inputs.exps.n_s{iexp}=10;                           % Number of sampling times by default
+ inputs.exps.t_s{iexp}=linspace(1,240,10);           % Sampling times
+  
+% OBSEVABLES DEFINITION  
+ inputs.exps.n_obs{iexp}=2;                          % Number of observed quantities per experiment  
+ inputs.exps.obs_names{iexp}=char('Xobs','Zobs');    % Name of the observed quantities per experiment    
+ inputs.exps.obs{iexp}=char('Xobs=x1' ,'Zobs=x3');   % Observation function
+ end 
+ 
+ 
+                           
+%==================================
+% EXPERIMENTAL DATA RELATED INFO
+%==================================                                                            
+
+ inputs.exps.data_type='pseudo';                     % Type of experimental data: 
+                                                     % 'real'|'pseudo'|'pseudo_pos'(>=0)  
+inputs.exps.noise_type = 'hetero_lin';
+inputs.exps.std_deva{1} = [0.003 0.1 ];
+inputs.exps.std_devb{1} = [0.1 0.1];                  % Type of experimental noise: 
+                                                     % noise scales with the signal, with a low threshold 
+
+%==================================
+% UNKNOWNS RELATED DATA
+%==================================
+
+% GLOBAL UNKNOWNS (SAME VALUE FOR ALL EXPERIMENTS)
+inputs.PEsol.id_global_theta='all';                 %  'all'|User selected 
+inputs.PEsol.global_theta_max=1e3*ones(1,7);        % Maximum allowed values for the paramters
+inputs.PEsol.global_theta_max(8) = 12;              % 8th parameter is an exponent
+inputs.PEsol.global_theta_min=[1e-3*ones(1,7) 1];   % Minimum allowed values for the paramters
+inputs.PEsol.global_theta_guess= ...                % Initial guess
+AMIGO_logUniformIntialGuess(inputs.PEsol.global_theta_min,inputs.PEsol.global_theta_max);
+
+
+
+%==================================
+% COST FUNCTION RELATED DATA
+%==================================
+inputs.PEsol.PEcost_type='llk';                     %  'llk' (log likelihood) 
+inputs.PEsol.llk_type='hetero';
+inputs.PEsol.PEcostJac_type = 'llk';                % AMIGO2 computes high quality Jacobian based on 
+                                                    % exact sensitivities
+
+
+
+%==================================
+% NUMERICAL METHODS
+%==================================
+
+ 
+%
+% OPTIMIZATION
+%
+inputs.nlpsol.nlpsolver='eSS';                      % Solver used for optimization                                                         
+inputs.nlpsol.eSS.log_var = 1:7;                    % Index of parameters to be considered in log scale
+inputs.nlpsol.eSS.maxeval = 20000;                  % Maximum number of cost function evaluations
+inputs.nlpsol.eSS.maxtime = 600;                    % Maximum time spent for optimization
+inputs.nlpsol.eSS.local.solver = 'nl2sol';
+inputs.nlpsol.eSS.local.finish = 'nl2sol';
+inputs.nlpsol.eSS.local.nl2sol.maxiter = 150;       % Parameters for local solver
+inputs.nlpsol.eSS.local.nl2sol.maxfeval = 200;
+inputs.nlpsol.eSS.local.nl2sol.display = 2;
+inputs.nlpsol.eSS.local.nl2sol.objrtol = 1e-6;
+inputs.nlpsol.eSS.local.nl2sol.tolrfun = 1e-5;
+
+%======================
+% DISPLAY OF RESULTS
+%======================
+
+inputs.plotd.plotlevel='noplot'; % supress plots, since Regularization will call AMIGO_PE several times
+
+
+
+
+%======================
+% REGULARIZATION
+%======================
+inputs.nlpsol.regularization.ison = 1;
+inputs.nlpsol.regularization.method = 'tikhonov';     % Regularization approach
+inputs.nlpsol.regularization.tikhonov.gW = eye(8);    % Weighting matrix for global parameters, 
+                                                      % use lW{iexp} for
+                                                      % experiment-wise local parameters if defined
+inputs.nlpsol.regularization.tikhonov.gx0 = ...
+                     inputs.PEsol.global_theta_min;   % Reference parameters for global unknowns 
+                                                      % (prior knowledge). Default: lowest bound
+                                                      % lx0{iexp} for experiment-wise local parameters
+alpha1 = 5e-3;
+inputs.nlpsol.regularization.alphaSet = ...
+    logspace(log10(alpha1*100), log10(alpha1/20),7);  % Set of regularization parameters to be evaluated 
+                                                      % by generalized cross validation
+
+
+% Save a copy of inputs for later, for crossvalidation and for regularization-free
+% estimation
+copy_inputs = inputs;
+
+    %%
+    % More information regarding the inputs used in this example can be
+    % found <parestreg.html here>. 
+     
+    
+%% RUN Goodwin model parameter estimation example with regularization
+%===================================
+% CALL AMIGO2 from COMMAND LINE    
+%===================================
+% It is recommended to keep all inputs in a 'problem_file'.m.  
+% AMIGO2 REG_PE task can be called as follows:
+% AMIGO_REG_PE('problem_file','run_ident') or AMIGO_REG_PE(inputs)
+    
+    
+AMIGO_Prep(inputs)      % Calls the task for pre-processing      
+
+
+
+    %%
+    % Solves the Parameter Estimation with regularization for the selected 
+    % regularization parameters. Find the optimal regularization parameter
+    % based on the Generalized Crossvalidation formula (default).
+
+[reg_summary, results, inputs]= AMIGO_REG_PE(inputs);
+
+%% Generalized cross validation
+    % Check the GCV curve for the minimum. The corresponding regularized
+    % solution is taking and cross-validated against a non-regularized
+    % estimation. 
+
+ % update inputs with the GCV optimal estimated parameters:
+inputs.PEsol.global_theta_guess = reg_summary.GCV.opt_PEresults.fit.global_theta_estimated;
+
+%% RUN Goodwin model parameter estimation example without regularization
+% Use the saved input, but turn regularization off. 
+inputs_noreg = copy_inputs;
+inputs_noreg.nlpsol.regularization.ison = false;
+
+
+results_noreg = AMIGO_PE(inputs_noreg);                % Estimates model parameters without regularization
+
+
+inputs_noreg.PEsol.global_theta_guess = ...
+            results_noreg.fit.global_theta_estimated;  % updates inputs with estimated parameters
+
+
+
+%% Crossvalidation of regularized and non-regularized estimations 
+% Generate an independent dataset with perturbed conditions to measure the
+% out-of-sample prediction capabilities of the calibrated models. 
+
+% get basic inputs again
+cv_inputs = copy_inputs;
+% tweek the cross-validation condition
+cv_inputs.exps.exp_y0{1}=[0.2 0.89 1.5];  
+cv_inputs.exps.t_f{1}=300;                            
+cv_inputs.exps.t_s{1}=linspace(1,300,10); 
+cv_inputs.PEsol.global_theta_guess=[]; % remove guess parameters 
+
+    %%
+    % Use AMIGO_SData() to generate in-silico dataset
+    
+cv_data = AMIGO_SData(cv_inputs);
+cv_inputs.exps.exp_data =  cv_data.sim.exp_data;
+cv_inputs.exps.error_data =  cv_data.sim.error_data;
+
+    %%
+    % Cross-validate the regularized and the non-regularized models
+    
+cv_nonreg = AMIGO_CompareModels(inputs_noreg,cv_inputs,'min');
+cv_reg = AMIGO_CompareModels(inputs,cv_inputs,'min');
+
+    %%
+    % Compare results
+   
+    disp('Non-regularized Chi2 error:')
+    disp(cv_nonreg.Chi2)
+    disp('Regularized Chi2 error:')
+    disp(cv_reg.Chi2)                                                     
+
+%% 
+% note that results may change due to (1) the stochastic global
+% optimizer, (2) random numbers used to generate calibration and
+% cross-validation data. 
+
+%%
+%
+%% See also
+
+    %%
+    % * <doc_AMIGO_ivpsol.html IVP solvers>
+    % * <doc_AMIGO_nlpsol.html NLP solvers>
+    % * <doc_AMIGO_pecost.html Cost functions in PE>
+    % * <doc_AMIGO_PE.html How to solve the parameter estimation problem with constraints>
+    % * <doc_AMIGO_Input.html How to input a problem in AMIGO2>
+    % * <doc_AMIGO_pseudoData.html How to generate pseudo-experimental data>
+
+
+%% References
+
+%%
+%
+% Regularization technique is described in 
+%
+% HW Engl, M Hanke, and A Neubauer. Regularization of Inverse Problems. Dordrecht: Kluwer
+% Academic Publisher., 1996.
+%
+% A Gábor and JR Banga. Robust and efficient parameter estimation in dynamic models
+% of biological systems. BMC Systems Biology, 9(1):1–25, 2015.
+
+    AMIGO_htmldoc_inputs(inputs,fullfile(pwd,'html','parestreg.html'));   
+
+
+##### SOURCE END #####
+--></body></html>

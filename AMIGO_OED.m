@@ -163,8 +163,14 @@ end
     privstruct.n_control_const=sum(cell2mat(inputs.exps.n_control_const));
     privstruct.ntotal_constraints= privstruct.n_const_ineq_tf+privstruct.n_const_eq_tf+privstruct.n_control_const;
     if privstruct.ntotal_constraints >0
-    [results]=AMIGO_gen_constraints(inputs,results,privstruct);
+       [results]=AMIGO_gen_constraints(inputs,results,privstruct);
     end
+    inputs.pathd.constraints=results.pathd.constraints;
+    inputs.pathd.ssconstraints=results.pathd.ssconstraints;
+    inputs.pathd.constfile=results.pathd.constfile;
+    inputs.pathd.ss_constfile=results.pathd.ss_constfile;
+   
+    
     privstruct.ntotal_obsconstraints=inputs.OEDsol.n_obs_od; 
     privstruct.ntotal_tsconstraints=inputs.OEDsol.n_ts_od;
 

@@ -1,0 +1,53 @@
+function [uOp,SSR,time] = solve(evaluationFcn,x0,u0,theta,lb,ub,target,method,size)
+% method can be: 'multiStart','ms',     2larget     longest
+%                'particleswarm','ps',  2small      shortest
+%                'simulannealbnd','sa', maxerror    2longest
+%                'genetic','ga'         leasterror  2short
+
+rng('default');
+rng('shuffle');
+
+fcn=@(u) sum((evaluationFcn(x0,theta,u)-target).^2);
+switch (method)
+    case {'multiStart','ms'}
+        problem=createOptimProblem(...
+            'fmincon',...
+            'x0',u0,...
+            'objective',fcn,...
+            'lb',lb,...
+            'ub',ub);
+        ms=MultiStart;
+        ms.Display='off';
+        ms.UseParallel=true;
+        tic;
+        [uOp,SSR]=run(ms,problem,size);
+        time=toc;
+    case {'particleswarm','ps'}
+        options = optimoptions(...
+            'particleswarm',...
+            'SwarmSize',size,...
+            'Display','none',...
+            'HybridFcn',@fmincon);
+        tic;
+        [uOp,SSR]=particleswarm(fcn,length(u0),lb,ub,options);
+        time=toc;
+    case {'simulannealbnd','sa'}
+        options = optimoptions(...
+            'simulannealbnd',...
+            'Display','none',...
+            'HybridFcn',@fmincon);
+        tic;
+        [uOp,SSR]=simulannealbnd(fcn,u0,lb,ub,options);
+        time=toc;
+    case {'genetic','ga'}
+        options = optimoptions(...
+            'ga',...
+            'PopulationSize',size,...
+            'Display','none',...
+            'HybridFcn',@fmincon);
+        tic;
+        [uOp,SSR]=ga(fcn,length(u0),[],[],[],[],lb,ub,[],options);
+        time=toc;
+end
+
+end

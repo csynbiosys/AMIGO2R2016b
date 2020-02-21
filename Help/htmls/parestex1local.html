@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<head> <title>Comments on the inputs</title></head>
+<body>
+<style type="text/css">
+.tftable {font-size:12px;color:#333333;width:100%;border-width: 1px;border-color: #729ea5;border-collapse: collapse;}
+.tftable th {font-size:12px;background-color:#acc8cc;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;text-align:left;}
+.tftable tr {background-color:#d4e3e5;}
+.tftable td {font-size:12px;border-width: 1px;padding: 8px;border-style: solid;border-color: #729ea5;}
+.tftable tr:hover {background-color:#ffffff;}
+</style>
+<h1>Inputs</h1><table class="tftable" border="1">
+<tr>  <th>Field</th>  <th> Description</th> </tr>
+<tr><th colspan = "2">inputs</th></tr>
+<tr><th colspan = "2">inputs.PEsol</th></tr>
+<tr>	<td>inputs.PEsol.PEcost_type	<td>cost function type #PE	</tr>
+<tr>	<td>inputs.PEsol.global_theta_max	<td>upper bounds for global est. Parameters #PE	</tr>
+<tr>	<td>inputs.PEsol.global_theta_min	<td>lower bounds for global est. Parameters #PE	</tr>
+<tr>	<td>inputs.PEsol.id_global_theta	<td>estimated parameter name #PE	</tr>
+<tr>	<td>inputs.PEsol.lsq_type	<td>Least-squares cost type #PE	</tr>
+<tr><th colspan = "2">inputs.exps</th></tr>
+<tr>	<td>inputs.exps.const_ineq_tf	<td>#RED #MISSING	</tr>
+<tr>	<td>inputs.exps.data_type	<td>pseudo exp. Data gen.	</tr>
+<tr>	<td>inputs.exps.error_data	<td>std. Dev. of the error	</tr>
+<tr>	<td>inputs.exps.exp_data	<td>exp. Data	</tr>
+<tr>	<td>inputs.exps.exp_y0	<td>initial condition	</tr>
+<tr>	<td>inputs.exps.ineq_const_max_viol	<td>#RED #MISSING	</tr>
+<tr>	<td>inputs.exps.n_const_ineq_tf	<td>#RED #MISSING	</tr>
+<tr>	<td>inputs.exps.n_exp	<td>number of experiments	</tr>
+<tr>	<td>inputs.exps.n_obs	<td>number of observables	</tr>
+<tr>	<td>inputs.exps.n_pulses	<td>number of pulses in stimuli profile	</tr>
+<tr>	<td>inputs.exps.n_s	<td>number of sampling time	</tr>
+<tr>	<td>inputs.exps.obs	<td>observation equations	</tr>
+<tr>	<td>inputs.exps.obs_names	<td>observables names	</tr>
+<tr>	<td>inputs.exps.t_con	<td>time of input changing	</tr>
+<tr>	<td>inputs.exps.t_f	<td>final time for IVP	</tr>
+<tr>	<td>inputs.exps.u	<td>stimuli values	</tr>
+<tr>	<td>inputs.exps.u_interp	<td>stimuli profile (interpolation type)	</tr>
+<tr>	<td>inputs.exps.u_max	<td>max bounds on inputs	</tr>
+<tr>	<td>inputs.exps.u_min	<td>min bounds on inputs	</tr>
+<tr><th colspan = "2">inputs.model</th></tr>
+<tr>	<td>inputs.model.eqns	<td>char array containing the model eqns #Sim	</tr>
+<tr>	<td>inputs.model.input_model_type	<td>model description type #Sim	</tr>
+<tr>	<td>inputs.model.n_par	<td>number of parameters	</tr>
+<tr>	<td>inputs.model.n_st	<td>number of states	</tr>
+<tr>	<td>inputs.model.n_stimulus	<td>number of stimuli	</tr>
+<tr>	<td>inputs.model.par	<td>model parameter values	</tr>
+<tr>	<td>inputs.model.par_names	<td>model parameter names	</tr>
+<tr>	<td>inputs.model.st_names	<td>custom state names	</tr>
+<tr>	<td>inputs.model.stimulus_names	<td>stimuli names	</tr>
+<tr><th colspan = "2">inputs.nlpsol</th></tr>
+<tr>	<td>inputs.nlpsol.nlpsolver	<td>NLP solver algorithm	</tr>
+<tr><th colspan = "2">inputs.nlpsol.DE</th></tr>
+<tr>	<td>inputs.nlpsol.DE.NP	<td># of population members	</tr>
+<tr>	<td>inputs.nlpsol.DE.cvarmax	<td>max. Variance for population	</tr>
+<tr>	<td>inputs.nlpsol.DE.itermax	<td>max. # of iteration/generations	</tr>
+<tr>	<td>inputs.nlpsol.DE.strategy	<td>strategy	</tr>
+<tr><th colspan = "2">inputs.nlpsol.SRES</th></tr>
+<tr>	<td>inputs.nlpsol.SRES.NP	<td>population size	</tr>
+<tr>	<td>inputs.nlpsol.SRES.cvarmax	<td>convergence crit.	</tr>
+<tr>	<td>inputs.nlpsol.SRES.itermax	<td>max. # of iteration	</tr>
+<tr>	<td>inputs.nlpsol.SRES.pf	<td>pressure of fitness	</tr>
+<tr>	<td>inputs.nlpsol.SRES.varphi	<td>expected rate of convergence	</tr>
+<tr><th colspan = "2">inputs.nlpsol.eSS</th></tr>
+<tr>	<td>inputs.nlpsol.eSS.maxeval	<td>max. # of cost fun. Evaluation	</tr>
+<tr>	<td>inputs.nlpsol.eSS.maxtime	<td>max. CPU time (s)	</tr>
+<tr><th colspan = "2">inputs.nlpsol.eSS.local</th></tr>
+<tr>	<td>inputs.nlpsol.eSS.local.iterprint	<td>#RED #MISSING	</tr>
+<tr>	<td>inputs.nlpsol.eSS.local.solver	<td>local method	</tr>
+<tr><th colspan = "2">inputs.pathd</th></tr>
+<tr>	<td>inputs.pathd.results_folder	<td>Name of the folder to keep results for a given problem	</tr>
+<tr>	<td>inputs.pathd.short_name	<td>Short name, will be used to generate specific problem folders/files	</tr>
+</table></body>
+</html>

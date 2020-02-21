@@ -166,6 +166,8 @@ else
                 for iexp=ini_exp:fin_exp
                     eval(sprintf('%s',results.pathd.constraints))
                 end %for iexp=ini_exp:fin_exp
+                % add the defination of hh
+                hh{iexp}(1,1) = cviol;
                 hmat=cell2mat(hh);
                 h=reshape(hmat, numel(hmat),1);
             end
